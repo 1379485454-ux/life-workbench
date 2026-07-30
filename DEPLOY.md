@@ -85,7 +85,7 @@ localStorage 是**按域名/源隔离**的。换域名或换设备后，旧数�
 
 ## 七、连 Git 仓库 · 零配置部署（Railway / Render / Fly.io）
 
-适合「不想碰服务器、连上 Git 就自动部署 + HTTPS」的场景。三平台都靠 `package.json` 里的 `start` 脚本自动识别启动命令，端口读 `process.env.PORT`，**无需改代码**。
+适合「不想碰服务器、连上 Git 就自动部署 + HTTPS」的场景。三平台都靠 `package.json` 里的 `start` 脚本自动识别启动命令，端口读 `process.env.PORT`，**无需改代码**。仓库已附带 `render.yaml`（Render Blueprint），连接仓库后连启动命令都不用填，真正零配置。
 
 ### 准备（本机一次性，仓库已就绪）
 ```bash
