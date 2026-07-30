@@ -1,6 +1,6 @@
-/* 个人工作台 · Service Worker (离线缓存 App Shell) */
-const CACHE = 'workbench-v1';
-const ASSETS = [
+/* 个人工作台 · Service Worker (App Shell + 智能缓存) */
+const CACHE = 'workbench-v2';
+const PRE_CACHE = [
   '/',
   '/index.html',
   '/css/style.css',
@@ -13,8 +13,9 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
+  // 不阻塞 install：个别资源 404 也不影响整体
   e.waitUntil(
-    caches.open(CACHE).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE).then((c) => c.addAll(PRE_CACHE).catch(() => null)).then(() => self.skipWaiting())
   );
 });
 
@@ -33,21 +34,24 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== self.location.origin) return; // 跨域不处理
   if (url.pathname.startsWith('/api/')) return;     // 联网数据始终走网络
 
+  // HTML 导航：网络优先，离线兜底
   if (req.mode === 'navigate') {
     e.respondWith(fetch(req).catch(() => caches.match('/index.html')));
     return;
   }
 
+  // 静态资源：stale-while-revalidate（秒开 + 后台更新）
   e.respondWith(
-    caches.match(req).then((cached) => {
-      if (cached) return cached;
-      return fetch(req).then((res) => {
-        if (res && res.status === 200 && res.type === 'basic') {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy));
-        }
-        return res;
-      }).catch(() => cached);
-    })
+    caches.open(CACHE).then((cache) =>
+      cache.match(req).then((cached) => {
+        const network = fetch(req).then((res) => {
+          if (res && res.status === 200 && res.type === 'basic') {
+            cache.put(req, res.clone());
+          }
+          return res;
+        }).catch(() => cached);
+        return cached || network;
+      })
+    )
   );
 });
