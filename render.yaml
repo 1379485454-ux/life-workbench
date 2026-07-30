@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: my-workbench
+    runtime: node
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    healthCheckPath: "/"
+    env:
+      - key: NODE_ENV
+        value: production

@@ -1074,9 +1074,9 @@ async function loadBookRecommend() {
   const container = $('#bookRecommend'); if (!container) return;
   container.innerHTML = skelNews(8);
   try {
-    const books = await API.books();
-    if (!books || !books.length) { container.innerHTML = '<div class="loading-state">暂无推荐数据，请稍后刷新</div>'; return; }
-    container.innerHTML = `<div class="online-grid">${books.map(b => `<div class="online-card" onclick="window.open('${b.url}')"><div class="online-card-cover" style="background:#dbeafe;">📖</div><div class="online-card-title">${esc(b.title)}</div><div class="online-card-rate">${b.rate && b.rate !== '暂无' ? `⭐ ${b.rate}` : '暂无评分'}</div><button class="btn btn-outline btn-sm" style="margin-top:6px;width:100%;" onclick="event.stopPropagation();addBookFromDouban('${esc(b.title)}')">加入书架</button></div>`).join('')}</div>`;
+    const r = await API.books(); const books = r.items || [];
+    if (!books.length) { container.innerHTML = '<div class="loading-state">暂无推荐数据，请稍后刷新</div>'; return; }
+    container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="online-grid">${books.map(b => `<div class="online-card" onclick="window.open('${b.url}')"><div class="online-card-cover" style="background:#dbeafe;">📖</div><div class="online-card-title">${esc(b.title)}</div><div class="online-card-rate">${b.rate && b.rate !== '暂无' ? `⭐ ${b.rate}` : '暂无评分'}</div><button class="btn btn-outline btn-sm" style="margin-top:6px;width:100%;" onclick="event.stopPropagation();addBookFromDouban('${esc(b.title)}')">加入书架</button></div>`).join('')}</div>`;
   } catch (e) { container.innerHTML = '<div class="loading-state error">⚠️ 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadBookRecommend()">重试</button></div>'; }
 }
 function addBookFromDouban(title) {
@@ -1442,22 +1442,25 @@ Modules.video = () => {
   `;
 };
 ModuleHooks.video = () => { loadOnlineVideos(); };
+function fallbackBanner() {
+  return `<div class="fallback-banner"><span class="fallback-dot"></span>当前区域暂时无法直连国内数据源，已为你展示示例内容 · 在国内云或本机部署可恢复实时数据</div>`;
+}
 async function loadOnlineVideos() {
   const container = $('#videoOnline'); if (!container) return;
   const isBili = videoTab === 'bilibili';
   container.innerHTML = isBili ? skelGrid(6) : skelNews(12);
   try {
     if (isBili) {
-      const videos = await API.videos();
-      if (!videos || !videos.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
+      const r = await API.videos(); const videos = r.items || [];
+      if (!videos.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
       window._onlineVideos = videos;
-      container.innerHTML = `<div class="video-grid">${videos.slice(0, 12).map((v, i) => `<div class="video-card" onclick="window.open('${v.url}')"><div class="video-card-cover" style="background-image:url('${v.cover}')"><div class="video-card-duration">${Math.floor(v.duration/60)}:${String(v.duration%60).padStart(2,'0')}</div></div><div class="video-card-info"><div class="video-card-title">${esc(v.title)}</div><div class="video-card-meta"><span>▶ ${formatNum(v.views)}</span><span>❤ ${formatNum(v.likes)}</span><span>@${esc(v.author)}</span></div></div><button class="btn btn-outline btn-sm video-card-save" onclick="event.stopPropagation();saveVideoFromOnline(${i})">收藏分析</button></div>`).join('')}</div>`;
+      container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="video-grid">${videos.slice(0, 12).map((v, i) => `<div class="video-card" onclick="window.open('${v.url}')"><div class="video-card-cover" style="background-image:url('${v.cover}')"><div class="video-card-duration">${Math.floor(v.duration/60)}:${String(v.duration%60).padStart(2,'0')}</div></div><div class="video-card-info"><div class="video-card-title">${esc(v.title)}</div><div class="video-card-meta"><span>▶ ${formatNum(v.views)}</span><span>❤ ${formatNum(v.likes)}</span><span>@${esc(v.author)}</span></div></div><button class="btn btn-outline btn-sm video-card-save" onclick="event.stopPropagation();saveVideoFromOnline(${i})">收藏分析</button></div>`).join('')}</div>`;
     } else {
-      const items = await API.douyin();
-      if (!items || !items.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
+      const r = await API.douyin(); const items = r.items || [];
+      if (!items.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
       window._onlineDouyin = items;
       const labelMap = { 1:'🆕', 2:'🔥', 3:'💥', 4:'⭐' };
-      container.innerHTML = `<div class="news-list">${items.slice(0, 20).map((item, i) => `<div class="news-item" onclick="window.open('${item.url}')"><div class="news-rank rank-${i<3?'top':'normal'}">${i+1}</div><div class="news-content"><div class="news-title">${labelMap[item.label]||''} ${esc(item.title)}</div><div class="news-hot">🔥 ${formatNum(item.hot)}</div></div><button class="btn-icon" onclick="event.stopPropagation();saveDouyinHot(${i})" title="收藏">⭐</button></div>`).join('')}</div>`;
+      container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="news-list">${items.slice(0, 20).map((item, i) => `<div class="news-item" onclick="window.open('${item.url}')"><div class="news-rank rank-${i<3?'top':'normal'}">${i+1}</div><div class="news-content"><div class="news-title">${labelMap[item.label]||''} ${esc(item.title)}</div><div class="news-hot">🔥 ${formatNum(item.hot)}</div></div><button class="btn-icon" onclick="event.stopPropagation();saveDouyinHot(${i})" title="收藏">⭐</button></div>`).join('')}</div>`;
     }
   } catch (e) { container.innerHTML = `<div class="loading-state error">⚠️ 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineVideos()">重试</button></div>`; }
 }
@@ -1496,10 +1499,10 @@ async function loadOnlineNews() {
   const container = $('#newsOnline'); if (!container) return;
   container.innerHTML = skelNews(10);
   try {
-    const news = await API.news();
-    if (!news || !news.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
+    const r = await API.news(); const news = r.items || [];
+    if (!news.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
     window._onlineNews = news;
-    container.innerHTML = `<div class="news-list">${news.map((n, i) => `<div class="news-item" onclick="window.open('${n.url}')"><div class="news-rank ${i<3?'top':''}">${i+1}</div><div class="news-item-content"><div class="news-item-title">${esc(n.title)}</div>${n.hot ? `<div class="news-item-hot">🔥 ${formatNum(n.hot)}</div>` : ''}</div><button class="btn-icon news-save-btn" onclick="event.stopPropagation();saveNewsFromOnline(${i})" title="收藏">⭐</button></div>`).join('')}</div>`;
+    container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="news-list">${news.map((n, i) => `<div class="news-item" onclick="window.open('${n.url}')"><div class="news-rank ${i<3?'top':''}">${i+1}</div><div class="news-item-content"><div class="news-item-title">${esc(n.title)}</div>${n.hot ? `<div class="news-item-hot">🔥 ${formatNum(n.hot)}</div>` : ''}</div><button class="btn-icon news-save-btn" onclick="event.stopPropagation();saveNewsFromOnline(${i})" title="收藏">⭐</button></div>`).join('')}</div>`;
   } catch (e) { container.innerHTML = '<div class="loading-state error">⚠️ 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineNews()">重试</button></div>'; }
 }
 function saveNewsFromOnline(idx) {
@@ -1533,10 +1536,10 @@ async function loadOnlineDramas() {
   const container = $('#dramaOnline'); if (!container) return;
   container.innerHTML = skelGrid(6);
   try {
-    const items = dramaOnlineTab === 'tv' ? await API.dramas() : await API.movies();
-    if (!items || !items.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
+    const r = dramaOnlineTab === 'tv' ? await API.dramas() : await API.movies(); const items = r.items || [];
+    if (!items.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
     window._onlineDramas = items;
-    container.innerHTML = `<div class="online-grid">${items.map((d, i) => `<div class="online-card" onclick="window.open('${d.url}')"><div class="online-card-cover" style="background-image:url('${d.cover}');background-size:cover;background-position:center;"></div><div class="online-card-title">${esc(d.title)}</div><div class="online-card-rate">${d.rate && d.rate !== '暂无' ? `⭐ ${d.rate}` : '暂无评分'}</div>${d.episodes ? `<div class="online-card-ep">${esc(d.episodes)}</div>` : ''}<button class="btn btn-outline btn-sm" style="margin-top:6px;width:100%;" onclick="event.stopPropagation();addDramaFromOnline(${i})">加入追剧</button></div>`).join('')}</div>`;
+    container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="online-grid">${items.map((d, i) => `<div class="online-card" onclick="window.open('${d.url}')"><div class="online-card-cover" style="background-image:url('${d.cover}');background-size:cover;background-position:center;"></div><div class="online-card-title">${esc(d.title)}</div><div class="online-card-rate">${d.rate && d.rate !== '暂无' ? `⭐ ${d.rate}` : '暂无评分'}</div>${d.episodes ? `<div class="online-card-ep">${esc(d.episodes)}</div>` : ''}<button class="btn btn-outline btn-sm" style="margin-top:6px;width:100%;" onclick="event.stopPropagation();addDramaFromOnline(${i})">加入追剧</button></div>`).join('')}</div>`;
   } catch (e) { container.innerHTML = '<div class="loading-state error">⚠️ 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineDramas()">重试</button></div>'; }
 }
 function addDramaFromOnline(idx) {
