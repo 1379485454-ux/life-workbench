@@ -2277,3 +2277,29 @@ input:focus, select:focus, textarea:focus {
 /* 空封面渐变底（兜底数据 cover 为空时也好看） */
 .video-card-cover { background: linear-gradient(135deg, #6a8dff, #9b6bff); }
 .online-card-cover { background: linear-gradient(135deg, #6a8dff, #9b6bff); }
+
+/* ===== 云端同步状态徽标 ===== */
+#wbSyncBadge {
+  position: fixed; right: 12px; bottom: calc(72px + env(safe-area-inset-bottom));
+  z-index: 60; display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 999px;
+  background: rgba(20,22,34,0.78); color: #cdd3e0;
+  font-size: 11px; font-weight: 600; letter-spacing: .3px;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.28); border: 1px solid rgba(255,255,255,0.08);
+  cursor: default; user-select: none;
+}
+#wbSyncBadge .dot { width: 8px; height: 8px; border-radius: 50%; background: #94a3b8; flex: 0 0 auto; }
+#wbSyncBadge.wb-sync-ok .dot { background: #22c55e; box-shadow: 0 0 8px rgba(34,197,94,.7); }
+#wbSyncBadge.wb-sync-ok .txt { color: #a7f3d0; }
+#wbSyncBadge.wb-sync-connecting .dot { background: #f59e0b; animation: syncPulse 1.2s infinite; }
+#wbSyncBadge.wb-sync-syncing .dot { background: #38bdf8; animation: syncPulse .8s infinite; }
+#wbSyncBadge.wb-sync-syncing .txt { color: #bae6fd; }
+#wbSyncBadge.wb-sync-error .dot { background: #ef4444; }
+#wbSyncBadge.wb-sync-error .txt { color: #fecaca; }
+@keyframes syncPulse {
+  0% { box-shadow: 0 0 0 0 rgba(245,158,11,0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(245,158,11,0); }
+  100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
+}
+@media (prefers-reduced-motion: reduce) { #wbSyncBadge .dot { animation: none !important; } }

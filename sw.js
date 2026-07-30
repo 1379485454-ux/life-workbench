@@ -4,6 +4,8 @@ const PRE_CACHE = [
   '/',
   '/index.html',
   '/css/style.css',
+  '/js/supabase.min.js',
+  '/js/sync.js',
   '/js/app.js',
   '/js/charts.js',
   '/icon-192.png',

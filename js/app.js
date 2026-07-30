@@ -1995,8 +1995,9 @@ function importBackup(file) {
       UI.confirm(`导入将覆盖当前所有本地数据（共 ${Object.keys(data).length} 项），确定继续吗？`, () => {
         let n = 0;
         for (const k in data) { if (k.startsWith('wb_')) { localStorage.setItem(k, JSON.stringify(data[k])); n++; } }
+        if (window.wbSync && window.wbSync.enabled) window.wbSync.pushAll();
         toast(`已导入 ${n} 项数据，即将刷新页面...`, 'success');
-        setTimeout(() => location.reload(), 800);
+        setTimeout(() => location.reload(), 1500);
       });
     } catch (e) { toast('导入失败：' + e.message, 'error'); }
   };
@@ -2039,6 +2040,12 @@ function init() {
   attachRipple();
   Game.init();
   Nav.init();
+  // 云端实时同步：远端变更到达时重渲染当前视图（输入框聚焦时不打断）
+  window.addEventListener('wb:remote', () => {
+    const a = document.activeElement;
+    if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)) return;
+    if (typeof Nav !== 'undefined' && Nav.refresh) Nav.refresh();
+  });
   Game.renderSidebar();
   Clock.start();
   Nav.switchTo('home');
