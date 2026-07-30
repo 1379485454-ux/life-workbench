@@ -1,0 +1,8 @@
+node_modules
+ssl
+*.exe
+*.log
+.git
+.gitignore
+gen_icon.py
+.DS_Store

@@ -1,0 +1,16 @@
+{
+  "name": "个人工作台 · My Workbench",
+  "short_name": "工作台",
+  "description": "融合习惯养成、阅读、运动、理财与灵感收集的个性化成长工作台",
+  "lang": "zh-CN",
+  "start_url": "/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b1020",
+  "theme_color": "#2563eb",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "my-workbench",
+  "version": "1.0.0",
+  "private": true,
+  "description": "个人工作台 - 纯前端 SPA + Node 代理服务器（云就绪，零配置部署）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

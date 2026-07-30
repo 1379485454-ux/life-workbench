@@ -1,0 +1,23 @@
+# 依赖
+node_modules/
+
+# 本地证书与密钥（含私钥，切勿提交到仓库）
+ssl/
+*.pem
+*.key
+
+# 平台安装包 / 二进制（重新下载即可，体积大且平台相关）
+*.exe
+cloudflared
+
+# 环境变量 / 密钥
+.env
+.env.*
+
+# 系统文件
+.DS_Store
+Thumbs.db
+npm-debug.log*
+
+# 仅本机用的本地部署脚本（云上不需要）
+setup-tailscale.bat
