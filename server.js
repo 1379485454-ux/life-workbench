@@ -477,9 +477,26 @@ function shouldSyncKey(k) {
   return typeof k === 'string' && k.charAt(0) === 'w' && k.charAt(1) === 'b' && k.charAt(2) === '_' && k !== '_wb_sync_meta';
 }
 
+// ===== CORS 预检（浏览器 POST JSON 前会先发 OPTIONS）=====
+function sendCorsPreflight(res) {
+  res.writeHead(204, {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Weread-Cookie',
+    'Access-Control-Max-Age': '86400',
+  });
+  res.end();
+}
+
 // ===== 服务器 =====
 const requestHandler = async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
+
+  // 浏览器对 application/json 的 POST 会先发送 OPTIONS 预检
+  if (req.method === 'OPTIONS' && url.pathname.startsWith('/api/')) {
+    sendCorsPreflight(res);
+    return;
+  }
 
   // API 路由
   if (url.pathname.startsWith('/api/')) {

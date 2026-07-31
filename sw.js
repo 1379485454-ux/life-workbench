@@ -1,10 +1,9 @@
 /* 个人工作台 · Service Worker (App Shell + 智能缓存 + 后台同步) */
-const CACHE = 'workbench-v3';
+const CACHE = 'workbench-v4';
 const PRE_CACHE = [
   '/',
   '/index.html',
   '/css/style.css',
-  '/js/supabase.min.js',
   '/js/sync.js',
   '/js/app.js',
   '/js/charts.js',
