@@ -278,6 +278,37 @@ const FALLBACK = {
   ],
 };
 
+// ===== 自建轻量同步后端（替代海外 Supabase，同源、国内快、数据私有）=====
+// 存储：data/kv_store.json —— 结构 { userId: { key: { value, updated_at } } }
+const SYNC_USER_ID = 'edys-workbench'; // 与前端 sync.js 保持一致（多端共用即实现多端同步）
+const DATA_DIR = path.join(ROOT, 'data');
+const KV_FILE = path.join(DATA_DIR, 'kv_store.json');
+let kvStore = null; // 懒加载缓存
+
+function loadKV() {
+  if (kvStore) return kvStore;
+  try { kvStore = JSON.parse(fs.readFileSync(KV_FILE, 'utf8')); }
+  catch { kvStore = {}; }
+  return kvStore;
+}
+function saveKV() {
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.writeFileSync(KV_FILE, JSON.stringify(kvStore));
+  } catch (e) { console.error('[sync] 写入失败:', e.message); }
+}
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.on('data', c => { data += c; if (data.length > 5 * 1024 * 1024) req.destroy(); });
+    req.on('end', () => {
+      if (!data) return resolve({});
+      try { resolve(JSON.parse(data)); } catch { reject(new Error('Invalid JSON body')); }
+    });
+    req.on('error', reject);
+  });
+}
+
 // ===== API 处理器 =====
 const handlers = {
   '/api/news': async () => safeFetch('news',
@@ -400,7 +431,51 @@ const handlers = {
     cache.clear();
     return { ok: true, msg: '缓存已清除' };
   },
+
+  // ===== 自建同步后端 =====
+  '/api/sync': async (req, res, url) => {
+    const userId = url.searchParams.get('user_id') || SYNC_USER_ID;
+    if (req.method === 'GET') {
+      const since = parseInt(url.searchParams.get('since') || '0', 10) || 0;
+      const db = loadKV();
+      const user = db[userId] || {};
+      const items = [];
+      let maxTs = 0;
+      for (const k in user) {
+        const rec = user[k];
+        if (rec.updated_at > since) items.push({ key: k, value: rec.value, updated_at: rec.updated_at });
+        if (rec.updated_at > maxTs) maxTs = rec.updated_at;
+      }
+      return { items, maxTs, serverTime: Date.now() };
+    }
+    if (req.method === 'POST') {
+      const body = await readBody(req);
+      const uid = body.user_id || userId;
+      const items = Array.isArray(body.items) ? body.items : [];
+      const deletes = Array.isArray(body.deletes) ? body.deletes : [];
+      const db = loadKV();
+      if (!db[uid]) db[uid] = {};
+      let now = Date.now();
+      items.forEach(it => {
+        if (!it || !it.key || !shouldSyncKey(it.key)) return;
+        const ts = it.updated_at || now;
+        db[uid][it.key] = { value: it.value, updated_at: ts };
+        if (ts > now) now = ts;
+      });
+      deletes.forEach(k => { if (shouldSyncKey(k)) delete db[uid][k]; });
+      saveKV();
+      return { maxTs: now, serverTime: Date.now() };
+    }
+    res.writeHead(405, { 'Content-Type': 'text/plain' });
+    res.end('Method Not Allowed');
+    return null;
+  },
 };
+
+// 与前端同步键规则保持一致：仅 wb_ 前缀且非元信息键参与同步
+function shouldSyncKey(k) {
+  return typeof k === 'string' && k.charAt(0) === 'w' && k.charAt(1) === 'b' && k.charAt(2) === '_' && k !== '_wb_sync_meta';
+}
 
 // ===== 服务器 =====
 const requestHandler = async (req, res) => {
