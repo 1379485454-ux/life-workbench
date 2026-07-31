@@ -2123,7 +2123,7 @@ Modules.backup = () => {
   return `
     <div class="card">
       <div class="card-title">☁️ 云端同步状态</div>
-      <div class="card-subtitle">所有 <b>wb_</b> 开头的本地数据会自动同步到 Supabase 云端，多设备实时同步。</div>
+      <div class="card-subtitle">所有 <b>wb_</b> 开头的本地数据会自动同步到服务器（同源 <code>/api/sync</code>），手机与电脑实时同步。首次在新设备打开时，数据会自动从服务器合并下来。</div>
       <div class="backup-stat">
         <span id="syncStatusText">检测中...</span>
         <span id="syncItemCount"></span>

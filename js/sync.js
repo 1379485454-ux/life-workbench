@@ -74,6 +74,8 @@
     queue = {};
     flushItems(rows);
   }
+  function unwrap(resp) { return (resp && resp.ok === true && typeof resp.data === 'object') ? resp.data : resp; }
+
   function flushItems(rows) {
     if (!rows || !rows.length) return;
     setStatus('syncing', '同步中');
@@ -84,7 +86,8 @@
     })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (d) {
-        if (d && d.maxTs) { lastTs = Math.max(lastTs, d.maxTs); online = true; setStatus('ok', '已同步'); }
+        d = unwrap(d);
+        if (d && typeof d.maxTs === 'number') { lastTs = Math.max(lastTs, d.maxTs); online = true; setStatus('ok', '已同步'); }
         else { setStatus('error', '同步失败'); scheduleRetry(); }
       })
       .catch(function (e) {
@@ -128,6 +131,7 @@
     fetch(API + '?since=' + lastTs, { method: 'GET' })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (d) {
+        d = unwrap(d);
         if (!d) { schedulePullRetry(); return; }
         pullRetryCount = 0;
         applyItems(d.items, d.maxTs);
@@ -175,6 +179,7 @@
     fetch(API + '?since=0', { method: 'GET' })
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (d) {
+        d = unwrap(d);
         if (d && typeof d.maxTs !== 'undefined') {
           ready = true; online = true;
           seedLocalMeta();
