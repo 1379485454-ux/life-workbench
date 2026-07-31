@@ -1819,8 +1819,10 @@ input:focus, select:focus, textarea:focus {
   .date-nav .btn-icon { width: 34px; height: 34px; }
   .nav-group-title { display: none; }
   .nav-item { margin: 0 2px; }
-  .header-left { gap: 0; }
+  .header-left { flex-direction: row; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+  .header-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .header-greeting { display: none; }
+  .header-right { flex-shrink: 0; gap: 10px; }
   .header-avatar { width: 32px; height: 32px; font-size: 12px; }
   .dash-hero { padding: 18px 16px; border-radius: 18px; }
   .dash-clock-time { font-size: 30px; }
