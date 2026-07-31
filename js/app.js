@@ -245,6 +245,8 @@ const Game = {
         <div class="sidebar-attrs">${attrHtml}</div>
         <div class="sidebar-game-bottom">✅ ${d.totalCheckIns} 打卡 · 📋 ${d.totalTasksDone} 任务 · 🍅 ${d.pomodoros} 番茄</div>
       </div>`;
+    // 同时更新移动端状态栏
+    if (Nav.isMobile && Nav.isMobile()) Nav.renderMobileStatusBar();
   },
 };
 
@@ -429,29 +431,85 @@ function attachRipple() {
 const Nav = {
   current: 'home',
   scrollPositions: {},
+  _mobileCores: ['home', 'plan', 'read', 'pomo'],
+  isMobile: function() { return window.innerWidth <= 768; },
   init() {
+    this.renderNav();
+    window.addEventListener('resize', () => { this.renderNav(); });
+  },
+  renderNav() {
     const nav = $('#sidebarNav');
-    let html = '', lastGroup = null;
-    MENU.forEach((m, i) => {
-      if (m.group !== lastGroup && m.group !== 'main') {
-        html += `<div class="nav-group-title">${GROUP_NAMES[m.group] || m.group}</div>`;
-        lastGroup = m.group;
-      }
-      html += `<button class="nav-item ${m.id === 'home' ? 'active' : ''}" data-module="${m.id}">${m.icon}<span>${m.name}</span></button>`;
+    const mobile = this.isMobile();
+    if (mobile) {
+      // 移动端底部栏：4 个核心入口 + 更多
+      const coreItems = MENU.filter(m => this._mobileCores.includes(m.id));
+      let html = '';
+      coreItems.forEach(m => {
+        html += `<button class="nav-item ${m.id === this.current ? 'active' : ''}" data-module="${m.id}">${m.icon}<span>${m.name}</span></button>`;
+      });
+      // 高亮「更多」如果有非核心模块正在激活
+      const isMoreActive = this._mobileCores.indexOf(this.current) === -1;
+      html += `<button class="nav-item nav-more-btn ${isMoreActive ? 'active' : ''}" data-action="more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg><span>更多</span></button>`;
+      nav.innerHTML = html;
+      // 绑定事件
+      nav.onclick = (e) => {
+        const btn = e.target.closest('.nav-item');
+        if (!btn) return;
+        if (btn.dataset.action === 'more') {
+          this.toggleMobileMore();
+          return;
+        }
+        if (btn.dataset.module) this.switchTo(btn.dataset.module);
+      };
+    } else {
+      // 桌面端：完整菜单 + 分组标题
+      let html = '', lastGroup = null;
+      MENU.forEach((m, i) => {
+        if (m.group !== lastGroup && m.group !== 'main') {
+          html += `<div class="nav-group-title">${GROUP_NAMES[m.group] || m.group}</div>`;
+          lastGroup = m.group;
+        }
+        html += `<button class="nav-item ${m.id === this.current ? 'active' : ''}" data-module="${m.id}">${m.icon}<span>${m.name}</span></button>`;
+      });
+      nav.innerHTML = html;
+      nav.onclick = (e) => { const btn = e.target.closest('.nav-item'); if (btn && btn.dataset.module) this.switchTo(btn.dataset.module); };
+    }
+  },
+  toggleMobileMore() {
+    let overlay = document.getElementById('mobileMoreOverlay');
+    if (overlay) { overlay.remove(); return; }
+    const allModules = MENU.filter(m => !Nav._mobileCores.includes(m.id));
+    let itemsHtml = allModules.map(m => 
+      `<button class="more-menu-item" data-module="${m.id}">${m.icon}<span>${m.name}</span></button>`
+    ).join('');
+    overlay = document.createElement('div');
+    overlay.id = 'mobileMoreOverlay';
+    overlay.className = 'mobile-more-overlay';
+    overlay.innerHTML = `<div class="mobile-more-panel"><div class="mobile-more-header"><span>更多功能</span><button class="mobile-more-close" onclick="document.getElementById('mobileMoreOverlay').remove()">✕</button></div><div class="mobile-more-items">${itemsHtml}</div></div>`;
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) overlay.remove();
+      const item = e.target.closest('.more-menu-item');
+      if (item) { overlay.remove(); Nav.switchTo(item.dataset.module); }
     });
-    nav.innerHTML = html;
-    nav.addEventListener('click', e => { const btn = e.target.closest('.nav-item'); if (btn) this.switchTo(btn.dataset.module); });
+    document.body.appendChild(overlay);
   },
   switchTo(id) {
     if (this.current) this.scrollPositions[this.current] = $('#content').scrollTop;
     this.current = id;
     $$('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.module === id));
+    // 移动端：如果切换到非核心模块，高亮「更多」
+    if (this.isMobile()) {
+      const moreBtn = document.querySelector('.nav-more-btn');
+      if (moreBtn) moreBtn.classList.toggle('active', !this._mobileCores.includes(id));
+    }
     const mod = MENU.find(m => m.id === id);
-    $('#mainHeader').innerHTML = `<div class="header-left"><div class="header-greeting" id="headerGreeting">你好 👋</div><div class="header-title">${mod.icon} ${mod.name}</div></div><div class="header-right"><span class="header-date" id="headerDate">📅</span><button class="header-theme-toggle" id="themeToggle" onclick="Theme.toggle()" title="切换亮色/暗色">${Theme.current === 'dark' ? '☀️' : '🌙'}</button><div class="header-avatar" id="headerAvatar" title="EDY">ED</div></div>`;
+    const mobileBar = this.isMobile() ? `<div class="mobile-status-bar" id="mobileStatusBar"></div>` : '';
+    $('#mainHeader').innerHTML = `<div class="header-left"><div class="header-greeting" id="headerGreeting">你好 👋</div><div class="header-title">${mod.icon} ${mod.name}</div></div><div class="header-right"><span class="header-date" id="headerDate">📅</span><button class="header-theme-toggle" id="themeToggle" onclick="Theme.toggle()" title="切换亮色/暗色">${Theme.current === 'dark' ? '☀️' : '🌙'}</button><div class="header-avatar" id="headerAvatar" title="EDY">ED</div></div>${mobileBar}`;
     const renderer = Modules[id];
     $('#content').innerHTML = renderer ? renderer() : '<div class="empty-state"><div class="empty-state-icon">🚧</div><div class="empty-state-text">功能开发中...</div></div>';
     if (ModuleHooks[id]) ModuleHooks[id]();
     Clock.tick();
+    if (this.isMobile()) this.renderMobileStatusBar();
     $('#content').scrollTop = this.scrollPositions[id] || 0;
   },
   refresh() {
@@ -460,6 +518,20 @@ const Nav = {
     const renderer = Modules[id];
     if (renderer) { $('#content').innerHTML = renderer(); if (ModuleHooks[id]) ModuleHooks[id](); $('#content').scrollTop = scrollPos; }
     Clock.tick();
+    if (this.isMobile()) this.renderMobileStatusBar();
+  },
+  renderMobileStatusBar() {
+    const bar = $('#mobileStatusBar');
+    if (!bar) return;
+    const d = Game.data;
+    bar.innerHTML = `
+      <div class="mobile-status-item"><span class="mobile-status-lv">⭐ Lv.${d.level}</span></div>
+      <div class="mobile-status-item"><span class="mobile-status-coins">🪙 ${d.coins}</span></div>
+      <div class="mobile-status-item"><span class="mobile-status-hp">❤️ ${d.health}</span></div>
+      <div class="mobile-status-item"><span class="mobile-status-streak">🔥 ${d.streak}天</span></div>
+      <div class="mobile-status-item">📋 ${d.totalTasksDone}</div>
+      <button class="mobile-status-item" onclick="Nav.switchTo('backup')" style="cursor:pointer;border:none;">☁️ 同步</button>
+    `;
   },
 };
 
@@ -2018,6 +2090,19 @@ Modules.backup = () => {
   const sizeKB = (JSON.stringify(data).length / 1024).toFixed(1);
   return `
     <div class="card">
+      <div class="card-title">☁️ 云端同步状态</div>
+      <div class="card-subtitle">所有 <b>wb_</b> 开头的本地数据会自动同步到 Supabase 云端，多设备实时同步。</div>
+      <div class="backup-stat">
+        <span id="syncStatusText">检测中...</span>
+        <span id="syncItemCount"></span>
+      </div>
+      <div class="backup-actions">
+        <button class="btn btn-primary" onclick="manualSync()" id="btnManualSync">🔄 立即同步</button>
+        <button class="btn btn-outline" onclick="forcePullAll()">⬇️ 从云端拉取</button>
+      </div>
+      <div class="backup-tip" id="syncTip">💡 首次使用多设备同步？先在旧设备打开一次工作台（会自动推送数据），然后在新设备打开即可看到同步的数据。右下角的同步状态图标可实时查看连接状态。</div>
+    </div>
+    <div class="card" style="margin-top:16px;">
       <div class="card-title">💾 数据备份与迁移</div>
       <div class="card-subtitle">工作台的所有数据都保存在本浏览器本地（localStorage）。换设备、部署到云服务器后，用下方功能把数据带走。</div>
       <div class="backup-stat"><span>📦 当前数据项：<b>${keys.length}</b></span><span>📏 约占用：<b>${sizeKB} KB</b></span></div>
@@ -2032,7 +2117,89 @@ Modules.backup = () => {
 ModuleHooks.backup = () => {
   const inp = $('#backupFile');
   if (inp) inp.addEventListener('change', e => { importBackup(e.target.files[0]); e.target.value = ''; });
+  updateSyncStatusUI();
+  // 每 3 秒刷新同步状态
+  const syncUIInterval = setInterval(() => {
+    const el = $('#syncStatusText');
+    if (!el) { clearInterval(syncUIInterval); return; }
+    updateSyncStatusUI();
+  }, 3000);
 };
+
+// 云端同步辅助函数
+function updateSyncStatusUI() {
+  var el = $('#syncStatusText');
+  var elCount = $('#syncItemCount');
+  if (!el) return;
+  try {
+    var badge = document.getElementById('wbSyncBadge');
+    var status = badge ? badge.className : '';
+    var txt = badge ? (badge.querySelector('.txt') || {}).textContent || '未知' : '未检测到';
+    el.textContent = '📡 状态：' + txt;
+    if (status.indexOf('ok') >= 0) el.style.color = '#10b981';
+    else if (status.indexOf('error') >= 0) el.style.color = '#ef4444';
+    else if (status.indexOf('syncing') >= 0 || status.indexOf('connecting') >= 0) el.style.color = '#f59e0b';
+    // 统计云端可同步的数据项数量
+    var count = 0;
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.charAt(0) === 'w' && k.charAt(1) === 'b' && k.charAt(2) === '_' && k !== '_wb_sync_meta') count++;
+    }
+    if (elCount) elCount.textContent = '📊 本地可同步项：' + count;
+  } catch(e) {}
+}
+window.manualSync = function() {
+  if (window.wbSync && window.wbSync.enabled) {
+    window.wbSync.pushAll();
+    toast('🔄 正在同步数据到云端...', 'success');
+    // 延迟刷新状态
+    setTimeout(updateSyncStatusUI, 1500);
+  } else {
+    toast('⚠️ 云端同步未就绪，请检查网络连接', 'error');
+  }
+};
+window.forcePullAll = function() {
+  if (window.wbSync && window.wbSync.enabled) {
+    // 触发重新拉取（底层 sync.js 有 pullRetryCount 控制，这里直接刷新页面最快）
+    location.reload();
+  } else {
+    toast('⚠️ 云端同步未就绪，请检查网络连接', 'error');
+  }
+};
+
+// ===== 移动端滑动手势 =====
+function initSwipeGesture() {
+  if (window.innerWidth > 768) return; // 仅移动端
+  var touchStartX = 0, touchStartY = 0, touchMoved = false;
+  var content = $('#content');
+  if (!content) return;
+  content.addEventListener('touchstart', function(e) {
+    if (e.touches.length !== 1) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchMoved = false;
+  }, { passive: true });
+  content.addEventListener('touchmove', function(e) {
+    if (e.touches.length !== 1) return;
+    touchMoved = true;
+  }, { passive: true });
+  content.addEventListener('touchend', function(e) {
+    if (!touchMoved) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    var dy = e.changedTouches[0].clientY - touchStartY;
+    // 忽略垂直滑动和过小的水平滑动
+    if (Math.abs(dy) > Math.abs(dx) || Math.abs(dx) < 60) return;
+    // 构建移动端模块顺序
+    var mobileOrder = Nav._mobileCores.concat(MENU.filter(function(m) { return Nav._mobileCores.indexOf(m.id) === -1; }).map(function(m) { return m.id; }));
+    var idx = mobileOrder.indexOf(Nav.current);
+    if (dx > 0 && idx > 0) Nav.switchTo(mobileOrder[idx - 1]); // 右滑回上一个
+    else if (dx < 0 && idx < mobileOrder.length - 1) Nav.switchTo(mobileOrder[idx + 1]); // 左滑到下一个
+  });
+  // 窗口大小变化时重新判断
+  window.addEventListener('resize', function() {
+    if (window.innerWidth <= 768) initSwipeGesture();
+  });
+}
 
 // ===== 初始化 =====
 function init() {
@@ -2040,15 +2207,30 @@ function init() {
   attachRipple();
   Game.init();
   Nav.init();
+  // 移动端左右滑动手势切换模块
+  initSwipeGesture();
   // 云端实时同步：远端变更到达时重渲染当前视图（输入框聚焦时不打断）
   window.addEventListener('wb:remote', () => {
     const a = document.activeElement;
     if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)) return;
+    Game.init(); // 刷新游戏数据
     if (typeof Nav !== 'undefined' && Nav.refresh) Nav.refresh();
   });
   Game.renderSidebar();
   Clock.start();
   Nav.switchTo('home');
+  // 初始化后推本地数据上云（延迟执行，等 sync.js 就绪）
+  setTimeout(() => {
+    if (window.wbSync && window.wbSync.enabled) {
+      window.wbSync.pushAll();
+    }
+  }, 2000);
+  // 定期自动推送（每30秒检查一次，防止定时器遗漏）
+  setInterval(() => {
+    if (window.wbSync && window.wbSync.enabled) {
+      window.wbSync.pushAll();
+    }
+  }, 30000);
   if (Game.data.totalCheckIns === 0 && !Game.hasCheckedInToday()) {
     setTimeout(() => toast('欢迎来到个人工作台！记得每天打卡哦 📍', 'success'), 500);
   }
@@ -2058,6 +2240,15 @@ function init() {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js').catch(() => {});
     });
+  }
+  // 移动端首次滑动提示
+  if (window.innerWidth <= 768 && !localStorage.getItem('wb_swipe_hint_shown')) {
+    var hint = document.createElement('div');
+    hint.className = 'swipe-hint';
+    hint.textContent = '👈 左右滑动切换模块 👉';
+    document.body.appendChild(hint);
+    setTimeout(function() { if (hint.parentNode) hint.remove(); }, 3500);
+    localStorage.setItem('wb_swipe_hint_shown', '1');
   }
 }
 

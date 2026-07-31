@@ -19,5 +19,8 @@ cloudflared
 Thumbs.db
 npm-debug.log*
 
+# WorkBuddy 本地工作区数据（非项目代码，勿提交）
+.workbuddy/
+
 # 仅本机用的本地部署脚本（云上不需要）
 setup-tailscale.bat

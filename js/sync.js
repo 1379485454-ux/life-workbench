@@ -76,12 +76,21 @@
   }
 
   /* ---------- 拉取云端合并 ---------- */
+  var pullRetryCount = 0;
+  var pullRetryTimer = null;
+  var MAX_PULL_RETRIES = 5;
   function pullAll() {
-    if (!ready) return;
+    if (!ready || !client) return;
     client.from('kv_store').select('*').eq('user_id', USER_ID).then(function (r) {
-      if (r.error) { setStatus('error', '拉取失败'); return; }
+      if (r.error) { 
+        setStatus('error', '拉取失败');
+        schedulePullRetry();
+        return; 
+      }
+      pullRetryCount = 0; // 成功则重置
       var meta = getMeta();
       var changed = false;
+      var pulledCount = 0;
       (r.data || []).forEach(function (row) {
         var localTs = meta[row.key] || 0;
         if (row.updated_at > localTs) {
@@ -89,11 +98,23 @@
           _setItem.call(localStorage, row.key, str); // 用原始方法写，避免回推
           meta[row.key] = row.updated_at;
           changed = true;
+          pulledCount++;
         }
       });
       try { localStorage.setItem(META_KEY, JSON.stringify(meta)); } catch (e) {}
-      if (changed) { window.dispatchEvent(new CustomEvent('wb:remote', { detail: { reason: 'pull' } })); }
-    }).catch(function () {});
+      if (changed) { 
+        setStatus('ok', '已同步 ' + pulledCount + ' 项');
+        window.dispatchEvent(new CustomEvent('wb:remote', { detail: { reason: 'pull', count: pulledCount } })); 
+      }
+    }).catch(function () { schedulePullRetry(); });
+  }
+  function schedulePullRetry() {
+    if (pullRetryCount >= MAX_PULL_RETRIES) return;
+    if (pullRetryTimer) clearTimeout(pullRetryTimer);
+    pullRetryCount++;
+    var delay = Math.min(2000 * Math.pow(2, pullRetryCount - 1), 30000); // 2s, 4s, 8s, 16s, 30s
+    setStatus('connecting', '重试 ' + pullRetryCount + '/' + MAX_PULL_RETRIES);
+    pullRetryTimer = setTimeout(function () { pullRetryTimer = null; pullAll(); }, delay);
   }
 
   /* ---------- 应用远端实时变更 ---------- */
@@ -156,11 +177,15 @@
     // 备份模块导入后，主动把全部本地数据推上云
     pushAll: function () {
       if (!ready) return;
+      var count = 0;
       for (var i = 0; i < localStorage.length; i++) {
         var k = localStorage.key(i);
-        if (shouldSync(k)) queuePush(k, localStorage.getItem(k));
+        if (shouldSync(k)) { queuePush(k, localStorage.getItem(k)); count++; }
       }
-      flush();
+      if (count > 0) {
+        setStatus('syncing', '推送 ' + count + ' 项');
+        flush();
+      }
     },
     status: function () { return badge ? badge.className : ''; }
   };

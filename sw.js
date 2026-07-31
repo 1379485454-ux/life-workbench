@@ -1,5 +1,5 @@
-/* 个人工作台 · Service Worker (App Shell + 智能缓存) */
-const CACHE = 'workbench-v2';
+/* 个人工作台 · Service Worker (App Shell + 智能缓存 + 后台同步) */
+const CACHE = 'workbench-v3';
 const PRE_CACHE = [
   '/',
   '/index.html',
@@ -15,7 +15,6 @@ const PRE_CACHE = [
 ];
 
 self.addEventListener('install', (e) => {
-  // 不阻塞 install：个别资源 404 也不影响整体
   e.waitUntil(
     caches.open(CACHE).then((c) => c.addAll(PRE_CACHE).catch(() => null)).then(() => self.skipWaiting())
   );
@@ -33,12 +32,18 @@ self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin !== self.location.origin) return; // 跨域不处理
-  if (url.pathname.startsWith('/api/')) return;     // 联网数据始终走网络
+
+  // Supabase API 和本地 API 代理始终走网络
+  if (url.hostname.includes('supabase.co') || url.pathname.startsWith('/api/')) return;
+
+  // 跨域资源不缓存
+  if (url.origin !== self.location.origin) return;
 
   // HTML 导航：网络优先，离线兜底
   if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).catch(() => caches.match('/index.html')));
+    e.respondWith(
+      fetch(req, { cache: 'no-cache' }).catch(() => caches.match('/index.html'))
+    );
     return;
   }
 
@@ -56,4 +61,17 @@ self.addEventListener('fetch', (e) => {
       })
     )
   );
+});
+
+// 后台同步：当设备恢复联网时推送离线积累的数据
+self.addEventListener('sync', (e) => {
+  if (e.tag === 'wb-sync') {
+    e.waitUntil(
+      self.clients.matchAll({ type: 'window' }).then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: 'wb-background-sync' });
+        });
+      })
+    );
+  }
 });
