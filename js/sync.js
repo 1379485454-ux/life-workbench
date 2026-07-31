@@ -171,6 +171,18 @@
     if (changed) try { localStorage.setItem(META_KEY, JSON.stringify(m)); } catch (e) {}
   }
 
+  /* ---------- 全量推送（独立函数声明，确保 init() 调用时已提升） ---------- */
+  function pushAll() {
+    if (!ready) return;
+    var meta = getMeta();
+    var rows = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (shouldSync(k)) rows.push({ key: k, value: localStorage.getItem(k), updated_at: meta[k] || Date.now() });
+    }
+    if (rows.length) { setStatus('syncing', '推送 ' + rows.length + ' 项'); flushItems(rows); }
+  }
+
   /* ---------- 初始化 ---------- */
   function init() {
     ensureBadge();
@@ -211,17 +223,7 @@
     get lastError() { return lastError; },
     get retryCount() { return pullRetryCount; },
     init: init,
-    // 备份模块 / 切换账号时主动把全部本地数据推上云端
-    pushAll: function () {
-      if (!ready) return;
-      var meta = getMeta();
-      var rows = [];
-      for (var i = 0; i < localStorage.length; i++) {
-        var k = localStorage.key(i);
-        if (shouldSync(k)) rows.push({ key: k, value: localStorage.getItem(k), updated_at: meta[k] || Date.now() });
-      }
-      if (rows.length) { setStatus('syncing', '推送 ' + rows.length + ' 项'); flushItems(rows); }
-    },
+    pushAll: pushAll,
     status: function () { return badge ? badge.className : ''; }
   };
 
