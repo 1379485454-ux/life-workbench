@@ -70,6 +70,7 @@ const MENU = [
   { id: 'attributes', name: '个人属性', icon: ICONS.attr, group: 'grow' },
   { id: 'reports', name: '周报月报', icon: ICONS.report, group: 'grow' },
   { id: 'backup', name: '数据备份', icon: ICONS.backup, group: 'sys' },
+  { id: 'settings', name: '设置', icon: ICONS.settings, group: 'sys' },
 ];
 const GROUP_NAMES = { habit: '每日习惯', inspire: '灵感资讯', grow: '成长系统', sys: '数据与系统' };
 
@@ -83,6 +84,28 @@ const Store = {
   remove(key) { localStorage.removeItem(key); },
   getDaily(type, def) { return Store.get(`wb_${type}_${todayKey()}`, def); },
   setDaily(type, val) { Store.set(`wb_${type}_${todayKey()}`, val); },
+};
+
+// ===== 用户资料（可配置昵称/头像） =====
+const UserProfile = {
+  key: 'wb_user_profile',
+  defaults: { name: '我', avatar: '' },
+  get() {
+    const saved = Store.get(this.key, null);
+    return saved && typeof saved === 'object' ? { ...this.defaults, ...saved } : { ...this.defaults };
+  },
+  set(patch) { Store.set(this.key, { ...this.get(), ...patch }); },
+  get displayName() { return this.get().name || this.defaults.name; },
+  get initials() {
+    const name = this.displayName;
+    if (!name) return 'ME';
+    // 中文取首字
+    if (/[\u4e00-\u9fa5]/.test(name)) return name.trim().slice(0, 1);
+    // 英文多空格取首字母
+    const parts = name.trim().split(/\s+/);
+    if (parts.length > 1) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return name.trim().slice(0, 2).toUpperCase();
+  }
 };
 
 // ===== 游戏化系统 (LifeUp 风格 RPG 属性) =====
@@ -503,13 +526,21 @@ const Nav = {
       if (moreBtn) moreBtn.classList.toggle('active', !this._mobileCores.includes(id));
     }
     const mod = MENU.find(m => m.id === id);
-    const mobileBar = this.isMobile() ? `<div class="mobile-status-bar" id="mobileStatusBar"></div>` : '';
-    $('#mainHeader').innerHTML = `<div class="header-left"><div class="header-greeting" id="headerGreeting">你好 👋</div><div class="header-title">${mod.icon} ${mod.name}</div></div><div class="header-right"><span class="header-date" id="headerDate">📅</span><button class="header-theme-toggle" id="themeToggle" onclick="Theme.toggle()" title="切换亮色/暗色">${Theme.current === 'dark' ? '☀️' : '🌙'}</button><div class="header-avatar" id="headerAvatar" title="EDY">ED</div></div>${mobileBar}`;
+    $('#mainHeader').innerHTML = `<div class="header-left"><div class="header-greeting" id="headerGreeting">你好 👋</div><div class="header-title">${mod.icon} ${mod.name}</div></div><div class="header-right"><span class="header-date" id="headerDate">📅</span><button class="header-theme-toggle" id="themeToggle" onclick="Theme.toggle()" title="切换亮色/暗色">${Theme.current === 'dark' ? '☀️' : '🌙'}</button><div class="header-avatar" id="headerAvatar" title="${UserProfile.displayName}">${UserProfile.initials}</div></div>`;
+    // 移动端状态栏：作为 header 与 content 之间的独立条带，避免被 header flex 挤压
+    const existingBar = $('#mobileStatusBar');
+    if (existingBar) existingBar.remove();
+    if (this.isMobile()) {
+      const bar = document.createElement('div');
+      bar.className = 'mobile-status-bar';
+      bar.id = 'mobileStatusBar';
+      $('#mainHeader').insertAdjacentElement('afterend', bar);
+      this.renderMobileStatusBar();
+    }
     const renderer = Modules[id];
     $('#content').innerHTML = renderer ? renderer() : '<div class="empty-state"><div class="empty-state-icon">🚧</div><div class="empty-state-text">功能开发中...</div></div>';
     if (ModuleHooks[id]) ModuleHooks[id]();
     Clock.tick();
-    if (this.isMobile()) this.renderMobileStatusBar();
     $('#content').scrollTop = this.scrollPositions[id] || 0;
   },
   refresh() {
@@ -548,8 +579,9 @@ const Clock = {
     const elH = $('#headerDate'); if (elH) elH.textContent = `📅 ${now.getMonth()+1}月${now.getDate()}日 星期${wk}`;
     const hr = now.getHours();
     const greet = hr < 6 ? '凌晨好' : hr < 12 ? '早上好' : hr < 14 ? '中午好' : hr < 18 ? '下午好' : hr < 22 ? '晚上好' : '夜深了';
-    const elG = $('#headerGreeting'); if (elG) elG.textContent = `${greet}，EDY 👋`;
-    const elHG = $('#dashHeroGreet'); if (elHG) elHG.textContent = `${greet}，EDY 👋 今天也要元气满满 ✨`;
+    const name = UserProfile.displayName;
+    const elG = $('#headerGreeting'); if (elG) elG.textContent = `${greet}，${name} 👋`;
+    const elHG = $('#dashHeroGreet'); if (elHG) elHG.textContent = `${greet}，${name} 👋 今天也要元气满满 ✨`;
     if (this.lastDay !== now.getDate()) { this.lastDay = now.getDate(); if (this.lastDay !== undefined && Nav.current === 'home') { Game.dailyCheck(); Nav.switchTo('home'); } }
   },
 };
@@ -611,7 +643,7 @@ Modules.home = () => {
     <div class="dash-hero glass">
       <span class="hero-float f1"></span>
       <span class="hero-float f2"></span>
-      <div class="dash-hero-greet" id="dashHeroGreet">你好，EDY 👋</div>
+      <div class="dash-hero-greet" id="dashHeroGreet">你好，${UserProfile.displayName} 👋</div>
       <div class="dash-hero-main">
         <div class="dash-hero-left">
           <div class="dash-clock-time" id="dashClockTime">00:00:00</div>
@@ -2124,6 +2156,51 @@ ModuleHooks.backup = () => {
     if (!el) { clearInterval(syncUIInterval); return; }
     updateSyncStatusUI();
   }, 3000);
+};
+
+Modules.settings = () => {
+  const p = UserProfile.get();
+  return `
+    <div class="card">
+      <div class="card-title">⚙️ 个人设置</div>
+      <div class="card-subtitle">修改你在工作台中显示的昵称和头像缩写。</div>
+      <div class="form-row" style="margin-top:12px;">
+        <div class="form-group">
+          <label class="form-label">显示昵称</label>
+          <input type="text" id="settingUserName" class="form-input" value="${esc(p.name || '我')}" maxlength="12" placeholder="例如：小明">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">头像缩写（留空自动生成）</label>
+          <input type="text" id="settingUserAvatar" class="form-input" value="${esc(p.avatar || '')}" maxlength="4" placeholder="例如：XM">
+        </div>
+      </div>
+      <div class="backup-actions" style="margin-top:14px;">
+        <button class="btn btn-primary" onclick="saveUserProfile()">💾 保存设置</button>
+      </div>
+      <div class="backup-tip">修改后会立即生效，并随数据备份一起保存。</div>
+    </div>`;
+};
+ModuleHooks.settings = () => {};
+window.saveUserProfile = function() {
+  const name = ($('#settingUserName').value || '').trim();
+  const avatar = ($('#settingUserAvatar').value || '').trim();
+  if (!name) { toast('请输入昵称', 'error'); return; }
+  UserProfile.set({ name, avatar });
+  // 立即刷新 Header 头像/问候和首页问候
+  const avatarEl = $('#headerAvatar');
+  if (avatarEl) { avatarEl.textContent = UserProfile.initials; avatarEl.title = UserProfile.displayName; }
+  const greet = $('#headerGreeting');
+  if (greet) {
+    const now = new Date();
+    const hr = now.getHours();
+    const g = hr < 6 ? '凌晨好' : hr < 12 ? '早上好' : hr < 14 ? '中午好' : hr < 18 ? '下午好' : hr < 22 ? '晚上好' : '夜深了';
+    greet.textContent = `${g}，${UserProfile.displayName} 👋`;
+  }
+  const dashGreet = $('#dashHeroGreet');
+  if (dashGreet) dashGreet.textContent = `${greet ? greet.textContent.replace(' 👋', '') : '你好，' + UserProfile.displayName} 👋 今天也要元气满满 ✨`;
+  toast('✅ 个人设置已保存', 'success');
 };
 
 // 云端同步辅助函数
