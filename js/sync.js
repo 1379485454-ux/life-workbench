@@ -23,8 +23,15 @@
   var flushTimer = null;
   var retryTimer = null;
   var channel = null;
+  var lastError = null;   // 最近一次失败的真实原因（前端诊断用）
 
   function shouldSync(k) { return typeof k === 'string' && k.charAt(0) === 'w' && k.charAt(1) === 'b' && k.charAt(2) === '_' && !EXCLUDE[k]; }
+  // 配置类错误：即便无限重试也修不好，应明确提示用户去查后端
+  function isFatalError(msg) {
+    if (!msg) return false;
+    msg = ('' + msg).toLowerCase();
+    return /invalid api key|jwt|permission denied|does not exist|row-level security|pgrst|unauthorized|401|403|not found|apikey/i.test(msg);
+  }
   function getMeta() { try { return JSON.parse(localStorage.getItem(META_KEY) || '{}'); } catch (e) { return {}; } }
   function setMetaTs(k, ts) { var m = getMeta(); m[k] = ts; try { localStorage.setItem(META_KEY, JSON.stringify(m)); } catch (e) {} }
 
@@ -68,7 +75,7 @@
     client.from('kv_store').upsert(rows).then(function (r) {
       if (r.error) { setStatus('error', '同步失败'); scheduleRetry(); }
       else { setStatus('ok', '已同步'); }
-    }).catch(function () { setStatus('error', '同步失败'); scheduleRetry(); });
+    }).catch(function (e) { lastError = '推送失败: ' + (e && e.message ? e.message : '网络错误'); setStatus('error', '同步失败'); scheduleRetry(); });
   }
   function scheduleRetry() {
     if (retryTimer) return;
@@ -82,10 +89,12 @@
   function pullAll() {
     if (!ready || !client) return;
     client.from('kv_store').select('*').eq('user_id', USER_ID).then(function (r) {
-      if (r.error) { 
+      if (r.error) {
+        lastError = (r.error.code ? r.error.code + ': ' : '') + (r.error.message || 'unknown error');
+        if (isFatalError(lastError)) { setStatus('error', '同步配置错误'); return; }
         setStatus('error', '拉取失败');
         schedulePullRetry();
-        return; 
+        return;
       }
       pullRetryCount = 0; // 成功则重置
       var meta = getMeta();
@@ -106,14 +115,20 @@
         setStatus('ok', '已同步 ' + pulledCount + ' 项');
         window.dispatchEvent(new CustomEvent('wb:remote', { detail: { reason: 'pull', count: pulledCount } })); 
       }
-    }).catch(function () { schedulePullRetry(); });
+    }).catch(function (e) { lastError = '网络错误: ' + (e && e.message ? e.message : '请求超时或无法连接'); schedulePullRetry(); });
   }
   function schedulePullRetry() {
-    if (pullRetryCount >= MAX_PULL_RETRIES) return;
     if (pullRetryTimer) clearTimeout(pullRetryTimer);
     pullRetryCount++;
-    var delay = Math.min(2000 * Math.pow(2, pullRetryCount - 1), 30000); // 2s, 4s, 8s, 16s, 30s
-    setStatus('connecting', '重试 ' + pullRetryCount + '/' + MAX_PULL_RETRIES);
+    var delay, label;
+    if (pullRetryCount <= MAX_PULL_RETRIES) {
+      delay = Math.min(2000 * Math.pow(2, pullRetryCount - 1), 30000); // 2s,4s,8s,16s,30s
+      label = '重试 ' + pullRetryCount + '/' + MAX_PULL_RETRIES;
+    } else {
+      delay = 60000; // 超过常规次数后降级为每 60s 低频无限重试（应对项目休眠/冷启动）
+      label = '等待重试 ' + pullRetryCount;
+    }
+    setStatus('connecting', label);
     pullRetryTimer = setTimeout(function () { pullRetryTimer = null; pullAll(); }, delay);
   }
 
@@ -173,6 +188,8 @@
   /* ---------- 公共 API ---------- */
   window.wbSync = {
     get enabled() { return ready; },
+    get lastError() { return lastError; },
+    get retryCount() { return pullRetryCount; },
     init: init,
     // 备份模块导入后，主动把全部本地数据推上云
     pushAll: function () {

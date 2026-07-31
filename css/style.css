@@ -2389,6 +2389,8 @@ input:focus, select:focus, textarea:focus {
 .backup-stat b { color: var(--primary); font-size: 16px; }
 .backup-actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0 4px; }
 .backup-tip { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--bg-hover); color: var(--text-light); font-size: 13px; line-height: 1.6; }
+.sync-error-detail { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: rgba(239,68,68,0.08); color: #ef4444; font-size: 12px; line-height: 1.55; border: 1px solid rgba(239,68,68,0.25); word-break: break-all; }
+:root[data-theme="dark"] .sync-error-detail { background: rgba(239,68,68,0.14); color: #fca5a5; border-color: rgba(239,68,68,0.35); }
 .btn-danger-outline { border: 1px solid var(--danger); color: var(--danger); background: transparent; border-radius: 10px; padding: 8px 14px; cursor: pointer; font-size: 14px; transition: .2s; }
 .btn-danger-outline:hover { background: var(--danger); color: #fff; }
 

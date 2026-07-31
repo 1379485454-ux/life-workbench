@@ -2128,6 +2128,7 @@ Modules.backup = () => {
         <span id="syncStatusText">检测中...</span>
         <span id="syncItemCount"></span>
       </div>
+      <div id="syncErrorDetail" class="sync-error-detail" style="display:none;"></div>
       <div class="backup-actions">
         <button class="btn btn-primary" onclick="manualSync()" id="btnManualSync">🔄 立即同步</button>
         <button class="btn btn-outline" onclick="forcePullAll()">⬇️ 从云端拉取</button>
@@ -2223,6 +2224,15 @@ function updateSyncStatusUI() {
       if (k && k.charAt(0) === 'w' && k.charAt(1) === 'b' && k.charAt(2) === '_' && k !== '_wb_sync_meta') count++;
     }
     if (elCount) elCount.textContent = '📊 本地可同步项：' + count;
+    var errEl = document.getElementById('syncErrorDetail');
+    if (errEl) {
+      if (window.wbSync && window.wbSync.lastError) {
+        errEl.textContent = '⚠️ 错误详情：' + window.wbSync.lastError;
+        errEl.style.display = 'block';
+      } else {
+        errEl.style.display = 'none';
+      }
+    }
   } catch(e) {}
 }
 window.manualSync = function() {
