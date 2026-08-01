@@ -715,9 +715,11 @@ Modules.home = () => {
     exercise: { pct: Math.min(100, exMin / 30 * 100), opt: { size: 96, stroke: 8, color: '#f59e0b', label: `${exMin}`, sub: `分钟运动` }, label: `${ICONS.run} 锻炼身体` },
     read:     { pct: readPct, opt: { size: 96, stroke: 8, color: '#8b5cf6', label: `${todayRead.pages||0}`, sub: `阅读页` }, label: `${ICONS.book} 每日阅读` },
   };
+  const RING_LINKS = { task: 'plan', water: 'food', exercise: 'exercise', read: 'read' };
   const ringsHtml = layout.rings.filter(k => !layout.hiddenRings.includes(k)).map(k => {
     const r = RING_DEFS[k]; if (!r) return '';
-    return `<div class="dash-ring-card">${progressRing(r.pct, r.opt)}<div class="dash-ring-label">${r.label}</div></div>`;
+    const link = RING_LINKS[k];
+    return `<div class="dash-ring-card" onclick="Nav.switchTo('${link}')" title="查看详情">${progressRing(r.pct, r.opt)}<div class="dash-ring-label">${r.label}</div></div>`;
   }).join('');
 
   return `
@@ -736,8 +738,8 @@ Modules.home = () => {
     </div>
     <div class="dash-rings">${ringsHtml}</div>
     <div class="dash-overview" id="secOverview">
-      <div class="card"><div class="card-title">${ICONS.list} 今日计划进度 <span class="card-subtitle">${doneTasks}/${todayTasks.length} 已完成</span></div>${todayTasks.length ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${taskPct}%"></div></div><div style="margin-top:12px;">${todayTasks.slice(0,5).map(t => `<div class="task-item-v2 ${t.done?'done':''}" style="margin-bottom:6px;padding:9px 12px;"><div class="task-checkbox ${t.done?'checked':''}"></div><span class="task-text">${esc(t.text)}</span></div>`).join('')}${todayTasks.length > 5 ? `<div class="text-muted text-sm" style="padding:8px 4px;">还有 ${todayTasks.length-5} 项待办...</div>` : ''}</div>` : '<div class="empty-state"><div class="empty-state-icon">'+ICONS.notebook+'</div><div class="empty-state-text">还没有添加今日计划</div><a class="empty-state-action" onclick="Nav.switchTo(\'plan\')">去制定计划 →</a></div>'}<button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="Nav.switchTo('plan')">前往计划 →</button></div>
-      <div class="card"><div class="card-title">${ICONS.chart} 今日数据概览</div><div class="grid-2 dash-stats-grid" style="gap:12px;">${[{icon:ICONS.water,label:'杯水',val:todayWater.water||0,color:'var(--primary)'},{icon:ICONS.run,label:'运动分钟',val:exMin,color:'var(--warning)'},{icon:ICONS.book,label:'阅读页数',val:todayRead.pages||0,color:'var(--success)'},{icon:ICONS.clock,label:'阅读分钟',val:todayRead.minutes||0,color:'var(--purple)'}].map(s=>`<div class="dash-mini-stat"><div class="dash-mini-stat-num" style="color:${s.color}">${s.val}</div><div class="dash-mini-stat-label">${s.icon} ${s.label}</div></div>`).join('')}</div></div>
+      <div class="card"><div class="card-title">${ICONS.list} 今日计划进度 <span class="card-subtitle">${doneTasks}/${todayTasks.length} 已完成</span></div>${todayTasks.length ? (doneTasks === todayTasks.length ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:100%"></div></div><div class="all-done-state"><div class="all-done-icon">${ICONS.star}</div><div class="all-done-text">今日任务全部完成！</div><div class="all-done-sub">太棒了，给自己一点奖励吧</div></div>` : `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${taskPct}%"></div></div><div style="margin-top:12px;">${todayTasks.slice(0,5).map(t => `<div class="task-item-v2 ${t.done?'done':''}" style="margin-bottom:6px;padding:9px 12px;" title="点击完成/取消"><div class="task-checkbox ${t.done?'checked':''}" onclick="toggleTaskFromHome('${t.id}')"></div><span class="task-text">${esc(t.text)}</span></div>`).join('')}${todayTasks.length > 5 ? `<div class="text-muted text-sm" style="padding:8px 4px;">还有 ${todayTasks.length-5} 项待办...</div>` : ''}</div>`) : '<div class="empty-state"><div class="empty-state-icon">'+ICONS.notebook+'</div><div class="empty-state-text">还没有添加今日计划</div><a class="empty-state-action" onclick="Nav.switchTo(\'plan\')">去制定计划 →</a></div>'}<button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="Nav.switchTo('plan')">前往计划 →</button></div>
+      <div class="card"><div class="card-title">${ICONS.chart} 今日数据概览</div><div class="grid-2 dash-stats-grid" style="gap:12px;">${[{icon:ICONS.water,label:'杯水',val:todayWater.water||0,color:'var(--primary)',link:'food'},{icon:ICONS.run,label:'运动分钟',val:exMin,color:'var(--warning)',link:'exercise'},{icon:ICONS.book,label:'阅读页数',val:todayRead.pages||0,color:'var(--success)',link:'read'},{icon:ICONS.clock,label:'阅读分钟',val:todayRead.minutes||0,color:'var(--purple)',link:'read'}].map(s=>`<div class="dash-mini-stat" onclick="Nav.switchTo('${s.link}')" title="查看${s.label}"><div class="dash-mini-stat-num" style="color:${s.color}">${s.val}</div><div class="dash-mini-stat-label">${s.icon} ${s.label}</div></div>`).join('')}</div></div>
     </div>
     <div class="card" id="secStreak"><div class="card-title">${ICONS.calendar} 最近 7 天打卡</div><div class="streak-calendar">${calHtml}</div></div>
     <div class="dash-quote glass" id="secQuote"><div class="dash-quote-deco">"</div><div class="dash-quote-cn">${ICONS.bulb} ${esc(q.cn)}</div><div class="dash-quote-en">${esc(q.en)}</div></div>
@@ -957,15 +959,26 @@ function addTask() {
 function toggleTask(id) {
   const tasks = getPlan(planDate);
   const t = tasks.find(x => x.id === id); if (!t) return;
+  _doToggleTask(tasks, t, planDate);
+}
+function toggleTaskFromHome(id) {
+  const date = todayKey();
+  const tasks = getPlan(date);
+  const t = tasks.find(x => x.id === id); if (!t) return;
+  _doToggleTask(tasks, t, date, true);
+}
+function _doToggleTask(tasks, t, date, fromHome) {
   const wasDone = t.done; t.done = !t.done;
-  setPlan(planDate, tasks);
+  setPlan(date, tasks);
   if (t.done && !wasDone) {
     Game.addTaskDone();
     const cat = TASK_CATEGORIES[t.cat] || TASK_CATEGORIES.life;
     Game.reward(10, 5, 2, cat.attr);
     toast(`完成！${cat.attr ? ATTRIBUTES.find(a=>a.key===cat.attr).icon + ' ' : ''}干得好`, 'success');
+  } else if (!t.done && wasDone) {
+    toast('任务已恢复', 'info');
   }
-  Nav.refresh();
+  if (fromHome && Nav.current === 'home') Nav.refresh(); else Nav.refresh();
 }
 function confirmDelTask(id) {
   const tasks = getPlan(planDate); const t = tasks.find(x => x.id === id); if (!t) return;

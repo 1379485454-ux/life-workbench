@@ -462,6 +462,10 @@ label.field-label {
 
 /* 进度环组 */
 .dash-rings { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 18px; }
+.all-done-state { text-align: center; padding: 18px 12px; margin-top: 12px; background: linear-gradient(135deg, rgba(14,165,233,0.08), rgba(56,189,248,0.04)); border: 1px dashed var(--border-blue); border-radius: var(--radius-sm); }
+.all-done-icon { color: var(--warning); font-size: 28px; margin-bottom: 6px; }
+.all-done-text { font-weight: 800; color: var(--text); font-size: 15px; }
+.all-done-sub { font-size: 12px; color: var(--text-light); margin-top: 2px; }
 .dash-ring-card {
   flex: 1;
   background: var(--bg-card);
@@ -471,6 +475,7 @@ label.field-label {
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-light);
   transition: var(--transition);
+  cursor: pointer;
 }
 .dash-ring-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
 .dash-ring-label { font-size: 12px; color: var(--text-light); margin-top: 6px; font-weight: 600; }
@@ -561,7 +566,10 @@ label.field-label {
   border-radius: var(--radius-xs);
   padding: 14px;
   text-align: center;
+  cursor: pointer;
+  transition: var(--transition);
 }
+.dash-mini-stat:hover { background: var(--bg-active); transform: translateY(-2px); }
 .dash-mini-stat-num { font-size: 28px; font-weight: 800; }
 .dash-mini-stat-label { font-size: 12px; color: var(--text-light); }
 
@@ -1787,10 +1795,11 @@ input:focus, select:focus, textarea:focus {
   background: rgba(255,255,255,0.92); border: 1px solid rgba(255,255,255,0.7);
   border-radius: 18px; padding: 18px 12px;
   display: flex; flex-direction: column; align-items: center; gap: 8px;
-  box-shadow: 0 8px 24px rgba(60,42,20,0.06); backdrop-filter: blur(8px);
+  box-shadow: 0 8px 24px rgba(15,90,130,0.07); backdrop-filter: blur(8px);
   transition: var(--transition);
+  cursor: pointer;
 }
-.dash-ring-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(60,42,20,0.12); }
+.dash-ring-card:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(15,90,130,0.14); }
 .dash-ring-label { font-size: 13px; font-weight: 600; color: var(--text-light); }
 
 /* ---- 名言卡 ---- */
@@ -2356,10 +2365,10 @@ input:focus, select:focus, textarea:focus {
   content: ''; position: absolute; inset: 0; border-radius: inherit;
   box-shadow: 0 0 0 1px rgba(255,255,255,0.25) inset;
 }
-.logo-text { background: linear-gradient(90deg, #fff, #BAE6FD); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+.logo-text { color: var(--text); -webkit-text-fill-color: currentColor; }
 
-.nav-group-title { display: flex; align-items: center; gap: 7px; }
-.nav-group-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(255,255,255,0.18), transparent); }
+.nav-group-title { display: flex; align-items: center; gap: 7px; color: var(--text-light); }
+.nav-group-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(15,23,42,0.15), transparent); }
 
 .nav-item.active { animation: navGlow 3.6s ease-in-out infinite; }
 @keyframes navGlow {
