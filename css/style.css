@@ -2328,11 +2328,11 @@ input:focus, select:focus, textarea:focus {
 
 /* ---- 极光流动背景 ---- */
 .aurora { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
-/* 温暖柔和光晕（静止，避免廉价浮动特效） */
+/* 天蓝色柔和光晕（静止，避免廉价浮动特效） */
 .aurora-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.5; mix-blend-mode: normal; }
-.aurora-1 { width: 620px; height: 620px; left: -160px; top: -180px; background: radial-gradient(circle at 30% 30%, #FDE68A, #38BDF8 72%); opacity: 0.16; }
-.aurora-2 { width: 560px; height: 560px; right: -140px; top: 4%; background: radial-gradient(circle at 60% 40%, #FBCFE8, #F472B6 72%); opacity: 0.13; }
-.aurora-3 { width: 620px; height: 620px; left: 30%; bottom: -220px; background: radial-gradient(circle at 50% 50%, #A7F3D0, #10B981 72%); opacity: 0.12; }
+.aurora-1 { width: 620px; height: 620px; left: -160px; top: -180px; background: radial-gradient(circle at 30% 30%, #BAE6FD, #38BDF8 72%); opacity: 0.16; }
+.aurora-2 { width: 560px; height: 560px; right: -140px; top: 4%; background: radial-gradient(circle at 60% 40%, #E0E7FF, #818CF8 72%); opacity: 0.13; }
+.aurora-3 { width: 620px; height: 620px; left: 30%; bottom: -220px; background: radial-gradient(circle at 50% 50%, #CFFAFE, #22D3EE 72%); opacity: 0.12; }
 .aurora-grid {
   position: absolute; inset: 0;
   background-image: radial-gradient(rgba(60,42,20,0.05) 1px, transparent 1px);
