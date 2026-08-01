@@ -662,6 +662,29 @@ const Theme = {
 const Modules = {};
 const ModuleHooks = {};
 
+// ===== 首页自定义布局（纯个人偏好，无解锁/奖励） =====
+const HOME_LAYOUT_DEFAULT = {
+  rings: ['task', 'water', 'exercise', 'read'],
+  hiddenRings: [],
+  sections: { overview: true, streak: true, quote: true },
+};
+const HomeLayout = {
+  get() {
+    const s = Store.get('wb_home_layout', null);
+    if (s && Array.isArray(s.rings)) {
+      // 容错：补齐缺失字段
+      return {
+        rings: s.rings.filter(k => ['task','water','exercise','read'].includes(k)),
+        hiddenRings: Array.isArray(s.hiddenRings) ? s.hiddenRings : [],
+        sections: Object.assign({}, HOME_LAYOUT_DEFAULT.sections, s.sections || {}),
+      };
+    }
+    return JSON.parse(JSON.stringify(HOME_LAYOUT_DEFAULT));
+  },
+  set(v) { Store.set('wb_home_layout', v); },
+  reset() { Store.set('wb_home_layout', JSON.parse(JSON.stringify(HOME_LAYOUT_DEFAULT))); },
+};
+
 // ---------- 首页 ----------
 Modules.home = () => {
   const q = getTodayQuote();
@@ -685,6 +708,18 @@ Modules.home = () => {
     return `<div class="streak-day ${checked?'checked':''} ${isToday?'today':''}"><div class="streak-day-name">${dayNames[dt.getDay()]}</div><div class="streak-day-icon">${checked ? ICONS.check : (isToday ? ICONS.pin : '○')}</div><div class="streak-day-date">${dt.getMonth()+1}/${dt.getDate()}</div></div>`;
   }).join('');
 
+  const layout = HomeLayout.get();
+  const RING_DEFS = {
+    task:     { pct: taskPct, opt: { size: 96, stroke: 8, color: '#3b82f6', label: `${doneTasks}`, sub: `/${todayTasks.length} 任务` }, label: `${ICONS.list} 今日计划` },
+    water:    { pct: waterPct, opt: { size: 96, stroke: 8, color: '#06b6d4', label: `${todayWater.water||0}`, sub: `/8 杯水` }, label: `${ICONS.water} 好好喝水` },
+    exercise: { pct: Math.min(100, exMin / 30 * 100), opt: { size: 96, stroke: 8, color: '#f59e0b', label: `${exMin}`, sub: `分钟运动` }, label: `${ICONS.run} 锻炼身体` },
+    read:     { pct: readPct, opt: { size: 96, stroke: 8, color: '#8b5cf6', label: `${todayRead.pages||0}`, sub: `阅读页` }, label: `${ICONS.book} 每日阅读` },
+  };
+  const ringsHtml = layout.rings.filter(k => !layout.hiddenRings.includes(k)).map(k => {
+    const r = RING_DEFS[k]; if (!r) return '';
+    return `<div class="dash-ring-card">${progressRing(r.pct, r.opt)}<div class="dash-ring-label">${r.label}</div></div>`;
+  }).join('');
+
   return `
     <div class="dash-hero glass">
       <span class="hero-float f1"></span>
@@ -699,18 +734,13 @@ Modules.home = () => {
         <button class="dash-checkin-btn ${checkedIn ? 'done' : ''}" id="checkInBtn" ${checkedIn ? 'disabled' : ''}>${checkedIn ? ICONS.check + ' 今日已打卡' : ICONS.pin + ' 立即打卡'}<span class="dash-checkin-sub">${checkedIn ? `连续第 ${d.streak} 天 ${ICONS.flame}` : '开启元气满满的一天'}</span></button>
       </div>
     </div>
-    <div class="dash-rings">
-      <div class="dash-ring-card">${progressRing(taskPct, { size: 96, stroke: 8, color: '#3b82f6', label: `${doneTasks}`, sub: `/${todayTasks.length} 任务` })}<div class="dash-ring-label">${ICONS.list} 今日计划</div></div>
-      <div class="dash-ring-card">${progressRing(waterPct, { size: 96, stroke: 8, color: '#06b6d4', label: `${todayWater.water||0}`, sub: `/8 杯水` })}<div class="dash-ring-label">${ICONS.water} 好好喝水</div></div>
-      <div class="dash-ring-card">${progressRing(Math.min(100, exMin / 30 * 100), { size: 96, stroke: 8, color: '#f59e0b', label: `${exMin}`, sub: `分钟运动` })}<div class="dash-ring-label">${ICONS.run} 锻炼身体</div></div>
-      <div class="dash-ring-card">${progressRing(readPct, { size: 96, stroke: 8, color: '#8b5cf6', label: `${todayRead.pages||0}`, sub: `阅读页` })}<div class="dash-ring-label">${ICONS.book} 每日阅读</div></div>
-    </div>
-    <div class="dash-overview">
+    <div class="dash-rings">${ringsHtml}</div>
+    <div class="dash-overview" id="secOverview">
       <div class="card"><div class="card-title">${ICONS.list} 今日计划进度 <span class="card-subtitle">${doneTasks}/${todayTasks.length} 已完成</span></div>${todayTasks.length ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${taskPct}%"></div></div><div style="margin-top:12px;">${todayTasks.slice(0,5).map(t => `<div class="task-item-v2 ${t.done?'done':''}" style="margin-bottom:6px;padding:9px 12px;"><div class="task-checkbox ${t.done?'checked':''}"></div><span class="task-text">${esc(t.text)}</span></div>`).join('')}${todayTasks.length > 5 ? `<div class="text-muted text-sm" style="padding:8px 4px;">还有 ${todayTasks.length-5} 项待办...</div>` : ''}</div>` : '<div class="empty-state"><div class="empty-state-icon">'+ICONS.notebook+'</div><div class="empty-state-text">还没有添加今日计划</div><a class="empty-state-action" onclick="Nav.switchTo(\'plan\')">去制定计划 →</a></div>'}<button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="Nav.switchTo('plan')">前往计划 →</button></div>
       <div class="card"><div class="card-title">${ICONS.chart} 今日数据概览</div><div class="grid-2 dash-stats-grid" style="gap:12px;">${[{icon:ICONS.water,label:'杯水',val:todayWater.water||0,color:'var(--primary)'},{icon:ICONS.run,label:'运动分钟',val:exMin,color:'var(--warning)'},{icon:ICONS.book,label:'阅读页数',val:todayRead.pages||0,color:'var(--success)'},{icon:ICONS.clock,label:'阅读分钟',val:todayRead.minutes||0,color:'var(--purple)'}].map(s=>`<div class="dash-mini-stat"><div class="dash-mini-stat-num" style="color:${s.color}">${s.val}</div><div class="dash-mini-stat-label">${s.icon} ${s.label}</div></div>`).join('')}</div></div>
     </div>
-    <div class="card"><div class="card-title">${ICONS.calendar} 最近 7 天打卡</div><div class="streak-calendar">${calHtml}</div></div>
-    <div class="dash-quote glass"><div class="dash-quote-deco">"</div><div class="dash-quote-cn">${ICONS.bulb} ${esc(q.cn)}</div><div class="dash-quote-en">${esc(q.en)}</div></div>
+    <div class="card" id="secStreak"><div class="card-title">${ICONS.calendar} 最近 7 天打卡</div><div class="streak-calendar">${calHtml}</div></div>
+    <div class="dash-quote glass" id="secQuote"><div class="dash-quote-deco">"</div><div class="dash-quote-cn">${ICONS.bulb} ${esc(q.cn)}</div><div class="dash-quote-en">${esc(q.en)}</div></div>
   `;
 };
 ModuleHooks.home = () => {
@@ -724,6 +754,13 @@ ModuleHooks.home = () => {
     Nav.switchTo('home');
   });
   Clock.tick();
+  // 应用首页板块显隐（纯个人偏好，无解锁）
+  const lay = HomeLayout.get();
+  const toggleSec = (id, show) => { const el = document.getElementById(id); if (el) el.style.display = show ? '' : 'none'; };
+  toggleSec('secOverview', lay.sections.overview);
+  toggleSec('secStreak', lay.sections.streak);
+  toggleSec('secQuote', lay.sections.quote);
+  renderFirstRunHint();
 };
 
 // ---------- 计划管理 (每日 / 长期 / 周期) ----------
@@ -2335,6 +2372,141 @@ function initSwipeGesture() {
   });
 }
 
+// ===== 首页个性化（纯个人偏好，无解锁/奖励） =====
+const RING_META = {
+  task: { name: '今日计划', icon: ICONS.list },
+  water: { name: '好好喝水', icon: ICONS.water },
+  exercise: { name: '锻炼身体', icon: ICONS.run },
+  read: { name: '每日阅读', icon: ICONS.book },
+};
+const SECTION_META = { overview: { name: '今日计划概览' }, streak: { name: '最近 7 天打卡' }, quote: { name: '每日金句' } };
+
+function renderFirstRunHint() {
+  const content = $('#content'); if (!content) return;
+  if (Store.get('wb_onboarded', false)) {
+    const old = document.getElementById('firstRunHint'); if (old) old.remove();
+    return;
+  }
+  const hint = document.createElement('div');
+  hint.className = 'first-run-hint';
+  hint.id = 'firstRunHint';
+  hint.innerHTML = `<span class="frh-icon">👋</span><div class="frh-body">欢迎使用你的个人工作台！右下角 <b>+</b> 可一键记录日常（任务 / 喝水 / 阅读 / 番茄）；点 <b>+</b> 里的「自定义首页」能隐藏不常用的卡片、调整圆环顺序。祝你元气满满～</div><button class="frh-close" onclick="dismissFirstRunHint()">知道了</button>`;
+  content.insertBefore(hint, content.firstChild);
+}
+window.dismissFirstRunHint = function() {
+  Store.set('wb_onboarded', true);
+  const el = document.getElementById('firstRunHint'); if (el) el.remove();
+};
+
+// ---------- 全局快捷添加 FAB（降低记录摩擦，无奖励门禁） ----------
+function initQuickFab() {
+  if (document.getElementById('quickFab')) return;
+  const fab = document.createElement('div');
+  fab.className = 'quick-fab'; fab.id = 'quickFab';
+  fab.setAttribute('role', 'button'); fab.setAttribute('aria-label', '快捷添加');
+  fab.innerHTML = ICONS.plus;
+  fab.onclick = toggleFab;
+  const sheet = document.createElement('div');
+  sheet.className = 'fab-sheet'; sheet.id = 'fabSheet';
+  sheet.innerHTML = `
+    <button class="fab-action" onclick="fabAddTask()"><span>${ICONS.list}</span>添加任务</button>
+    <button class="fab-action" onclick="fabAddWater()"><span>${ICONS.water}</span>喝一杯水</button>
+    <button class="fab-action" onclick="fabAddReading()"><span>${ICONS.book}</span>记阅读 +5 页</button>
+    <button class="fab-action" onclick="fabStartPomo()"><span>${ICONS.tomato}</span>开始番茄</button>
+    <button class="fab-action" onclick="openHomeCustomize()"><span>${ICONS.settings}</span>自定义首页</button>`;
+  document.body.appendChild(fab);
+  document.body.appendChild(sheet);
+  document.addEventListener('click', (e) => {
+    const s = document.getElementById('fabSheet');
+    if (!s || !s.classList.contains('open')) return;
+    if (e.target.closest('#quickFab') || e.target.closest('#fabSheet')) return;
+    closeFab();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeFab(); if (window._customizeOverlay) closeCustomize(); }
+  });
+}
+function toggleFab() {
+  const s = document.getElementById('fabSheet'); const f = document.getElementById('quickFab');
+  if (!s) return;
+  const open = s.classList.toggle('open');
+  f?.classList.toggle('active', open);
+}
+function closeFab() {
+  document.getElementById('fabSheet')?.classList.remove('open');
+  document.getElementById('quickFab')?.classList.remove('active');
+}
+window.fabAddTask = function() { closeFab(); Nav.switchTo('plan'); setTimeout(() => document.getElementById('taskInput')?.focus(), 350); };
+window.fabAddWater = function() { addWater(1); if (Nav.current === 'home') Nav.refresh(); else toast('💧 +1 杯水', 'success'); closeFab(); };
+window.fabAddReading = function() { quickAddReading(5); closeFab(); };
+window.fabStartPomo = function() { closeFab(); Nav.switchTo('pomo'); if (typeof pomoRunning !== 'undefined' && !pomoRunning) togglePomo(); };
+window.quickAddReading = function(delta) {
+  const today = Store.getDaily('reading', { pages: 0, minutes: 0, notes: '' });
+  today.pages = (today.pages || 0) + delta;
+  Store.setDaily('reading', today);
+  const history = Store.get('wb_reading_history', []); const td = todayKey();
+  const idx = history.findIndex(h => h.date === td);
+  if (idx >= 0) history[idx] = { date: td, pages: today.pages, minutes: today.minutes || 0, notes: today.notes || '' };
+  else history.push({ date: td, pages: today.pages, minutes: today.minutes || 0, notes: '' });
+  Store.set('wb_reading_history', history);
+  Game.reward(Math.floor(delta / 10), Math.floor(delta / 5), 1, 'intelligence');
+  toast(`📖 +${delta} 页`, 'success');
+  if (Nav.current === 'home') Nav.refresh();
+};
+
+// ---------- 首页自定义弹窗 ----------
+let _customizeRings = [];
+let _customizeHidden = [];
+window.openHomeCustomize = function() {
+  if (window._customizeOverlay) { window._customizeOverlay.remove(); window._customizeOverlay = null; }
+  const lay = HomeLayout.get();
+  _customizeRings = lay.rings.slice();
+  _customizeHidden = lay.hiddenRings.slice();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `<div class="modal customize-modal">
+    <div class="modal-header"><div class="modal-title">${ICONS.settings} 自定义首页</div><button class="modal-close" onclick="closeCustomize()">${ICONS.close}</button></div>
+    <div class="modal-body">
+      <div class="customize-sub">圆环顺序与显示（用 ↑ ↓ 调整顺序，关闭即隐藏）</div>
+      <div id="ringList"></div>
+      <div class="customize-sub">板块显示</div>
+      <div class="customize-sections">${Object.keys(SECTION_META).map(k => `<label class="switch-row"><span>${SECTION_META[k].name}</span><label class="switch"><input type="checkbox" data-sec="${k}" ${lay.sections[k] ? 'checked' : ''}><span class="switch-slider"></span></label></label>`).join('')}</div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="HomeLayout.reset(); openHomeCustomize();">恢复默认</button><button class="btn btn-primary" onclick="saveHomeCustomize()">完成</button></div>
+  </div>`;
+  document.body.appendChild(overlay);
+  window._customizeOverlay = overlay;
+  renderRingList();
+  requestAnimationFrame(() => overlay.classList.add('show'));
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeCustomize(); });
+};
+function renderRingList() {
+  const list = document.getElementById('ringList'); if (!list) return;
+  list.innerHTML = _customizeRings.map((k, i) => `<div class="reorder-item">
+    <span class="reorder-handle">${ICONS.list}</span>
+    <span class="reorder-name">${RING_META[k].icon} ${RING_META[k].name}</span>
+    <label class="switch"><input type="checkbox" data-ring="${k}" ${_customizeHidden.includes(k) ? '' : 'checked'}><span class="switch-slider"></span></label>
+    <span class="reorder-btns"><button type="button" onclick="moveRing(${i},-1)" ${i === 0 ? 'disabled' : ''}>↑</button><button type="button" onclick="moveRing(${i},1)" ${i === _customizeRings.length - 1 ? 'disabled' : ''}>↓</button></span>
+  </div>`).join('');
+}
+window.moveRing = function(i, dir) {
+  const j = i + dir; if (j < 0 || j >= _customizeRings.length) return;
+  const t = _customizeRings[i]; _customizeRings[i] = _customizeRings[j]; _customizeRings[j] = t;
+  renderRingList();
+};
+window.closeCustomize = function() { const o = window._customizeOverlay; if (o) { o.remove(); window._customizeOverlay = null; } };
+window.saveHomeCustomize = function() {
+  const overlay = window._customizeOverlay; if (!overlay) return;
+  const hidden = [];
+  overlay.querySelectorAll('input[data-ring]').forEach(cb => { if (!cb.checked) hidden.push(cb.dataset.ring); });
+  const sections = {};
+  overlay.querySelectorAll('input[data-sec]').forEach(cb => { sections[cb.dataset.sec] = cb.checked; });
+  HomeLayout.set({ rings: _customizeRings.slice(), hiddenRings: hidden, sections });
+  closeCustomize();
+  if (Nav.current === 'home') Nav.switchTo('home'); else Nav.refresh();
+  toast('首页已更新', 'success');
+};
+
 // ===== 初始化 =====
 function init() {
   Theme.init();
@@ -2352,6 +2524,7 @@ function init() {
   });
   Game.renderSidebar();
   Clock.start();
+  initQuickFab();
   Nav.switchTo('home');
   // 初始化后推本地数据上云（延迟执行，等 sync.js 就绪）
   setTimeout(() => {

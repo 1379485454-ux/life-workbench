@@ -1,5 +1,5 @@
 /* 个人工作台 · Service Worker (App Shell + 智能缓存 + 后台同步) */
-const CACHE = 'workbench-v14';
+const CACHE = 'workbench-v15';
 const PRE_CACHE = [
   '/',
   '/index.html',
