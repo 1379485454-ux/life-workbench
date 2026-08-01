@@ -110,11 +110,11 @@ const UserProfile = {
 
 // 个人属性图标 (内联 SVG, UI/UX: 避免 emoji)
 const ATTR_ICONS = {
-  strength: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l-2 3 2 3M20 9l2 3-2 3M6.5 6.5l11 11M6.5 17.5l11-11M9 4l3-2 3 2M9 20l3 2 3-2"/></svg>',
-  intelligence: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.5c.5.4 1 1 1 1.8h5c0-.8.5-1.4 1-1.8A6 6 0 0012 3z"/></svg>',
-  charisma: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.8L19 9l-5.2 1.2L12 15l-1.8-4.8L5 9l5.2-1.2z"/></svg>',
-  creativity: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 100 18c1.5 0 2-1 2-2 0-.8-.5-1-1-2s1.5-1.5 2.5-1c1.5-1 2-3 1-4.5A9 9 0 0012 3zM8 13a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>',
-  discipline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>',
+  strength: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l-2 3 2 3M20 9l2 3-2 3M6.5 6.5l11 11M6.5 17.5l11-11M9 4l3-2 3 2M9 20l3 2 3-2"/></svg>',
+  intelligence: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.5c.5.4 1 1 1 1.8h5c0-.8.5-1.4 1-1.8A6 6 0 0012 3z"/></svg>',
+  charisma: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.8L19 9l-5.2 1.2L12 15l-1.8-4.8L5 9l5.2-1.2z"/></svg>',
+  creativity: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 100 18c1.5 0 2-1 2-2 0-.8-.5-1-1-2s1.5-1.5 2.5-1c1.5-1 2-3 1-4.5A9 9 0 0012 3zM8 13a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>',
+  discipline: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>',
 };
 
 // ===== 游戏化系统 (LifeUp 风格 RPG 属性) =====
