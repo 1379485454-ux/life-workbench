@@ -21,6 +21,7 @@ function getDailyHistory(type, days) {
 
 // ===== SVG 图标 =====
 const ICONS = {
+  menu: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>',
   home: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><path d="M3 12L12 3l9 9M5 10v10h14V10"/></svg>',
   plan: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h4"/></svg>',
   read: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><path d="M2 4h7a3 3 0 013 3v13a2 2 0 00-2-2H2zM22 4h-7a3 3 0 00-3 3v13a2 2 0 012-2h8z"/></svg>',
@@ -313,10 +314,10 @@ const Game = {
         <div class="sg-header">
           <div class="sg-avatar-wrap">
             <div class="sg-avatar">${d.level}</div>
-            <svg class="sg-ring" viewBox="0 0 36 36" width="36" height="36">
-              <circle cx="18" cy="18" r="16" fill="none" stroke="var(--bg-light)" stroke-width="3"/>
-              <circle cx="18" cy="18" r="16" fill="none" stroke="url(#sgRingGrad)" stroke-width="3"
-                stroke-dasharray="${expPct} ${100 - expPct}" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+            <svg class="sg-ring" viewBox="0 0 40 40" width="40" height="40">
+              <circle cx="20" cy="20" r="18" fill="none" stroke="var(--bg-light)" stroke-width="4"/>
+              <circle cx="20" cy="20" r="18" fill="none" stroke="url(#sgRingGrad)" stroke-width="4"
+                stroke-dasharray="${expPct} ${100 - expPct}" stroke-linecap="round" transform="rotate(-90 20 20)"/>
               <defs><linearGradient id="sgRingGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F4B740"/><stop offset="100%" stop-color="#D97706"/></linearGradient></defs>
             </svg>
           </div>
@@ -343,8 +344,6 @@ const Game = {
           <span class="sg-stat">${ICONS.tomato}<b>${d.pomodoros}</b>番茄</span>
         </div>
       </div>`;
-    // 同时更新移动端状态栏
-    if (Nav.isMobile && Nav.isMobile()) Nav.renderMobileStatusBar();
   },
 };
 
@@ -536,10 +535,38 @@ function attachRipple() {
 }
 
 // ===== 导航 =====
+const Sidebar = {
+  open() {
+    const sb = $('#sidebar');
+    if (!sb) return;
+    sb.classList.add('open');
+    let overlay = $('#sidebarOverlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'sidebarOverlay';
+      overlay.className = 'sidebar-overlay';
+      overlay.onclick = () => Sidebar.close();
+      document.body.appendChild(overlay);
+    }
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  },
+  close() {
+    const sb = $('#sidebar');
+    if (sb) sb.classList.remove('open');
+    const overlay = $('#sidebarOverlay');
+    if (overlay) overlay.classList.remove('show');
+    document.body.style.overflow = '';
+  },
+  toggle() {
+    const sb = $('#sidebar');
+    if (sb && sb.classList.contains('open')) this.close(); else this.open();
+  }
+};
+
 const Nav = {
   current: 'home',
   scrollPositions: {},
-  _mobileCores: ['home', 'plan', 'read', 'pomo'],
   isMobile: function() { return window.innerWidth <= 768; },
   init() {
     this.renderNav();
@@ -547,81 +574,29 @@ const Nav = {
   },
   renderNav() {
     const nav = $('#sidebarNav');
-    const mobile = this.isMobile();
-    if (mobile) {
-      // 移动端底部栏：4 个核心入口 + 更多
-      const coreItems = MENU.filter(m => this._mobileCores.includes(m.id));
-      let html = '';
-      coreItems.forEach(m => {
-        html += `<button class="nav-item ${m.id === this.current ? 'active' : ''}" data-module="${m.id}">${m.icon}<span>${m.name}</span></button>`;
-      });
-      // 高亮「更多」如果有非核心模块正在激活
-      const isMoreActive = this._mobileCores.indexOf(this.current) === -1;
-      html += `<button class="nav-item nav-more-btn ${isMoreActive ? 'active' : ''}" data-action="more"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg><span>更多</span></button>`;
-      nav.innerHTML = html;
-      // 绑定事件
-      nav.onclick = (e) => {
-        const btn = e.target.closest('.nav-item');
-        if (!btn) return;
-        if (btn.dataset.action === 'more') {
-          this.toggleMobileMore();
-          return;
-        }
-        if (btn.dataset.module) this.switchTo(btn.dataset.module);
-      };
-    } else {
-      // 桌面端：完整菜单 + 分组标题
-      let html = '', lastGroup = null;
-      MENU.forEach((m, i) => {
-        if (m.group !== lastGroup && m.group !== 'main') {
-          html += `<div class="nav-group-title">${GROUP_NAMES[m.group] || m.group}</div>`;
-          lastGroup = m.group;
-        }
-        html += `<button class="nav-item ${m.id === this.current ? 'active' : ''}" data-module="${m.id}">${m.icon}<span>${m.name}</span></button>`;
-      });
-      nav.innerHTML = html;
-      nav.onclick = (e) => { const btn = e.target.closest('.nav-item'); if (btn && btn.dataset.module) this.switchTo(btn.dataset.module); };
-    }
-  },
-  toggleMobileMore() {
-    let overlay = document.getElementById('mobileMoreOverlay');
-    if (overlay) { overlay.remove(); return; }
-    const allModules = MENU.filter(m => !Nav._mobileCores.includes(m.id));
-    let itemsHtml = allModules.map(m => 
-      `<button class="more-menu-item" data-module="${m.id}">${m.icon}<span>${m.name}</span></button>`
-    ).join('');
-    overlay = document.createElement('div');
-    overlay.id = 'mobileMoreOverlay';
-    overlay.className = 'mobile-more-overlay';
-    overlay.innerHTML = `<div class="mobile-more-panel"><div class="mobile-more-header"><span>更多功能</span><button class="mobile-more-close" onclick="document.getElementById('mobileMoreOverlay').remove()">${ICONS.close}</button></div><div class="mobile-more-items">${itemsHtml}</div></div>`;
-    overlay.addEventListener('click', function(e) {
-      if (e.target === overlay) overlay.remove();
-      const item = e.target.closest('.more-menu-item');
-      if (item) { overlay.remove(); Nav.switchTo(item.dataset.module); }
+    // 统一侧边栏抽屉：完整菜单 + 分组标题
+    let html = '', lastGroup = null;
+    MENU.forEach((m, i) => {
+      if (m.group !== lastGroup && m.group !== 'main') {
+        html += `<div class="nav-group-title">${GROUP_NAMES[m.group] || m.group}</div>`;
+        lastGroup = m.group;
+      }
+      html += `<button class="nav-item ${m.id === this.current ? 'active' : ''}" data-module="${m.id}">${m.icon}<span>${m.name}</span></button>`;
     });
-    document.body.appendChild(overlay);
+    nav.innerHTML = html;
+    nav.onclick = (e) => {
+      const btn = e.target.closest('.nav-item');
+      if (!btn || !btn.dataset.module) return;
+      this.switchTo(btn.dataset.module);
+      Sidebar.close();
+    };
   },
   switchTo(id) {
     if (this.current) this.scrollPositions[this.current] = $('#content').scrollTop;
     this.current = id;
     $$('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.module === id));
-    // 移动端：如果切换到非核心模块，高亮「更多」
-    if (this.isMobile()) {
-      const moreBtn = document.querySelector('.nav-more-btn');
-      if (moreBtn) moreBtn.classList.toggle('active', !this._mobileCores.includes(id));
-    }
     const mod = MENU.find(m => m.id === id);
-    $('#mainHeader').innerHTML = `<div class="header-left"><div class="header-greeting" id="headerGreeting">你好</div><div class="header-title">${mod.icon} ${mod.name}</div></div><div class="header-right"><span class="header-date" id="headerDate">${ICONS.calendar}<span class="header-date-text"></span></span><button class="header-theme-toggle" id="themeToggle" onclick="Theme.toggle()" title="切换亮色/暗色">${Theme.current === 'dark' ? ICONS.sun : ICONS.moon}</button><div class="header-avatar" id="headerAvatar" title="${UserProfile.displayName}">${UserProfile.initials}</div></div>`;
-    // 移动端状态栏：作为 header 与 content 之间的独立条带，避免被 header flex 挤压
-    const existingBar = $('#mobileStatusBar');
-    if (existingBar) existingBar.remove();
-    if (this.isMobile()) {
-      const bar = document.createElement('div');
-      bar.className = 'mobile-status-bar';
-      bar.id = 'mobileStatusBar';
-      $('#mainHeader').insertAdjacentElement('afterend', bar);
-      this.renderMobileStatusBar();
-    }
+    $('#mainHeader').innerHTML = `<div class="header-left"><button class="header-menu-btn" id="menuToggle" onclick="Sidebar.toggle()" title="打开菜单" aria-label="菜单">${ICONS.menu}</button><div class="header-title-wrap"><div class="header-greeting" id="headerGreeting">你好</div><div class="header-title">${mod.icon} ${mod.name}</div></div></div><div class="header-right"><span class="header-date" id="headerDate">${ICONS.calendar}<span class="header-date-text"></span></span><button class="header-theme-toggle" id="themeToggle" onclick="Theme.toggle()" title="切换亮色/暗色">${Theme.current === 'dark' ? ICONS.sun : ICONS.moon}</button><div class="header-avatar" id="headerAvatar" title="${UserProfile.displayName}">${UserProfile.initials}</div></div>`;
     const renderer = Modules[id];
     $('#content').innerHTML = renderer ? renderer() : '<div class="empty-state"><div class="empty-state-icon">'+ICONS.target+'</div><div class="empty-state-text">功能开发中...</div></div>';
     if (ModuleHooks[id]) ModuleHooks[id]();
@@ -634,20 +609,6 @@ const Nav = {
     const renderer = Modules[id];
     if (renderer) { $('#content').innerHTML = renderer(); if (ModuleHooks[id]) ModuleHooks[id](); $('#content').scrollTop = scrollPos; }
     Clock.tick();
-    if (this.isMobile()) this.renderMobileStatusBar();
-  },
-  renderMobileStatusBar() {
-    const bar = $('#mobileStatusBar');
-    if (!bar) return;
-    const d = Game.data;
-    bar.innerHTML = `
-      <div class="mobile-status-item"><span class="mobile-status-lv">${ICONS.star} Lv.${d.level}</span></div>
-      <div class="mobile-status-item"><span class="mobile-status-coins">${ICONS.coin} ${d.coins}</span></div>
-      <div class="mobile-status-item"><span class="mobile-status-hp">${ICONS.heart} ${d.health}</span></div>
-      <div class="mobile-status-item"><span class="mobile-status-streak">${ICONS.flame} ${d.streak}天</span></div>
-      <div class="mobile-status-item">${ICONS.list} ${d.totalTasksDone}</div>
-      <button class="mobile-status-item" onclick="Nav.switchTo('backup')" style="cursor:pointer;border:none;">${ICONS.cloud} 同步</button>
-    `;
   },
 };
 
@@ -2362,8 +2323,8 @@ function initSwipeGesture() {
     var dy = e.changedTouches[0].clientY - touchStartY;
     // 忽略垂直滑动和过小的水平滑动
     if (Math.abs(dy) > Math.abs(dx) || Math.abs(dx) < 60) return;
-    // 构建移动端模块顺序
-    var mobileOrder = Nav._mobileCores.concat(MENU.filter(function(m) { return Nav._mobileCores.indexOf(m.id) === -1; }).map(function(m) { return m.id; }));
+    // 构建模块顺序
+    var mobileOrder = MENU.map(function(m) { return m.id; });
     var idx = mobileOrder.indexOf(Nav.current);
     if (dx > 0 && idx > 0) Nav.switchTo(mobileOrder[idx - 1]); // 右滑回上一个
     else if (dx < 0 && idx < mobileOrder.length - 1) Nav.switchTo(mobileOrder[idx + 1]); // 左滑到下一个
