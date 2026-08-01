@@ -298,21 +298,50 @@ const Game = {
       const ad = d.attributes[a.key] || { lv: 1, exp: 0 };
       const need = ad.lv * 50;
       const pct = (ad.exp / need * 100).toFixed(0);
-      return `<div class="sidebar-attr" title="${a.name} Lv.${ad.lv}"><span class="sidebar-attr-icon" style="color:${a.color}">${a.icon}</span><div class="sidebar-attr-bar"><div class="sidebar-attr-fill" style="width:${pct}%;background:${a.color}"></div></div><span class="sidebar-attr-lv">${ad.lv}</span></div>`;
+      return `
+        <div class="sg-attr" title="${a.name} Lv.${ad.lv}">
+          <div class="sg-attr-icon" style="color:${a.color}">${a.icon}</div>
+          <div class="sg-attr-info">
+            <div class="sg-attr-name">${a.name}</div>
+            <div class="sg-attr-bar"><div class="sg-attr-fill" style="width:${pct}%;background:${a.color}"></div></div>
+          </div>
+          <div class="sg-attr-lv">${ad.lv}</div>
+        </div>`;
     }).join('');
     $('#sidebarStats').innerHTML = `
       <div class="sidebar-game">
-        <div class="sidebar-level-row">
-          <div class="lvl-ring" style="--p:${expPct}"><span>${d.level}</span></div>
-          <div class="sidebar-stats-meta">
-            <div class="sidebar-level-text">Lv.${d.level} <span class="lv-badge">${ICONS.star}</span></div>
-            <div class="sm-coins">${ICONS.coin} ${d.coins}</div>
-            <div class="sm-hp">${ICONS.heart} ${d.health} · ${ICONS.flame} ${d.streak}</div>
+        <div class="sg-header">
+          <div class="sg-avatar-wrap">
+            <div class="sg-avatar">${d.level}</div>
+            <svg class="sg-ring" viewBox="0 0 36 36" width="36" height="36">
+              <circle cx="18" cy="18" r="16" fill="none" stroke="var(--bg-light)" stroke-width="3"/>
+              <circle cx="18" cy="18" r="16" fill="none" stroke="url(#sgRingGrad)" stroke-width="3"
+                stroke-dasharray="${expPct} ${100 - expPct}" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+              <defs><linearGradient id="sgRingGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F4B740"/><stop offset="100%" stop-color="#D97706"/></linearGradient></defs>
+            </svg>
+          </div>
+          <div class="sg-meta">
+            <div class="sg-name-row">
+              <span class="sg-lv">Lv.${d.level}</span>
+              <span class="sg-name">${UserProfile.displayName}</span>
+            </div>
+            <div class="sg-resources">
+              <span class="sg-res sg-coin" title="金币">${ICONS.coin}<b>${d.coins}</b></span>
+              <span class="sg-res sg-hp" title="生命值">${ICONS.heart}<b>${d.health}</b></span>
+              <span class="sg-res sg-streak" title="连续打卡">${ICONS.flame}<b>${d.streak}</b></span>
+            </div>
           </div>
         </div>
-        <div class="sidebar-exp-bar"><div class="sidebar-exp-fill" style="width:${expPct}%"></div><span class="sidebar-exp-label">${d.exp}/${d.expMax} EXP</span></div>
-        <div class="sidebar-attrs">${attrHtml}</div>
-        <div class="sidebar-game-bottom">${ICONS.check} ${d.totalCheckIns} 打卡 · ${ICONS.list} ${d.totalTasksDone} 任务 · ${ICONS.tomato} ${d.pomodoros} 番茄</div>
+        <div class="sg-expbar">
+          <div class="sg-expbar-fill" style="width:${expPct}%"></div>
+          <span class="sg-expbar-text">${d.exp}/${d.expMax} EXP</span>
+        </div>
+        <div class="sg-attrs">${attrHtml}</div>
+        <div class="sg-footer">
+          <span class="sg-stat">${ICONS.check}<b>${d.totalCheckIns}</b>打卡</span>
+          <span class="sg-stat">${ICONS.list}<b>${d.totalTasksDone}</b>任务</span>
+          <span class="sg-stat">${ICONS.tomato}<b>${d.pomodoros}</b>番茄</span>
+        </div>
       </div>`;
     // 同时更新移动端状态栏
     if (Nav.isMobile && Nav.isMobile()) Nav.renderMobileStatusBar();
