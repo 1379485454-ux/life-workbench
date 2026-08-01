@@ -89,7 +89,8 @@
 * { margin:0; padding:0; box-sizing:border-box; }
 
 /* 内联 SVG 图标默认 1em，防止无 width/height 时撑破父容器；已有具体尺寸规则可覆盖 */
-:where(svg[viewBox="0 0 24 24"]:not([width]):not([height])) {
+/* 未声明 width 的内联 SVG（如图表 svg）兜底为 1em，防止撑破父容器；已有具体尺寸规则可覆盖 */
+svg:not([width]):not([height]) {
   width: 1em;
   height: 1em;
   flex-shrink: 0;
