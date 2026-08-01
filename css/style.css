@@ -214,7 +214,7 @@ body {
 .sidebar-level-text {
   font-size: 13px;
   font-weight: 700;
-  color: var(--text-white);
+  color: var(--text);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -222,11 +222,11 @@ body {
 .sidebar-coins {
   font-size: 13px;
   font-weight: 700;
-  color: var(--warning-light);
+  color: var(--warning);
 }
 .bar-mini {
   height: 5px;
-  background: rgba(255,255,255,0.1);
+  background: var(--bg-light);
   border-radius: 3px;
   overflow: hidden;
   margin: 3px 0 8px;
@@ -234,17 +234,17 @@ body {
 .bar-mini-fill { height: 100%; border-radius: 3px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
 .bar-mini-fill.exp { background: linear-gradient(90deg, #F4B740, #E8911C); }
 .bar-mini-fill.health { background: linear-gradient(90deg, #34d399, #10b981); }
-.sidebar-mini-label { font-size: 10px; color: var(--text-white-dim); display: flex; justify-content: space-between; }
+.sidebar-mini-label { font-size: 10px; color: var(--text-light); display: flex; justify-content: space-between; }
 .sidebar-streak-row {
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid var(--border-light);
 }
 .sidebar-streak-item { text-align: center; flex: 1; }
-.sidebar-streak-num { font-size: 16px; font-weight: 800; color: var(--text-white); }
-.sidebar-streak-label { font-size: 10px; color: var(--text-white-dim); margin-top: 1px; }
+.sidebar-streak-num { font-size: 16px; font-weight: 800; color: var(--text); }
+.sidebar-streak-label { font-size: 10px; color: var(--text-light); margin-top: 1px; }
 
 /* ========== 主内容区 ========== */
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -1358,16 +1358,16 @@ label.field-label {
 .reward-pop-items svg, .toast svg { width: 1.1em; height: 1.1em; vertical-align: -0.18em; }
 
 /* ========== v4 侧边栏游戏化面板 ========== */
-.sidebar-game { padding: 12px 16px 16px; border-top: 1px solid rgba(255,255,255,0.06); background: rgba(0,0,0,0.15); }
+.sidebar-game { padding: 16px 16px 16px; border-top: 1px solid var(--border); background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-soft) 100%); }
 .sidebar-game-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .sidebar-game .sidebar-level-badge { font-size: 13px; font-weight: 800; color: #fff; background: linear-gradient(135deg, var(--warning-light), var(--warning)); padding: 3px 12px; border-radius: 20px; box-shadow: 0 2px 8px rgba(245,158,11,0.3); }
 .sidebar-game-mini-stats { display: flex; gap: 10px; }
-.sidebar-game .sidebar-mini-stat { font-size: 12px; color: rgba(255,255,255,0.7); display: flex; align-items: center; gap: 2px; }
+.sidebar-game .sidebar-mini-stat { font-size: 12px; color: var(--text-light); display: flex; align-items: center; gap: 2px; }
 .sidebar-game .sidebar-mini-stat span { font-size: 13px; }
-.sidebar-exp-bar { position: relative; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+.sidebar-exp-bar { position: relative; height: 8px; background: var(--bg-light); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
 .sidebar-exp-fill { height: 100%; background: linear-gradient(90deg, #F4B740, #E8911C); border-radius: 4px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
-.sidebar-exp-label { font-size: 10px; color: rgba(255,255,255,0.4); position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 100%; text-align: center; font-weight: 600; }
-.sidebar-game-bottom { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 8px; display: flex; justify-content: space-between; }
+.sidebar-exp-label { font-size: 10px; color: var(--text-light); position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 100%; text-align: center; font-weight: 600; }
+.sidebar-game-bottom { font-size: 11px; color: var(--text-light); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-light); display: flex; justify-content: space-between; }
 
 /* ========== v4 加载状态 ========== */
 .loading-state { text-align: center; padding: 32px 20px; color: var(--text-light); font-size: 14px; font-weight: 500; }
@@ -1460,9 +1460,9 @@ label.field-label {
 .sidebar-attrs { display: flex; flex-direction: column; gap: 4px; margin: 8px 0 6px; }
 .sidebar-attr { display: flex; align-items: center; gap: 6px; }
 .sidebar-attr-icon { font-size: 12px; width: 16px; text-align: center; flex-shrink: 0; }
-.sidebar-attr-bar { flex: 1; height: 4px; background: var(--bg-hover); border-radius: 2px; overflow: hidden; }
+.sidebar-attr-bar { flex: 1; height: 4px; background: var(--bg-light); border-radius: 2px; overflow: hidden; }
 .sidebar-attr-fill { height: 100%; border-radius: 2px; transition: width 0.3s; }
-.sidebar-attr-lv { font-size: 10px; font-weight: 700; color: var(--text-light); min-width: 16px; text-align: right; }
+.sidebar-attr-lv { font-size: 10px; font-weight: 700; color: var(--text); min-width: 16px; text-align: right; }
 
 /* ========== v5 番茄钟 ========== */
 .pomo-container { display: flex; flex-direction: column; gap: 14px; }
@@ -1564,14 +1564,14 @@ label.field-label {
 .recur-day-chip.selected { background: var(--primary); border-color: var(--primary); color: #fff; }
 
 /* ========== v6 个人属性页 ========== */
-.attr-hero { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: linear-gradient(135deg, var(--sidebar-bg), var(--sidebar-bg-2)); color: #fff; }
+.attr-hero { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: linear-gradient(135deg, #B45309 0%, #D97706 50%, #E8911C 100%); color: #fff; border-radius: var(--radius); padding: 24px; box-shadow: 0 8px 32px rgba(217,119,6,0.25); }
 .attr-hero-left { display: flex; flex-direction: column; gap: 4px; }
 .attr-level-badge { font-size: 22px; font-weight: 800; background: linear-gradient(135deg, var(--warning-light), var(--warning)); padding: 4px 16px; border-radius: 20px; align-self: flex-start; box-shadow: 0 4px 12px rgba(245,158,11,0.35); }
 .attr-hero-name { font-size: 18px; font-weight: 700; margin-top: 4px; }
-.attr-hero-sub { font-size: 12px; color: rgba(255,255,255,0.55); }
+.attr-hero-sub { font-size: 12px; color: rgba(255,255,255,0.85); }
 .attr-hero-right { display: flex; gap: 8px; flex-wrap: wrap; }
-.attr-mini { display: flex; flex-direction: column; align-items: center; gap: 2px; background: rgba(255,255,255,0.08); padding: 8px 12px; border-radius: 10px; font-size: 15px; font-weight: 700; min-width: 52px; }
-.attr-mini span { font-size: 11px; opacity: 0.6; font-weight: 500; }
+.attr-mini { display: flex; flex-direction: column; align-items: center; gap: 2px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); padding: 8px 12px; border-radius: 10px; font-size: 15px; font-weight: 700; min-width: 52px; }
+.attr-mini span { font-size: 11px; opacity: 0.9; font-weight: 500; }
 
 .radar-chart { max-width: 100%; height: auto; }
 
@@ -1582,10 +1582,10 @@ label.field-label {
 .attr-row-top { display: flex; align-items: baseline; justify-content: space-between; }
 .attr-name { font-size: 15px; font-weight: 700; color: var(--text); }
 .attr-lv { font-size: 14px; font-weight: 800; }
-.attr-desc { font-size: 12px; color: var(--text-light); margin: 2px 0 8px; }
-.attr-bar { height: 7px; background: var(--bg-light); border-radius: 4px; overflow: hidden; }
+.attr-desc { font-size: 12px; color: var(--text-light); margin: 2px 0 8px; font-weight: 500; }
+.attr-bar { height: 8px; background: var(--bg-hover); border-radius: 4px; overflow: hidden; }
 .attr-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
-.attr-exp-text { font-size: 11px; color: var(--text-lighter); margin-top: 5px; text-align: right; }
+.attr-exp-text { font-size: 11px; color: var(--text-light); margin-top: 5px; text-align: right; font-weight: 500; }
 
 .attr-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .attr-stats-grid > div { background: var(--bg-soft); border-radius: 12px; padding: 14px 8px; text-align: center; }
@@ -1826,7 +1826,7 @@ input:focus, select:focus, textarea:focus {
   .nav-item.active::before { left: 50%; top: auto; bottom: 1px; transform: translateX(-50%); width: 20px; height: 3px; border-radius: 2px; }
   .main { margin-bottom: calc(56px + env(safe-area-inset-bottom)); }
   .main-header { padding: 10px 14px; padding-top: calc(10px + env(safe-area-inset-top)); min-height: 48px; }
-  .header-title { font-size: 16px; }
+  .header-title { font-size: 18px; letter-spacing: -0.01em; }
   .header-date { font-size: 12px; }
   .content { padding: 12px 12px calc(20px + env(safe-area-inset-bottom)); }
   .card { padding: 12px; border-radius: 14px; }
@@ -1975,7 +1975,7 @@ input:focus, select:focus, textarea:focus {
 
 /* ---- iPhone SE / 375px 小屏精细适配 ---- */
 @media (max-width: 380px) {
-  .header-title { font-size: 14px; }
+  .header-title { font-size: 16px; letter-spacing: -0.01em; }
   .header-avatar { width: 28px; height: 28px; font-size: 10px; }
   .header-theme-toggle { width: 28px; height: 28px; font-size: 12px; }
   .card-title { font-size: 15px; }
@@ -2080,6 +2080,25 @@ input:focus, select:focus, textarea:focus {
 }
 
 /* 卡片 → 暗色玻璃 */
+:root[data-theme="dark"] .sidebar-game { background: rgba(255,255,255,0.05); border-top-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .sidebar-game-bottom,
+:root[data-theme="dark"] .sidebar-game .sidebar-mini-stat,
+:root[data-theme="dark"] .sidebar-mini-label,
+:root[data-theme="dark"] .sidebar-streak-label,
+:root[data-theme="dark"] .sidebar-exp-label,
+:root[data-theme="dark"] .sidebar-attr-lv,
+:root[data-theme="dark"] .sidebar-stats-meta .sm-hp { color: rgba(255,255,255,0.6); }
+:root[data-theme="dark"] .sidebar-level-text,
+:root[data-theme="dark"] .sidebar-streak-num,
+:root[data-theme="dark"] .sidebar-coins,
+:root[data-theme="dark"] .sidebar-stats-meta .sm-coins { color: #fff; }
+:root[data-theme="dark"] .sidebar-exp-bar,
+:root[data-theme="dark"] .bar-mini,
+:root[data-theme="dark"] .sidebar-attr-bar { background: rgba(255,255,255,0.1); }
+:root[data-theme="dark"] .sidebar-streak-row,
+:root[data-theme="dark"] .sidebar-game-bottom { border-top-color: rgba(255,255,255,0.08); }
+:root[data-theme="dark"] .attr-hero { background: linear-gradient(135deg, #92400E 0%, #B45309 50%, #D97706 100%); }
+
 :root[data-theme="dark"] .card {
   background: rgba(21,27,46,0.92);
   border-color: rgba(255,255,255,0.07);
@@ -2260,8 +2279,8 @@ input:focus, select:focus, textarea:focus {
 .lvl-ring span { position: relative; font-size: 13px; font-weight: 800; color: #fff; }
 .sidebar-level-text .lv-badge { color: #F4B740; }
 .sidebar-stats-meta { display: flex; flex-direction: column; gap: 1px; }
-.sidebar-stats-meta .sm-coins { font-size: 12px; font-weight: 700; color: var(--warning-light); }
-.sidebar-stats-meta .sm-hp { font-size: 11px; color: var(--text-white-dim); }
+.sidebar-stats-meta .sm-coins { font-size: 12px; font-weight: 700; color: var(--warning); }
+.sidebar-stats-meta .sm-hp { font-size: 11px; color: var(--text-light); }
 
 /* ---- 卡片升级：内顶高光 + 悬浮辉光 ---- */
 .card {
