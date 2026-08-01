@@ -27,3 +27,4 @@ data/
 
 # 仅本机用的本地部署脚本（云上不需要）
 setup-tailscale.bat
+move_workbuddy_data.ps1

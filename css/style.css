@@ -2654,3 +2654,12 @@ button, .nav-item, .card, .task-item, .btn, [data-module], [data-action] { curso
 .nav-item, .btn, .card, .task-item { transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast); }
 .nav-item:hover, .card:hover { background: var(--bg-hover); }
 .nav-item:active, .btn:active { transform: scale(0.97); }
+
+/* ===== 个人设置：主题色 chips / Emoji 头像快选 ===== */
+.accent-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.accent-chip { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12); transition: transform var(--transition-fast), border-color var(--transition-fast); }
+.accent-chip:hover { transform: scale(1.12); }
+.accent-chip.active { border-color: var(--text); box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.7), 0 2px 8px rgba(15, 23, 42, 0.2); }
+.emoji-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.emoji-quick-item { font-size: 20px; line-height: 1; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--bg-hover); cursor: pointer; transition: transform var(--transition-fast), background var(--transition-fast); }
+.emoji-quick-item:hover { transform: scale(1.12); background: var(--primary-light); }

@@ -127,7 +127,7 @@ const Store = {
 // ===== 用户资料（可配置昵称/头像） =====
 const UserProfile = {
   key: 'wb_user_profile',
-  defaults: { name: '我', avatar: '' },
+  defaults: { name: '我', avatar: '', title: '', avatarEmoji: '', accent: '' },
   get() {
     const saved = Store.get(this.key, null);
     return saved && typeof saved === 'object' ? { ...this.defaults, ...saved } : { ...this.defaults };
@@ -145,6 +145,29 @@ const UserProfile = {
     return name.trim().slice(0, 2).toUpperCase();
   }
 };
+
+// ===== 个人自由个性化（无金币、无解锁门禁） =====
+const ACCENT_PRESETS = {
+  sky:    { primary: '#0EA5E9', dark: '#0284C7', light: '#38BDF8', name: '天蓝' },
+  ocean:  { primary: '#2563EB', dark: '#1D4ED8', light: '#60A5FA', name: '海蓝' },
+  teal:   { primary: '#0D9488', dark: '#0F766E', light: '#2DD4BF', name: '青碧' },
+  violet: { primary: '#7C3AED', dark: '#6D28D9', light: '#A78BFA', name: '紫罗兰' },
+  rose:   { primary: '#E11D48', dark: '#BE123C', light: '#FB7185', name: '玫瑰' },
+  amber:  { primary: '#D97706', dark: '#B45309', light: '#FBBF24', name: '暖琥珀' },
+};
+function applyPersonalization() {
+  const p = UserProfile.get();
+  const root = document.documentElement;
+  const a = p.accent && ACCENT_PRESETS[p.accent] ? ACCENT_PRESETS[p.accent] : ACCENT_PRESETS.sky;
+  root.style.setProperty('--primary', a.primary);
+  root.style.setProperty('--primary-dark', a.dark);
+  root.style.setProperty('--primary-light', a.light);
+  root.style.setProperty('--sidebar-active', a.primary);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', a.primary);
+  const av = document.getElementById('headerAvatar');
+  if (av) { av.textContent = p.avatarEmoji || UserProfile.initials; av.title = UserProfile.displayName + (p.title ? (' · ' + p.title) : ''); }
+}
 
 // 个人属性图标 (内联 SVG, UI/UX: 避免 emoji)
 const ATTR_ICONS = {
@@ -737,6 +760,29 @@ Modules.home = () => {
       </div>
     </div>
     <div class="dash-rings">${ringsHtml}</div>
+    <div class="card" id="secQuickHabits">
+      <div class="card-title">${ICONS.bolt} 今日快捷打卡 <span class="card-subtitle">一键记录，省去进子页面</span></div>
+      <div class="quick-habits">
+        <button class="quick-habit" onclick="quickWater()">
+          <span class="qh-ico" style="color:var(--primary)">${ICONS.water}</span>
+          <span class="qh-label">喝水</span>
+          <span class="qh-val">${todayWater.water || 0}<small>/8</small></span>
+          <span class="qh-add">+1 杯</span>
+        </button>
+        <button class="quick-habit" onclick="quickReading()">
+          <span class="qh-ico" style="color:var(--success)">${ICONS.book}</span>
+          <span class="qh-label">阅读</span>
+          <span class="qh-val">${todayRead.pages || 0}<small>页</small></span>
+          <span class="qh-add">+5 页</span>
+        </button>
+        <button class="quick-habit" onclick="quickExercise()">
+          <span class="qh-ico" style="color:var(--warning)">${ICONS.run}</span>
+          <span class="qh-label">运动</span>
+          <span class="qh-val">${exMin}<small>分</small></span>
+          <span class="qh-add">+10 分</span>
+        </button>
+      </div>
+    </div>
     <div class="dash-overview" id="secOverview">
       <div class="card"><div class="card-title">${ICONS.list} 今日计划进度 <span class="card-subtitle">${doneTasks}/${todayTasks.length} 已完成</span></div>${todayTasks.length ? (doneTasks === todayTasks.length ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:100%"></div></div><div class="all-done-state"><div class="all-done-icon">${ICONS.star}</div><div class="all-done-text">今日任务全部完成！</div><div class="all-done-sub">太棒了，给自己一点奖励吧</div></div>` : `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${taskPct}%"></div></div><div style="margin-top:12px;">${todayTasks.slice(0,5).map(t => `<div class="task-item-v2 ${t.done?'done':''}" style="margin-bottom:6px;padding:9px 12px;" title="点击完成/取消"><div class="task-checkbox ${t.done?'checked':''}" onclick="toggleTaskFromHome('${t.id}')"></div><span class="task-text">${esc(t.text)}</span></div>`).join('')}${todayTasks.length > 5 ? `<div class="text-muted text-sm" style="padding:8px 4px;">还有 ${todayTasks.length-5} 项待办...</div>` : ''}</div>`) : '<div class="empty-state"><div class="empty-state-icon">'+ICONS.notebook+'</div><div class="empty-state-text">还没有添加今日计划</div><a class="empty-state-action" onclick="Nav.switchTo(\'plan\')">去制定计划 →</a></div>'}<button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="Nav.switchTo('plan')">前往计划 →</button></div>
       <div class="card"><div class="card-title">${ICONS.chart} 今日数据概览</div><div class="grid-2 dash-stats-grid" style="gap:12px;">${[{icon:ICONS.water,label:'杯水',val:todayWater.water||0,color:'var(--primary)',link:'food'},{icon:ICONS.run,label:'运动分钟',val:exMin,color:'var(--warning)',link:'exercise'},{icon:ICONS.book,label:'阅读页数',val:todayRead.pages||0,color:'var(--success)',link:'read'},{icon:ICONS.clock,label:'阅读分钟',val:todayRead.minutes||0,color:'var(--purple)',link:'read'}].map(s=>`<div class="dash-mini-stat" onclick="Nav.switchTo('${s.link}')" title="查看${s.label}"><div class="dash-mini-stat-num" style="color:${s.color}">${s.val}</div><div class="dash-mini-stat-label">${s.icon} ${s.label}</div></div>`).join('')}</div></div>
@@ -966,6 +1012,13 @@ function toggleTaskFromHome(id) {
   const tasks = getPlan(date);
   const t = tasks.find(x => x.id === id); if (!t) return;
   _doToggleTask(tasks, t, date, true);
+}
+function completeTaskById(id) {
+  const date = todayKey();
+  const tasks = getPlan(date);
+  const t = tasks.find(x => x.id === id); if (!t || t.done) return;
+  _doToggleTask(tasks, t, date);
+  toast(`🍅 专注完成：${esc(t.text.slice(0, 16))}`, 'success');
 }
 function _doToggleTask(tasks, t, date, fromHome) {
   const wasDone = t.done; t.done = !t.done;
@@ -1267,7 +1320,7 @@ Modules.read = () => {
         return `<div class="reading-book-card" data-id="${b.id}"><div class="book-cover" style="background:linear-gradient(135deg,${color},${color}dd);">${isDone ? '✅' : '📕'}</div><div class="book-info"><div class="book-title">${esc(b.title)} <div class="record-actions"><button class="btn-icon" onclick="editBook('${b.id}')">${ICO.edit}</button><button class="btn-icon danger" onclick="confirmDelBook('${b.id}')">${ICO.trash}</button></div></div><div class="book-progress-text">已读 ${b.current} / ${b.total} 页 · ${p}% ${isDone ? '· 已读完 🎉' : ''}</div><div class="book-bar"><div class="book-bar-fill" style="width:${p}%;background:${color};"></div></div><div class="book-actions"><a href="https://weread.qq.com/web/search?keyword=${encodeURIComponent(b.title)}" target="_blank" class="btn btn-outline btn-sm">📖 微信读书</a><button class="btn btn-outline btn-sm" onclick="updateBook('${b.id}', 5)">+5页</button><button class="btn btn-outline btn-sm" onclick="updateBook('${b.id}', 10)">+10页</button><button class="btn btn-outline btn-sm" onclick="updateBook('${b.id}', -5)">-5页</button></div></div></div>`;
       }).join('') : '<div class="empty-state-v2"><div class="empty-state-v2-icon">📚</div><div class="empty-state-v2-text">书架空空如也</div><div class="empty-state-v2-hint">添加一本书开始阅读吧</div></div>'}</div>
     </div>
-    <div class="card"><div class="card-title">${ICONS.calendar} 阅读历史</div>${history.length ? history.slice(-10).reverse().map(h => `<div class="note-item"><div class="note-item-title">${esc(h.date)} · ${h.pages}页 / ${h.minutes}分钟</div>${h.notes ? `<div class="note-item-body">${esc(h.notes)}</div>` : ''}</div>`).join('') : '<div class="empty-state text-muted text-sm">还没有阅读历史</div>'}</div>
+    <div class="card"><div class="card-title">${ICONS.calendar} 阅读历史</div>${history.length ? history.slice(-10).reverse().map(h => `<div class="note-item"><div class="note-item-title">${esc(h.date)} · ${h.pages}页 / ${h.minutes}分钟</div>${h.notes ? `<div class="note-item-body">${esc(h.notes)}</div>` : ''}</div>`).join('') : '<div class="empty-state-v2"><div class="empty-state-v2-icon">📚</div><div class="empty-state-v2-text">还没有阅读历史</div><div class="empty-state-v2-hint">读点什么，记录第一页吧</div></div>'}</div>
   `;
 };
 ModuleHooks.read = () => { loadBookRecommend(); if (Store.get('wb_weread_cookie','')) syncWeread(); };
@@ -1483,13 +1536,13 @@ function saveMed() {
 function quickAddWorkout(type, icon, dur) {
   const today = Store.getDaily('exercise', { medMinutes: 0, workouts: [] });
   today.workouts.push({ id: uid(), type, icon, minutes: dur, note: '' }); Store.setDaily('exercise', today);
-  const ex = EXERCISE_LIB.find(e=>e.name===type); Game.reward(10, 5, 3, 'strength'); toast(`${type} ${dur}分钟已记录 💪`, 'success'); Nav.refresh();
+  const ex = EXERCISE_LIB.find(e=>e.name===type); Game.reward(10, 5, 3, 'strength'); Game.data.totalWorkouts = (Game.data.totalWorkouts || 0) + 1; Game.save(); toast(`${type} ${dur}分钟已记录 💪`, 'success'); Nav.refresh();
 }
 function addWorkout() {
   const sel = $('#workoutType'), type = sel.value, opt = sel.options[sel.selectedIndex], icon = opt.dataset.icon || '⭐', minutes = parseInt($('#workoutMinutes').value) || 0, note = $('#workoutNote').value.trim();
   if (minutes < 1) return toast('请输入运动时长', 'warning');
   const today = Store.getDaily('exercise', { medMinutes: 0, workouts: [] }); today.workouts.push({ id: uid(), type, icon, minutes, note }); Store.setDaily('exercise', today);
-  Game.reward(10, 5, 3, 'strength'); toast(`${type} ${minutes}分钟已记录`, 'success'); Nav.refresh();
+  Game.reward(10, 5, 3, 'strength'); Game.data.totalWorkouts = (Game.data.totalWorkouts || 0) + 1; Game.save(); toast(`${type} ${minutes}分钟已记录`, 'success'); Nav.refresh();
 }
 function editWorkout(id) {
   const today = Store.getDaily('exercise', { medMinutes: 0, workouts: [] }); const w = today.workouts.find(x => x.id === id); if (!w) return;
@@ -1542,7 +1595,7 @@ Modules.food = () => {
 };
 function setCalGoal() { const v = parseInt($('#calGoalInput').value) || 0; if (v < 0) return toast('目标不能为负', 'warning'); Store.set('wb_cal_goal', v); toast('热量目标已设置', 'success'); Nav.refresh(); }
 function quickFillFood(name, cal) { $('#mealFood').value = name; $('#mealCal').value = cal; }
-function addWater(delta) { const today = Store.getDaily('food', { meals: [], water: 0 }); const old = today.water || 0; today.water = Math.max(0, old + delta); Store.setDaily('food', today); if (old < 8 && today.water >= 8) { Game.reward(10, 5, 3); toast('喝水达标 8 杯 🎉', 'success'); } else Nav.refresh(); }
+function addWater(delta) { const today = Store.getDaily('food', { meals: [], water: 0 }); const old = today.water || 0; today.water = Math.max(0, old + delta); Store.setDaily('food', today); if (old < 8 && today.water >= 8) { Game.reward(10, 5, 3); toast('喝水达标 8 杯 🎉', 'success'); } Nav.refresh(); }
 function setWater(n) { const today = Store.getDaily('food', { meals: [], water: 0 }); today.water = n; Store.setDaily('food', today); Nav.refresh(); }
 function addMeal() {
   const type = $('#mealType').value, food = $('#mealFood').value.trim(), note = $('#mealNote').value.trim(), cal = parseInt($('#mealCal').value) || 0;
@@ -1905,6 +1958,32 @@ Modules.reports = () => {
     { icon: ICONS.coin, label: '区间花费', val: '¥' + totalExpense.toFixed(0), color: 'var(--teal)' },
   ];
 
+  const avg = Math.round(series.reduce((s, x) => s + x.score, 0) / n);
+  const best = series.reduce((a, b) => b.score > a.score ? b : a);
+  const active = series.filter(s => s.score > 0);
+  const worst = active.length ? active.reduce((a, b) => b.score < a.score ? b : a) : null;
+  const missed = series.filter(s => !s.checked && s.date !== todayKey());
+  const pairs = series.filter(s => s.exMin > 0 && s.pages > 0);
+  let corr = null;
+  if (pairs.length >= 3) {
+    const mx = pairs.reduce((s, x) => s + x.exMin, 0) / pairs.length;
+    const my = pairs.reduce((s, x) => s + x.pages, 0) / pairs.length;
+    let num = 0, dx = 0, dy = 0;
+    pairs.forEach(x => { num += (x.exMin - mx) * (x.pages - my); dx += (x.exMin - mx) ** 2; dy += (x.pages - my) ** 2; });
+    corr = (dx && dy) ? num / Math.sqrt(dx * dy) : 0;
+  }
+  const insights = [];
+  insights.push(`<li class="insight-item"><b>最佳状态日</b>：${best.label}（活力值 ${best.score}），状态拉满，保持这种节奏。</li>`);
+  if (worst) insights.push(`<li class="insight-item"><b>最懈怠的一天</b>：${worst.label}（活力值仅 ${worst.score}），那天是不是有点放松？明天补回来。</li>`);
+  if (missed.length) insights.push(`<li class="insight-item"><b>漏打卡 ${missed.length} 天</b>：${missed.slice(0, 3).map(s => s.label).join('、')}${missed.length > 3 ? ' 等' : ''}，连续打卡最易断在"忘了"，固定一个时间更稳。</li>`);
+  else insights.push(`<li class="insight-item"><b>打卡全勤</b>：区间内每天都打卡，非常自律！</li>`);
+  if (corr !== null) {
+    const lvl = corr > 0.5 ? '明显正相关' : corr > 0.2 ? '弱正相关' : corr < -0.2 ? '此消彼长' : '关联不明显';
+    insights.push(`<li class="insight-item"><b>运动 × 阅读</b>：${lvl}（相关系数 ${corr.toFixed(2)}）。${corr > 0.3 ? '运动日往往也读得更多，把两者安排在同一时段试试。' : corr < -0.3 ? '运动多的日子阅读偏少，注意别顾此失彼。' : '两者暂无强关联，按需安排即可。'}</li>`);
+  }
+  insights.push(avg >= 30 ? `<li class="insight-item"><b>整体优秀</b>：区间日均活力 ${avg}，已养成稳定好习惯。</li>` : avg >= 15 ? `<li class="insight-item"><b>稳步提升</b>：区间日均活力 ${avg}，再坚持一周就能看到明显变化。</li>` : `<li class="insight-item"><b>刚刚起步</b>：区间日均活力 ${avg}，先保证每天打卡，习惯会自己长出来。</li>`);
+  const insightHtml = insights.join('');
+
   return `
     <div class="plan-subnav" style="margin-bottom:16px;">
       <div class="plan-sub ${reportRange === 'week' ? 'active' : ''}" onclick="switchReportRange('week')">${ICONS.chart} 周报</div>
@@ -1915,6 +1994,11 @@ Modules.reports = () => {
 
     <div class="grid-3 report-stats">
       ${stats.map(s => `<div class="card report-stat"><div class="report-stat-icon">${s.icon}</div><div class="report-stat-val" style="color:${s.color}">${s.val}</div><div class="report-stat-label">${s.label}</div></div>`).join('')}
+    </div>
+
+    <div class="card insight-card" style="margin-top:16px;">
+      <div class="card-title">${ICONS.bulb} 智能洞察 <span class="card-subtitle">${rangeLabel}专属分析</span></div>
+      <ul class="insight-list">${insightHtml}</ul>
     </div>
 
     <div class="grid-2 report-charts" style="margin-top:16px;">
@@ -1931,7 +2015,7 @@ Modules.reports = () => {
     <div class="grid-2 report-charts" style="margin-top:16px;">
       <div class="card">
         <div class="card-title">${ICONS.coin} 记账分类占比 <span class="card-subtitle">支出 ¥${totalExpense.toFixed(0)} · 收入 ¥${totalIncome.toFixed(0)}</span></div>
-        ${donutData.length ? donutChart(donutData, { size: 150, stroke: 22 }) : '<div class="empty-state text-muted text-sm" style="padding:28px 0;">该区间还没有记账记录</div>'}
+        ${donutData.length ? donutChart(donutData, { size: 150, stroke: 22 }) : '<div class="empty-state-v2"><div class="empty-state-v2-icon">💰</div><div class="empty-state-v2-text">该区间还没有记账记录</div><div class="empty-state-v2-hint">记一笔开销或收入开始吧</div></div>'}
       </div>
       <div class="card">
         <div class="card-title">${ICONS.star} 个人属性快照 <span class="card-subtitle">当前五项属性</span></div>
@@ -1950,7 +2034,7 @@ Modules.reports = () => {
 };
 
 // ---------- 番茄专注 (LifeUp 风格番茄钟) ----------
-let pomoSeconds = 0, pomoRunning = false, pomoTimer = null, pomoMode = 'focus';
+let pomoSeconds = 0, pomoRunning = false, pomoTimer = null, pomoMode = 'focus', pomoTaskId = null;
 const POMO_PRESETS = [
   { mode: 'focus', label: '🎯 专注', minutes: 25, color: '#ef4444' },
   { mode: 'short', label: '☕ 短休', minutes: 5, color: '#10b981' },
@@ -1963,6 +2047,8 @@ Modules.pomo = () => {
   const targetSec = POMO_PRESETS.find(p => p.mode === pomoMode).minutes * 60;
   const preset = POMO_PRESETS.find(p => p.mode === pomoMode);
   const todaySessions = today.sessions || [];
+  const _planTasks = getPlan(todayKey()).filter(t => !t.done);
+  const todayTasksOpts = _planTasks.map(t => `<option value="${t.id}" ${pomoTaskId === t.id ? 'selected' : ''}>${esc(t.text.slice(0, 24))}</option>`).join('');
   const totalFocusMin = todaySessions.filter(s => s.mode === 'focus').reduce((sum, s) => sum + s.minutes, 0);
   return `
     <div class="pomo-container">
@@ -1979,6 +2065,7 @@ Modules.pomo = () => {
           ${pomoRunning && pomoMode === 'focus' ? '<button class="btn btn-success" onclick="completePomo()">'+ICONS.check+' 提前完成</button>' : ''}
         </div>
       </div>
+      ${pomoMode === 'focus' ? `<div class="card pomo-task-card"><div class="card-title">${ICONS.target} 关联今日任务</div><div class="pomo-task-row"><select id="pomoTaskSel" class="form-input" onchange="setPomoTask(this.value)"><option value="">不关联任务</option>${todayTasksOpts}</select></div><div class="pomo-task-hint">专注结束后会自动完成所选任务并计入奖励${pomoTaskId ? '（当前已关联）' : ''}</div></div>` : ''}
       <div class="compact-stats">
         <div class="compact-stat"><div class="compact-stat-num" style="color:var(--danger);">${today.count || 0}</div><div class="compact-stat-label">${ICONS.tomato} 今日番茄</div></div>
         <div class="compact-stat"><div class="compact-stat-num" style="color:var(--primary);">${totalFocusMin}</div><div class="compact-stat-label">${ICONS.clock} 专注分钟</div></div>
@@ -1990,6 +2077,7 @@ Modules.pomo = () => {
   `;
 };
 function switchPomoMode(mode) { pomoMode = mode; resetPomo(); Nav.refresh(); }
+window.setPomoTask = function(v) { pomoTaskId = v || null; };
 function togglePomo() {
   pomoRunning = !pomoRunning;
   const targetSec = POMO_PRESETS.find(p => p.mode === pomoMode).minutes * 60;
@@ -2014,12 +2102,14 @@ function completePomo() {
   const today = Store.getDaily('pomo', { count: 0, sessions: [] });
   today.count = (today.count || 0) + 1;
   if (!today.sessions) today.sessions = [];
-  today.sessions.push({ mode: pomoMode, minutes, time: nowTime(), task: '' });
+  const taskText = pomoTaskId ? (getPlan(todayKey()).find(t => t.id === pomoTaskId)?.text || '') : '';
+  today.sessions.push({ mode: pomoMode, minutes, time: nowTime(), task: taskText });
   Store.setDaily('pomo', today);
   if (pomoMode === 'focus') {
     Game.data.pomodoros = (Game.data.pomodoros || 0) + 1;
     Game.save();
     Game.reward(minutes * 2, minutes, 2, 'discipline');
+    if (pomoTaskId) { completeTaskById(pomoTaskId); pomoTaskId = null; }
     toast(`番茄完成！专注 ${minutes} 分钟`, 'success');
   } else {
     toast(`休息结束，继续加油！`, 'success');
@@ -2258,10 +2348,11 @@ ModuleHooks.backup = () => {
 
 Modules.settings = () => {
   const p = UserProfile.get();
+  const EMOJI_CHOICES = ['🦊','🐱','🐰','🦁','🐼','🐯','🚀','🌟','🔥','🌈','🍀','⚡'];
   return `
     <div class="card">
       <div class="card-title">⚙️ 个人设置</div>
-      <div class="card-subtitle">修改你在工作台中显示的昵称和头像缩写。</div>
+      <div class="card-subtitle">自由定制你的工作台形象（纯个人偏好，无解锁门禁）。</div>
       <div class="form-row" style="margin-top:12px;">
         <div class="form-group">
           <label class="form-label">显示昵称</label>
@@ -2270,8 +2361,30 @@ Modules.settings = () => {
       </div>
       <div class="form-row">
         <div class="form-group">
+          <label class="form-label">头衔 / 签名（显示在头像旁）</label>
+          <input type="text" id="settingUserTitle" class="form-input" value="${esc(p.title || '')}" maxlength="16" placeholder="例如：元气打工人">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
           <label class="form-label">头像缩写（留空自动生成）</label>
           <input type="text" id="settingUserAvatar" class="form-input" value="${esc(p.avatar || '')}" maxlength="4" placeholder="例如：XM">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Emoji 头像（优先于缩写）</label>
+          <input type="text" id="settingUserEmoji" class="form-input" value="${esc(p.avatarEmoji || '')}" maxlength="2" placeholder="例如：🦊">
+          <div class="emoji-quick">${EMOJI_CHOICES.map(e => `<span class="emoji-quick-item" onclick="document.getElementById('settingUserEmoji').value='${e}'">${e}</span>`).join('')}</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">主题色</label>
+          <div class="accent-chips">
+            ${Object.entries(ACCENT_PRESETS).map(([k, v]) => `<span class="accent-chip ${p.accent === k ? 'active' : ''}" data-accent="${k}" style="background:${v.primary}" onclick="selectAccent('${k}')" title="${v.name}"></span>`).join('')}
+          </div>
+          <input type="hidden" id="settingAccent" value="${esc(p.accent || 'sky')}">
         </div>
       </div>
       <div class="backup-actions" style="margin-top:14px;">
@@ -2281,14 +2394,22 @@ Modules.settings = () => {
     </div>`;
 };
 ModuleHooks.settings = () => {};
+window.selectAccent = function(k) {
+  document.getElementById('settingAccent').value = k;
+  document.querySelectorAll('.accent-chip').forEach(c => c.classList.toggle('active', c.dataset.accent === k));
+};
 window.saveUserProfile = function() {
   const name = ($('#settingUserName').value || '').trim();
   const avatar = ($('#settingUserAvatar').value || '').trim();
+  const title = ($('#settingUserTitle').value || '').trim();
+  const avatarEmoji = ($('#settingUserEmoji').value || '').trim();
+  const accent = ($('#settingAccent').value || 'sky').trim();
   if (!name) { toast('请输入昵称', 'error'); return; }
-  UserProfile.set({ name, avatar });
+  UserProfile.set({ name, avatar, title, avatarEmoji, accent });
+  applyPersonalization(); // 立即应用主题色 / 头像
   // 立即刷新 Header 头像/问候和首页问候
   const avatarEl = $('#headerAvatar');
-  if (avatarEl) { avatarEl.textContent = UserProfile.initials; avatarEl.title = UserProfile.displayName; }
+  if (avatarEl) { avatarEl.textContent = UserProfile.get().avatarEmoji || UserProfile.initials; avatarEl.title = UserProfile.displayName + (title ? (' · ' + title) : ''); }
   const greet = $('#headerGreeting');
   if (greet) {
     const now = new Date();
@@ -2464,7 +2585,20 @@ window.quickAddReading = function(delta) {
   else history.push({ date: td, pages: today.pages, minutes: today.minutes || 0, notes: '' });
   Store.set('wb_reading_history', history);
   Game.reward(Math.floor(delta / 10), Math.floor(delta / 5), 1, 'intelligence');
+  Game.data.totalReadPages = (Game.data.totalReadPages || 0) + delta; Game.save();
   toast(`📖 +${delta} 页`, 'success');
+  if (Nav.current === 'home') Nav.refresh();
+};
+window.quickWater = function() { addWater(1); if (Nav.current === 'home') Nav.refresh(); else toast('💧 +1 杯水', 'success'); };
+window.quickReading = function() { quickAddReading(5); if (Nav.current !== 'home') toast('📖 +5 页', 'success'); };
+window.quickExercise = function() { quickAddExercise(10); if (Nav.current !== 'home') toast('💪 +10 分钟运动', 'success'); };
+window.quickAddExercise = function(min) {
+  const today = Store.getDaily('exercise', { medMinutes: 0, workouts: [] });
+  today.workouts.push({ id: uid(), type: '快速运动', icon: '⚡', minutes: min, note: '' });
+  Store.setDaily('exercise', today);
+  Game.reward(10, 5, 3, 'strength');
+  Game.data.totalWorkouts = (Game.data.totalWorkouts || 0) + 1; Game.save();
+  toast(`💪 +${min} 分钟运动`, 'success');
   if (Nav.current === 'home') Nav.refresh();
 };
 
@@ -2524,6 +2658,7 @@ window.saveHomeCustomize = function() {
 // ===== 初始化 =====
 function init() {
   Theme.init();
+  applyPersonalization(); // 应用个人主题色 / 头像（必须在渲染前覆盖 CSS 变量）
   attachRipple();
   Game.init();
   Nav.init();
