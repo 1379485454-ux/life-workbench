@@ -88,6 +88,15 @@
 
 * { margin:0; padding:0; box-sizing:border-box; }
 
+/* 内联 SVG 图标默认 1em，防止无 width/height 时撑破父容器；已有具体尺寸规则可覆盖 */
+:where(svg[viewBox="0 0 24 24"]:not([width]):not([height])) {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   background: var(--bg);
