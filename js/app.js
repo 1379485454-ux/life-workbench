@@ -108,13 +108,22 @@ const UserProfile = {
   }
 };
 
+// 个人属性图标 (内联 SVG, UI/UX: 避免 emoji)
+const ATTR_ICONS = {
+  strength: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l-2 3 2 3M20 9l2 3-2 3M6.5 6.5l11 11M6.5 17.5l11-11M9 4l3-2 3 2M9 20l3 2 3-2"/></svg>',
+  intelligence: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.5 10.5c.5.4 1 1 1 1.8h5c0-.8.5-1.4 1-1.8A6 6 0 0012 3z"/></svg>',
+  charisma: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.8L19 9l-5.2 1.2L12 15l-1.8-4.8L5 9l5.2-1.2z"/></svg>',
+  creativity: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 100 18c1.5 0 2-1 2-2 0-.8-.5-1-1-2s1.5-1.5 2.5-1c1.5-1 2-3 1-4.5A9 9 0 0012 3zM8 13a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/></svg>',
+  discipline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>',
+};
+
 // ===== 游戏化系统 (LifeUp 风格 RPG 属性) =====
 const ATTRIBUTES = [
-  { key: 'strength', name: '体力', icon: '💪', color: '#ef4444', desc: '运动锻炼' },
-  { key: 'intelligence', name: '智力', icon: '🧠', color: '#3b82f6', desc: '阅读学习' },
-  { key: 'charisma', name: '魅力', icon: '✨', color: '#ec4899', desc: '社交生活' },
-  { key: 'creativity', name: '创造力', icon: '🎨', color: '#8b5cf6', desc: '创作输出' },
-  { key: 'discipline', name: '自律', icon: '🎯', color: '#f59e0b', desc: '完成任务' },
+  { key: 'strength', name: '体力', icon: ATTR_ICONS.strength, color: '#ef4444', desc: '运动锻炼' },
+  { key: 'intelligence', name: '智力', icon: ATTR_ICONS.intelligence, color: '#3b82f6', desc: '阅读学习' },
+  { key: 'charisma', name: '魅力', icon: ATTR_ICONS.charisma, color: '#ec4899', desc: '社交生活' },
+  { key: 'creativity', name: '创造力', icon: ATTR_ICONS.creativity, color: '#8b5cf6', desc: '创作输出' },
+  { key: 'discipline', name: '自律', icon: ATTR_ICONS.discipline, color: '#f59e0b', desc: '完成任务' },
 ];
 const Game = {
   data: null,
@@ -643,7 +652,8 @@ Modules.home = () => {
     <div class="dash-hero glass">
       <span class="hero-float f1"></span>
       <span class="hero-float f2"></span>
-      <div class="dash-hero-greet" id="dashHeroGreet">你好，${UserProfile.displayName} 👋</div>
+      <div class="dash-hero-greet" id="dashHeroGreet">你好，${UserProfile.displayName}</div>
+      <div class="dash-hero-tagline">用游戏化的方式，把自律养成习惯</div>
       <div class="dash-hero-main">
         <div class="dash-hero-left">
           <div class="dash-clock-time" id="dashClockTime">00:00:00</div>

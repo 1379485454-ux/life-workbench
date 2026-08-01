@@ -66,6 +66,8 @@
   --sidebar-w: 250px;
   --transition: 0.3s cubic-bezier(0.4,0,0.2,1);
   --transition-fast: 0.15s ease;
+  --font-head: 'Lora', 'PingFang SC', 'Microsoft YaHei', 'Noto Serif SC', serif;
+  --font-body: 'Raleway', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -128,6 +130,7 @@ body {
   font-size: 18px;
   box-shadow: 0 4px 12px rgba(37,99,235,0.3);
 }
+.logo-icon svg { width: 20px; height: 20px; color: #fff; }
 .logo-text {
   font-size: 17px;
   font-weight: 700;
@@ -1709,7 +1712,8 @@ input:focus, select:focus, textarea:focus {
   background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
   pointer-events: none;
 }
-.dash-hero-greet { font-size: 14px; font-weight: 600; opacity: 0.92; margin-bottom: 12px; position: relative; z-index: 1; }
+.dash-hero-greet { font-size: 14px; font-weight: 600; opacity: 0.92; margin-bottom: 4px; position: relative; z-index: 1; }
+.dash-hero-tagline { font-size: 13px; opacity: 0.72; margin-bottom: 18px; position: relative; z-index: 1; letter-spacing: .3px; }
 .dash-hero-main { display: flex; align-items: center; justify-content: space-between; gap: 20px; position: relative; z-index: 1; flex-wrap: wrap; }
 .dash-clock-time { font-size: 46px; font-weight: 800; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; text-shadow: 0 4px 16px rgba(0,0,0,0.18); }
 .dash-clock-date { font-size: 14px; opacity: 0.85; margin-top: 2px; }
@@ -2455,3 +2459,35 @@ input:focus, select:focus, textarea:focus {
   100% { box-shadow: 0 0 0 0 rgba(245,158,11,0); }
 }
 @media (prefers-reduced-motion: reduce) { #wbSyncBadge .dot { animation: none !important; } }
+
+/* ===== 字体系统 (UI/UX: calm / wellness) ===== */
+body { font-family: var(--font-body); letter-spacing: .1px; }
+.card-title, .header-title, .logo-text, .dash-hero-greet,
+.sidebar-level-text, .dash-ring-label, .empty-state-text {
+  font-family: var(--font-head);
+}
+.dash-clock-time { font-family: var(--font-head); letter-spacing: 1px; }
+
+/* ===== 尊重 prefers-reduced-motion (UI/UX checklist) ===== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .aurora, .aurora-blob, .hero-float, .aurora-grid { animation: none !important; }
+}
+
+/* ===== 内联 SVG 图标尺寸 (UI/UX: 替换 emoji) ===== */
+.sidebar-attr-icon svg, .attr-icon svg { display: block; }
+.sidebar-attr-icon svg { width: 14px; height: 14px; }
+.attr-icon svg { width: 26px; height: 26px; }
+.achieve-icon svg { width: 28px; height: 28px; }
+
+/* ===== 交互状态 (UI/UX checklist) ===== */
+button, .nav-item, .card, .task-item, .btn, [data-module], [data-action] { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
+.nav-item, .btn, .card, .task-item { transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast); }
+.nav-item:hover, .card:hover { background: var(--bg-hover); }
+.nav-item:active, .btn:active { transform: scale(0.97); }
