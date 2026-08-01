@@ -40,6 +40,39 @@ const ICONS = {
   attr: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2l2.4 5.9L21 9.2l-4.8 4.2L17.6 21 12 17.3 6.4 21l1.4-7.6L3 9.2l6.6-1.3L12 2z"/></svg>',
   report: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18M7 16v-5M12 16V8M17 16v-9"/></svg>',
   backup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.7 4 3 9 3s9-1.3 9-3V5M3 12c0 1.7 4 3 9 3s9-1.3 9-3"/></svg>',
+  coin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 10.5h4a2 2 0 010 4h-4"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5C12 20.5 4.5 14.8 4.5 9.2A3.7 3.7 0 0112 7a3.7 3.7 0 017.5 2.2c0 5.6-7.5 11.3-7.5 11.3z"/></svg>',
+  flame: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c.8 2.6 3.5 3.8 3.5 7.5A3.5 3.5 0 018.5 14a3.5 3.5 0 01-1-6.9c.6 1.6 2 2.1 3 1 .5-2 1.5-3.5 1.5-5.1z"/></svg>',
+  list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>',
+  cloud: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 01-.6-7.96 5 5 0 019.6-1.04A3.5 3.5 0 0117 18z"/></svg>',
+  sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M19.1 4.9l-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 019.5 4 7 7 0 1020 14.5z"/></svg>',
+  close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>',
+  star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.3 5.7 6.2.5-4.7 4 1.5 6-5.3-3.2L6.4 20l1.5-6-4.7-4 6.2-.5z"/></svg>',
+  pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s6.5-5.7 6.5-11A6.5 6.5 0 005.5 10c0 5.3 6.5 11 6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>',
+  book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 012-2h6v17H6a2 2 0 01-2-2zM20 5a2 2 0 00-2-2h-6v17h6a2 2 0 002-2z"/></svg>',
+  run: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="5" r="2"/><path d="M13 9l-3 3 3 3 2 5M13 9l4 1 2 4M10 12l-2 4-2 3"/></svg>',
+  target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>',
+  medal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="14" r="6"/><path d="M9 2l3 6 3-6M12 8v6"/></svg>',
+  coffee: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h13v5a4 4 0 01-4 4H8a4 4 0 01-4-4zM17 9h2a2 2 0 010 4h-2M7 2v2M11 2v2"/></svg>',
+  tomato: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="7"/><path d="M12 6V3M9.5 4l1.5 2M14.5 4l-1.5 2"/></svg>',
+  sparkles: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.6 4.6L18 9l-4.4 1.4L12 15l-1.6-4.6L6 9l4.4-1.4zM18 14l.8 2.2L21 17l-2.2.8L18 20l-.8-2.2L15 17l2.2-.8z"/></svg>',
+  calendar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>',
+  water: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c4 5 6 8 6 11a6 6 0 01-12 0c0-3 2-6 6-11z"/></svg>',
+  chart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V5M4 19h16M8 16v-5M12 16V8M16 16v-3"/></svg>',
+  bulb: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 00-4 10c.8.8 1 1.5 1 2.5h6c0-1 .2-1.7 1-2.5A6 6 0 0012 3z"/></svg>',
+  bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>',
+  flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h12l-2 4 2 4H5"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3z"/><path d="M12 10v4M12 17h.01"/></svg>',
+  notebook: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>',
+  rocket: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 15c-1.5 1.5-2 5-2 5s3.5-.5 5-2M14 4c3 0 6 3 6 6 0 4-4 9-8 10-1-4-3-7-6-9 0-3 3-7 8-7z"/><circle cx="14.5" cy="9.5" r="1.5"/></svg>',
+  pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>',
+  walk: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13" cy="4" r="2"/><path d="M13 8l-3 4 3 3 1 5M10 12l-3 2-2 3M13 11l4 1 2 4"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+  arrowRight: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  archive: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 8h16M9 3v5h6V3M9 13h6"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>',
 };
 const ICO = {
   edit: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
@@ -48,6 +81,10 @@ const ICO = {
   chevronRight: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>',
   refresh: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-3-6.7M21 4v5h-5"/></svg>',
   external: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>',
+  play: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M7 4l13 8-13 8z"/></svg>',
+  pause: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M8 5v14M16 5v14"/></svg>',
+  save: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 3h11l3 3v15H5zM8 3v6h7V3M8 21v-6h8v6"/></svg>',
+  download: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>',
 };
 
 // ===== 菜单配置 =====
@@ -167,7 +204,7 @@ const Game = {
       this.data.level++;
       this.data.expMax = Math.floor(this.data.expMax * 1.25);
       this.data.health = Math.min(this.data.healthMax, this.data.health + 10);
-      toast(`🎉 升级！Lv.${this.data.level}`, 'success');
+      toast(`${ICONS.sparkles} 升级！Lv.${this.data.level}`, 'success');
     }
     this.save();
   },
@@ -195,7 +232,7 @@ const Game = {
     const el = document.createElement('div');
     el.className = 'reward-popup';
     const attrInfo = attr ? ATTRIBUTES.find(a => a.key === attr) : null;
-    el.innerHTML = `<div class="reward-pop-icon">🎉</div><div class="reward-pop-items">${exp?`<span>+${exp} EXP</span>`:''}${coins?`<span>+${coins} 🪙</span>`:''}${health?`<span>+${health} ❤️</span>`:''}${attrInfo?`<span style="color:${attrInfo.color}">+${attrInfo.icon} ${attrInfo.name}</span>`:''}</div>`;
+    el.innerHTML = `<div class="reward-pop-icon">${ICONS.sparkles}</div><div class="reward-pop-items">${exp?`<span>+${exp} EXP</span>`:''}${coins?`<span>+${coins} ${ICONS.coin}</span>`:''}${health?`<span>+${health} ${ICONS.heart}</span>`:''}${attrInfo?`<span style="color:${attrInfo.color}">+${attrInfo.icon} ${attrInfo.name}</span>`:''}</div>`;
     $('#toastContainer').appendChild(el);
     requestAnimationFrame(() => el.classList.add('show'));
     setTimeout(() => { el.classList.add('removing'); setTimeout(() => el.remove(), 400); }, 1800);
@@ -221,7 +258,7 @@ const Game = {
     const d = this.data;
     const unlocked = d.achievements || [];
     const tryUnlock = (id, name, desc, icon) => {
-      if (!unlocked.find(a => a.id === id)) { unlocked.push({ id, name, desc, icon, date: todayKey() }); d.achievements = unlocked; this.save(); toast(`🏆 成就解锁: ${name}！`, 'success'); }
+      if (!unlocked.find(a => a.id === id)) { unlocked.push({ id, name, desc, icon, date: todayKey() }); d.achievements = unlocked; this.save(); toast(`${ICONS.medal} 成就解锁: ${name}！`, 'success'); }
     };
     if (d.totalCheckIns >= 1) tryUnlock('first_checkin', '初心者', '完成第一次打卡', '📍');
     if (d.totalCheckIns >= 7) tryUnlock('week_streak', '一周坚持', '累计打卡 7 天', '🔥');
@@ -268,14 +305,14 @@ const Game = {
         <div class="sidebar-level-row">
           <div class="lvl-ring" style="--p:${expPct}"><span>${d.level}</span></div>
           <div class="sidebar-stats-meta">
-            <div class="sidebar-level-text">Lv.${d.level} <span class="lv-badge">⭐</span></div>
-            <div class="sm-coins">🪙 ${d.coins}</div>
-            <div class="sm-hp">❤️ ${d.health} · 🔥 ${d.streak}</div>
+            <div class="sidebar-level-text">Lv.${d.level} <span class="lv-badge">${ICONS.star}</span></div>
+            <div class="sm-coins">${ICONS.coin} ${d.coins}</div>
+            <div class="sm-hp">${ICONS.heart} ${d.health} · ${ICONS.flame} ${d.streak}</div>
           </div>
         </div>
         <div class="sidebar-exp-bar"><div class="sidebar-exp-fill" style="width:${expPct}%"></div><span class="sidebar-exp-label">${d.exp}/${d.expMax} EXP</span></div>
         <div class="sidebar-attrs">${attrHtml}</div>
-        <div class="sidebar-game-bottom">✅ ${d.totalCheckIns} 打卡 · 📋 ${d.totalTasksDone} 任务 · 🍅 ${d.pomodoros} 番茄</div>
+        <div class="sidebar-game-bottom">${ICONS.check} ${d.totalCheckIns} 打卡 · ${ICONS.list} ${d.totalTasksDone} 任务 · ${ICONS.tomato} ${d.pomodoros} 番茄</div>
       </div>`;
     // 同时更新移动端状态栏
     if (Nav.isMobile && Nav.isMobile()) Nav.renderMobileStatusBar();
@@ -368,7 +405,7 @@ function showSWUpdateBar() {
   if (document.getElementById('swUpdateBar')) return;
   const bar = document.createElement('div');
   bar.id = 'swUpdateBar';
-  bar.innerHTML = '✨ 发现新版本，点击立即更新';
+  bar.innerHTML = ICONS.sparkles + ' 发现新版本，点击立即更新';
   bar.addEventListener('click', () => location.reload());
   document.body.appendChild(bar);
 }
@@ -376,7 +413,7 @@ function showSWUpdateBar() {
 // ===== UI: 通用编辑弹窗 =====
 const UI = {
   modalEl: null,
-  editModal({ title, icon = '✏️', fields, values, onSave, onDelete, saveLabel = '保存' }) {
+  editModal({ title, icon = ICO.edit, fields, values, onSave, onDelete, saveLabel = '保存' }) {
     this.closeModal();
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
@@ -527,7 +564,7 @@ const Nav = {
     overlay = document.createElement('div');
     overlay.id = 'mobileMoreOverlay';
     overlay.className = 'mobile-more-overlay';
-    overlay.innerHTML = `<div class="mobile-more-panel"><div class="mobile-more-header"><span>更多功能</span><button class="mobile-more-close" onclick="document.getElementById('mobileMoreOverlay').remove()">✕</button></div><div class="mobile-more-items">${itemsHtml}</div></div>`;
+    overlay.innerHTML = `<div class="mobile-more-panel"><div class="mobile-more-header"><span>更多功能</span><button class="mobile-more-close" onclick="document.getElementById('mobileMoreOverlay').remove()">${ICONS.close}</button></div><div class="mobile-more-items">${itemsHtml}</div></div>`;
     overlay.addEventListener('click', function(e) {
       if (e.target === overlay) overlay.remove();
       const item = e.target.closest('.more-menu-item');
@@ -545,7 +582,7 @@ const Nav = {
       if (moreBtn) moreBtn.classList.toggle('active', !this._mobileCores.includes(id));
     }
     const mod = MENU.find(m => m.id === id);
-    $('#mainHeader').innerHTML = `<div class="header-left"><div class="header-greeting" id="headerGreeting">你好 👋</div><div class="header-title">${mod.icon} ${mod.name}</div></div><div class="header-right"><span class="header-date" id="headerDate">📅</span><button class="header-theme-toggle" id="themeToggle" onclick="Theme.toggle()" title="切换亮色/暗色">${Theme.current === 'dark' ? '☀️' : '🌙'}</button><div class="header-avatar" id="headerAvatar" title="${UserProfile.displayName}">${UserProfile.initials}</div></div>`;
+    $('#mainHeader').innerHTML = `<div class="header-left"><div class="header-greeting" id="headerGreeting">你好</div><div class="header-title">${mod.icon} ${mod.name}</div></div><div class="header-right"><span class="header-date" id="headerDate">${ICONS.calendar}<span class="header-date-text"></span></span><button class="header-theme-toggle" id="themeToggle" onclick="Theme.toggle()" title="切换亮色/暗色">${Theme.current === 'dark' ? ICONS.sun : ICONS.moon}</button><div class="header-avatar" id="headerAvatar" title="${UserProfile.displayName}">${UserProfile.initials}</div></div>`;
     // 移动端状态栏：作为 header 与 content 之间的独立条带，避免被 header flex 挤压
     const existingBar = $('#mobileStatusBar');
     if (existingBar) existingBar.remove();
@@ -557,7 +594,7 @@ const Nav = {
       this.renderMobileStatusBar();
     }
     const renderer = Modules[id];
-    $('#content').innerHTML = renderer ? renderer() : '<div class="empty-state"><div class="empty-state-icon">🚧</div><div class="empty-state-text">功能开发中...</div></div>';
+    $('#content').innerHTML = renderer ? renderer() : '<div class="empty-state"><div class="empty-state-icon">'+ICONS.target+'</div><div class="empty-state-text">功能开发中...</div></div>';
     if (ModuleHooks[id]) ModuleHooks[id]();
     Clock.tick();
     $('#content').scrollTop = this.scrollPositions[id] || 0;
@@ -575,12 +612,12 @@ const Nav = {
     if (!bar) return;
     const d = Game.data;
     bar.innerHTML = `
-      <div class="mobile-status-item"><span class="mobile-status-lv">⭐ Lv.${d.level}</span></div>
-      <div class="mobile-status-item"><span class="mobile-status-coins">🪙 ${d.coins}</span></div>
-      <div class="mobile-status-item"><span class="mobile-status-hp">❤️ ${d.health}</span></div>
-      <div class="mobile-status-item"><span class="mobile-status-streak">🔥 ${d.streak}天</span></div>
-      <div class="mobile-status-item">📋 ${d.totalTasksDone}</div>
-      <button class="mobile-status-item" onclick="Nav.switchTo('backup')" style="cursor:pointer;border:none;">☁️ 同步</button>
+      <div class="mobile-status-item"><span class="mobile-status-lv">${ICONS.star} Lv.${d.level}</span></div>
+      <div class="mobile-status-item"><span class="mobile-status-coins">${ICONS.coin} ${d.coins}</span></div>
+      <div class="mobile-status-item"><span class="mobile-status-hp">${ICONS.heart} ${d.health}</span></div>
+      <div class="mobile-status-item"><span class="mobile-status-streak">${ICONS.flame} ${d.streak}天</span></div>
+      <div class="mobile-status-item">${ICONS.list} ${d.totalTasksDone}</div>
+      <button class="mobile-status-item" onclick="Nav.switchTo('backup')" style="cursor:pointer;border:none;">${ICONS.cloud} 同步</button>
     `;
   },
 };
@@ -595,12 +632,12 @@ const Clock = {
     const elT = $('#dashClockTime'); if (elT) elT.textContent = `${h}:${m}:${s}`;
     const wk = ['日','一','二','三','四','五','六'][now.getDay()];
     const elD = $('#dashClockDate'); if (elD) elD.textContent = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日 星期${wk}`;
-    const elH = $('#headerDate'); if (elH) elH.textContent = `📅 ${now.getMonth()+1}月${now.getDate()}日 星期${wk}`;
+    const elH = document.getElementById('headerDateText'); if (elH) elH.textContent = `${now.getMonth()+1}月${now.getDate()}日 星期${wk}`;
     const hr = now.getHours();
     const greet = hr < 6 ? '凌晨好' : hr < 12 ? '早上好' : hr < 14 ? '中午好' : hr < 18 ? '下午好' : hr < 22 ? '晚上好' : '夜深了';
     const name = UserProfile.displayName;
-    const elG = $('#headerGreeting'); if (elG) elG.textContent = `${greet}，${name} 👋`;
-    const elHG = $('#dashHeroGreet'); if (elHG) elHG.textContent = `${greet}，${name} 👋 今天也要元气满满 ✨`;
+    const elG = $('#headerGreeting'); if (elG) elG.textContent = `${greet}，${name}`;
+    const elHG = $('#dashHeroGreet'); if (elHG) elHG.textContent = `${greet}，${name} 今天也要元气满满`;
     if (this.lastDay !== now.getDate()) { this.lastDay = now.getDate(); if (this.lastDay !== undefined && Nav.current === 'home') { Game.dailyCheck(); Nav.switchTo('home'); } }
   },
 };
@@ -622,12 +659,12 @@ const Theme = {
     this.current = theme;
     document.documentElement.setAttribute('data-theme', theme);
     const btn = document.getElementById('themeToggle');
-    if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+    if (btn) btn.innerHTML = theme === 'dark' ? ICONS.sun : ICONS.moon;
     if (persist) Store.set(this.key, theme);
   },
   toggle() {
     this.apply(this.current === 'dark' ? 'light' : 'dark');
-    toast(this.current === 'dark' ? '🌙 已切换到暗色模式' : '☀️ 已切换到亮色模式', 'success');
+    toast(this.current === 'dark' ? '已切换到暗色模式' : '已切换到亮色模式', 'success');
   },
 };
 
@@ -655,7 +692,7 @@ Modules.home = () => {
   const dayNames = ['日','一','二','三','四','五','六'];
   const calHtml = dates7.map((date, i) => {
     const dt = new Date(date), checked = Game.isCheckedIn(date), isToday = i === 6;
-    return `<div class="streak-day ${checked?'checked':''} ${isToday?'today':''}"><div class="streak-day-name">${dayNames[dt.getDay()]}</div><div class="streak-day-icon">${checked ? '✅' : (isToday ? '📍' : '○')}</div><div class="streak-day-date">${dt.getMonth()+1}/${dt.getDate()}</div></div>`;
+    return `<div class="streak-day ${checked?'checked':''} ${isToday?'today':''}"><div class="streak-day-name">${dayNames[dt.getDay()]}</div><div class="streak-day-icon">${checked ? ICONS.check : (isToday ? ICONS.pin : '○')}</div><div class="streak-day-date">${dt.getMonth()+1}/${dt.getDate()}</div></div>`;
   }).join('');
 
   return `
@@ -669,21 +706,21 @@ Modules.home = () => {
           <div class="dash-clock-time" id="dashClockTime">00:00:00</div>
           <div class="dash-clock-date" id="dashClockDate">载入中...</div>
         </div>
-        <button class="dash-checkin-btn ${checkedIn ? 'done' : ''}" id="checkInBtn" ${checkedIn ? 'disabled' : ''}>${checkedIn ? '✅ 今日已打卡' : '📍 立即打卡'}<span class="dash-checkin-sub">${checkedIn ? `连续第 ${d.streak} 天 🔥` : '开启元气满满的一天'}</span></button>
+        <button class="dash-checkin-btn ${checkedIn ? 'done' : ''}" id="checkInBtn" ${checkedIn ? 'disabled' : ''}>${checkedIn ? ICONS.check + ' 今日已打卡' : ICONS.pin + ' 立即打卡'}<span class="dash-checkin-sub">${checkedIn ? `连续第 ${d.streak} 天 ${ICONS.flame}` : '开启元气满满的一天'}</span></button>
       </div>
     </div>
     <div class="dash-rings">
-      <div class="dash-ring-card">${progressRing(taskPct, { size: 96, stroke: 8, color: '#3b82f6', label: `${doneTasks}`, sub: `/${todayTasks.length} 任务` })}<div class="dash-ring-label">📋 今日计划</div></div>
-      <div class="dash-ring-card">${progressRing(waterPct, { size: 96, stroke: 8, color: '#06b6d4', label: `${todayWater.water||0}`, sub: `/8 杯水` })}<div class="dash-ring-label">💧 好好喝水</div></div>
-      <div class="dash-ring-card">${progressRing(Math.min(100, exMin / 30 * 100), { size: 96, stroke: 8, color: '#f59e0b', label: `${exMin}`, sub: `分钟运动` })}<div class="dash-ring-label">🏃 锻炼身体</div></div>
-      <div class="dash-ring-card">${progressRing(readPct, { size: 96, stroke: 8, color: '#8b5cf6', label: `${todayRead.pages||0}`, sub: `阅读页` })}<div class="dash-ring-label">📖 每日阅读</div></div>
+      <div class="dash-ring-card">${progressRing(taskPct, { size: 96, stroke: 8, color: '#3b82f6', label: `${doneTasks}`, sub: `/${todayTasks.length} 任务` })}<div class="dash-ring-label">${ICONS.list} 今日计划</div></div>
+      <div class="dash-ring-card">${progressRing(waterPct, { size: 96, stroke: 8, color: '#06b6d4', label: `${todayWater.water||0}`, sub: `/8 杯水` })}<div class="dash-ring-label">${ICONS.water} 好好喝水</div></div>
+      <div class="dash-ring-card">${progressRing(Math.min(100, exMin / 30 * 100), { size: 96, stroke: 8, color: '#f59e0b', label: `${exMin}`, sub: `分钟运动` })}<div class="dash-ring-label">${ICONS.run} 锻炼身体</div></div>
+      <div class="dash-ring-card">${progressRing(readPct, { size: 96, stroke: 8, color: '#8b5cf6', label: `${todayRead.pages||0}`, sub: `阅读页` })}<div class="dash-ring-label">${ICONS.book} 每日阅读</div></div>
     </div>
     <div class="dash-overview">
-      <div class="card"><div class="card-title">📋 今日计划进度 <span class="card-subtitle">${doneTasks}/${todayTasks.length} 已完成</span></div>${todayTasks.length ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${taskPct}%"></div></div><div style="margin-top:12px;">${todayTasks.slice(0,5).map(t => `<div class="task-item-v2 ${t.done?'done':''}" style="margin-bottom:6px;padding:9px 12px;"><div class="task-checkbox ${t.done?'checked':''}"></div><span class="task-text">${esc(t.text)}</span></div>`).join('')}${todayTasks.length > 5 ? `<div class="text-muted text-sm" style="padding:8px 4px;">还有 ${todayTasks.length-5} 项待办...</div>` : ''}</div>` : '<div class="empty-state"><div class="empty-state-icon">📝</div><div class="empty-state-text">还没有添加今日计划</div><a class="empty-state-action" onclick="Nav.switchTo(\'plan\')">去制定计划 →</a></div>'}<button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="Nav.switchTo('plan')">前往计划 →</button></div>
-      <div class="card"><div class="card-title">📊 今日数据概览</div><div class="grid-2 dash-stats-grid" style="gap:12px;">${[['💧','杯水',todayWater.water||0,'var(--primary)'],[ '🏃','运动分钟',exMin,'var(--warning)'],[ '📖','阅读页数',todayRead.pages||0,'var(--success)'],[ '⏱️','阅读分钟',todayRead.minutes||0,'var(--purple)']].map(s=>`<div class="dash-mini-stat"><div class="dash-mini-stat-num" style="color:${s[3]}">${s[2]}</div><div class="dash-mini-stat-label">${s[0]} ${s[1]}</div></div>`).join('')}</div></div>
+      <div class="card"><div class="card-title">${ICONS.list} 今日计划进度 <span class="card-subtitle">${doneTasks}/${todayTasks.length} 已完成</span></div>${todayTasks.length ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${taskPct}%"></div></div><div style="margin-top:12px;">${todayTasks.slice(0,5).map(t => `<div class="task-item-v2 ${t.done?'done':''}" style="margin-bottom:6px;padding:9px 12px;"><div class="task-checkbox ${t.done?'checked':''}"></div><span class="task-text">${esc(t.text)}</span></div>`).join('')}${todayTasks.length > 5 ? `<div class="text-muted text-sm" style="padding:8px 4px;">还有 ${todayTasks.length-5} 项待办...</div>` : ''}</div>` : '<div class="empty-state"><div class="empty-state-icon">'+ICONS.notebook+'</div><div class="empty-state-text">还没有添加今日计划</div><a class="empty-state-action" onclick="Nav.switchTo(\'plan\')">去制定计划 →</a></div>'}<button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="Nav.switchTo('plan')">前往计划 →</button></div>
+      <div class="card"><div class="card-title">${ICONS.chart} 今日数据概览</div><div class="grid-2 dash-stats-grid" style="gap:12px;">${[{icon:ICONS.water,label:'杯水',val:todayWater.water||0,color:'var(--primary)'},{icon:ICONS.run,label:'运动分钟',val:exMin,color:'var(--warning)'},{icon:ICONS.book,label:'阅读页数',val:todayRead.pages||0,color:'var(--success)'},{icon:ICONS.clock,label:'阅读分钟',val:todayRead.minutes||0,color:'var(--purple)'}].map(s=>`<div class="dash-mini-stat"><div class="dash-mini-stat-num" style="color:${s.color}">${s.val}</div><div class="dash-mini-stat-label">${s.icon} ${s.label}</div></div>`).join('')}</div></div>
     </div>
-    <div class="card"><div class="card-title">📅 最近 7 天打卡</div><div class="streak-calendar">${calHtml}</div></div>
-    <div class="dash-quote glass"><div class="dash-quote-deco">"</div><div class="dash-quote-cn">💡 ${esc(q.cn)}</div><div class="dash-quote-en">${esc(q.en)}</div></div>
+    <div class="card"><div class="card-title">${ICONS.calendar} 最近 7 天打卡</div><div class="streak-calendar">${calHtml}</div></div>
+    <div class="dash-quote glass"><div class="dash-quote-deco">"</div><div class="dash-quote-cn">${ICONS.bulb} ${esc(q.cn)}</div><div class="dash-quote-en">${esc(q.en)}</div></div>
   `;
 };
 ModuleHooks.home = () => {
@@ -693,7 +730,7 @@ ModuleHooks.home = () => {
     const btn = e.currentTarget;
     const rect = btn.getBoundingClientRect();
     confetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
-    toast('打卡成功！🔥 连续第 ' + Game.data.streak + ' 天', 'success');
+    toast('打卡成功！' + ICONS.flame + ' 连续第 ' + Game.data.streak + ' 天', 'success');
     Nav.switchTo('home');
   });
   Clock.tick();
@@ -764,9 +801,9 @@ function getDailyAtHistory(type, days) {
 Modules.plan = () => {
   if (planDate === todayKey()) generateRecurringTasks(todayKey());
   const tabs = [
-    { k: 'daily', n: '📅 每日计划' },
-    { k: 'long', n: '🎯 长期计划' },
-    { k: 'cycle', n: '🔄 周期计划' },
+    { k: 'daily', n: `${ICONS.calendar} 每日计划` },
+    { k: 'long', n: `${ICONS.target} 长期计划` },
+    { k: 'cycle', n: `${ICO.refresh} 周期计划` },
   ];
   let body = '';
   if (planSub === 'long') body = planLongHtml();
@@ -832,7 +869,7 @@ function planDailyHtml() {
   return `
     <div class="card">
       <div class="flex-between" style="margin-bottom:10px;">
-        <div class="card-title" style="margin-bottom:0;">📅 ${dateLabel}</div>
+        <div class="card-title" style="margin-bottom:0;">${ICONS.calendar} ${dateLabel}</div>
         <div class="date-nav">
           <button class="btn-icon" onclick="shiftPlanDate(-1)" title="前一天">‹</button>
           ${isToday ? '' : '<button class="btn-icon date-today-btn" onclick="planDate=todayKey();Nav.refresh()" title="回到今天">今</button>'}
@@ -856,7 +893,7 @@ function planDailyHtml() {
         ${display.length ? display.map(t => {
           const cat = TASK_CATEGORIES[t.cat] || TASK_CATEGORIES.life;
           const priClass = t.priority === 'high' ? 'pri-high' : t.priority === 'low' ? 'pri-low' : 'pri-mid';
-          const recurTag = t.recurringRule ? '<span class="task-recur-tag" title="周期任务">🔄</span>' : '';
+          const recurTag = t.recurringRule ? '<span class="task-recur-tag" title="周期任务">'+ICO.refresh+'</span>' : '';
           return `<div class="task-item-v2 ${t.done?'done':''} ${priClass}" data-id="${t.id}" draggable="true" title="拖拽可调整顺序">
             <div class="task-checkbox ${t.done?'checked':''}" onclick="toggleTask('${t.id}')"></div>
             <div class="task-cat-dot ${cat.dotClass}" title="${cat.name}"></div>
@@ -867,7 +904,7 @@ function planDailyHtml() {
               <button class="btn-icon danger" onclick="confirmDelTask('${t.id}')" title="删除">${ICO.trash}</button>
             </div>
           </div>`;
-        }).join('') : `<div class="empty-state-v2"><div class="empty-state-v2-icon">📝</div><div class="empty-state-v2-text">${planTab==='done'?'还没有完成的任务':'没有待办任务'}</div><div class="empty-state-v2-hint">${planTab==='today'?'在上方输入框中添加任务吧':''}</div></div>`}
+        }).join('') : `<div class="empty-state-v2"><div class="empty-state-v2-icon">${ICONS.notebook}</div><div class="empty-state-v2-text">${planTab==='done'?'还没有完成的任务':'没有待办任务'}</div><div class="empty-state-v2-hint">${planTab==='today'?'在上方输入框中添加任务吧':''}</div></div>`}
       </div>
     </div>
     <div class="card"><div class="card-title">📈 近 7 天完成率</div>${barChart(chartData, { height: 80, max: 100 })}</div>
@@ -899,7 +936,7 @@ function toggleTask(id) {
     Game.addTaskDone();
     const cat = TASK_CATEGORIES[t.cat] || TASK_CATEGORIES.life;
     Game.reward(10, 5, 2, cat.attr);
-    toast(`完成！${cat.attr ? ATTRIBUTES.find(a=>a.key===cat.attr).icon + ' ' : ''}干得好 👍`, 'success');
+    toast(`完成！${cat.attr ? ATTRIBUTES.find(a=>a.key===cat.attr).icon + ' ' : ''}干得好`, 'success');
   }
   Nav.refresh();
 }
@@ -919,7 +956,7 @@ function editTaskInline(id) {
 }
 function editTaskModal(id) {
   const tasks = getPlan(planDate); const t = tasks.find(x => x.id === id); if (!t) return;
-  UI.editModal({ title: '编辑任务', icon: '📋', fields: [
+  UI.editModal({ title: '编辑任务', icon: ICONS.list, fields: [
     { key: 'text', label: '任务内容', type: 'text', placeholder: '任务内容' },
     { key: 'cat', label: '分类', type: 'select', options: Object.entries(TASK_CATEGORIES).map(([k,v])=>({value:k,label:v.name})) },
     { key: 'priority', label: '优先级', type: 'select', options: [{value:'high',label:'🔴 高'},{value:'mid',label:'🟡 中'},{value:'low',label:'🟢 低'}] },
@@ -946,7 +983,7 @@ function planLongHtml() {
       ${g.target ? `<div class="goal-progress-row"><div class="goal-bar"><div class="goal-bar-fill" style="width:${pct}%;background:${cat.color}"></div></div><div class="goal-pct">${pct}%</div></div>
       <div class="goal-meta">${cur} / ${tgt} ${g.unit || ''} · ${countdown}</div>` : `<div class="goal-meta">${countdown || '未设数值目标'}</div>`}
       <div class="goal-actions">
-        ${g.done ? '<span class="goal-done-tag">✅ 已完成</span>' : `<button class="btn btn-outline btn-sm" onclick="updateGoal('${g.id}', 1)">+1</button><button class="btn btn-outline btn-sm" onclick="updateGoal('${g.id}', -1)">-1</button><button class="btn btn-primary btn-sm" onclick="markGoalDone('${g.id}')">完成</button>`}
+        ${g.done ? '<span class="goal-done-tag">'+ICONS.check+' 已完成</span>' : `<button class="btn btn-outline btn-sm" onclick="updateGoal('${g.id}', 1)">+1</button><button class="btn btn-outline btn-sm" onclick="updateGoal('${g.id}', -1)">-1</button><button class="btn btn-primary btn-sm" onclick="markGoalDone('${g.id}')">完成</button>`}
         <button class="btn-icon" onclick="editGoal('${g.id}')" title="编辑">${ICO.edit}</button>
         <button class="btn-icon danger" onclick="confirmDelGoal('${g.id}')" title="删除">${ICO.trash}</button>
       </div>
@@ -954,16 +991,16 @@ function planLongHtml() {
   };
   return `
     <div class="card">
-      <div class="flex-between"><div class="card-title" style="margin:0;">🎯 长期目标 (${goals.length})</div><button class="btn btn-primary btn-sm" onclick="addGoal()">+ 新建目标</button></div>
+      <div class="flex-between"><div class="card-title" style="margin:0;">${ICONS.target} 长期目标 (${goals.length})</div><button class="btn btn-primary btn-sm" onclick="addGoal()">+ 新建目标</button></div>
       <div class="text-muted text-sm" style="margin-top:6px;">为目标设定进度与截止日期，app 会帮你追踪倒计时</div>
     </div>
     ${active.length ? active.map(renderGoal).join('') : ''}
-    ${done.length ? `<div class="card"><div class="card-title">✅ 已完成目标</div>${done.map(renderGoal).join('')}</div>` : ''}
-    ${!goals.length ? '<div class="empty-state-v2"><div class="empty-state-v2-icon">🎯</div><div class="empty-state-v2-text">还没有长期目标</div><div class="empty-state-v2-hint">设定一个想在未来达成的目标吧</div></div>' : ''}
+    ${done.length ? `<div class="card"><div class="card-title">${ICONS.check} 已完成目标</div>${done.map(renderGoal).join('')}</div>` : ''}
+    ${!goals.length ? '<div class="empty-state-v2"><div class="empty-state-v2-icon">'+ICONS.target+'</div><div class="empty-state-v2-text">还没有长期目标</div><div class="empty-state-v2-hint">设定一个想在未来达成的目标吧</div></div>' : ''}
   `;
 }
 function addGoal() {
-  UI.editModal({ title: '新建长期目标', icon: '🎯', fields: [
+  UI.editModal({ title: '新建长期目标', icon: ICONS.target, fields: [
     { key: 'title', label: '目标名称', type: 'text', placeholder: '例如：三个月减重 5 公斤' },
     { key: 'cat', label: '分类', type: 'select', options: LONG_CATEGORIES.map(c => ({ value: c.key, label: c.name })) },
     { key: 'target', label: '目标数值（选填）', type: 'number', placeholder: '例如 5' },
@@ -973,12 +1010,12 @@ function addGoal() {
     const goals = Store.get('wb_longterm', []);
     goals.push({ id: uid(), title: v.title.trim(), cat: v.cat, current: 0, target: Number(v.target) || 0, unit: v.unit.trim(), targetDate: v.targetDate.trim(), done: false, createdAt: todayKey() });
     Store.set('wb_longterm', goals);
-    toast('目标已创建 🎯', 'success'); Nav.refresh();
+    toast('目标已创建', 'success'); Nav.refresh();
   } });
 }
 function editGoal(id) {
   const goals = Store.get('wb_longterm', []); const g = goals.find(x => x.id === id); if (!g) return;
-  UI.editModal({ title: '编辑目标', icon: '🎯', fields: [
+  UI.editModal({ title: '编辑目标', icon: ICONS.target, fields: [
     { key: 'title', label: '目标名称', type: 'text' },
     { key: 'cat', label: '分类', type: 'select', options: LONG_CATEGORIES.map(c => ({ value: c.key, label: c.name })) },
     { key: 'target', label: '目标数值', type: 'number' },
@@ -1011,7 +1048,7 @@ function planCycleHtml() {
   const todayMatches = rules.filter(r => recurringApplies(todayKey(), r));
   return `
     <div class="card">
-      <div class="flex-between"><div class="card-title" style="margin:0;">🔄 周期计划 (${rules.length})</div><button class="btn btn-primary btn-sm" onclick="addRecurring()">+ 新建周期</button></div>
+      <div class="flex-between"><div class="card-title" style="margin:0;">${ICO.refresh} 周期计划 (${rules.length})</div><button class="btn btn-primary btn-sm" onclick="addRecurring()">+ 新建周期</button></div>
       <div class="text-muted text-sm" style="margin-top:6px;">设定重复规则后，app 会在对应日期自动把任务加入「每日计划」</div>
     </div>
     ${todayMatches.length ? `<div class="card"><div class="card-title">📥 今日已生成 (${todayMatches.length})</div>${todayMatches.map(r => `<div class="recur-gen-item"><span>🔄 ${esc(r.title)}</span><button class="btn btn-outline btn-sm" onclick="switchPlanSub('daily')">去完成 →</button></div>`).join('')}</div>` : ''}
@@ -1030,12 +1067,12 @@ function planCycleHtml() {
         </div>
       </div>`;
     }).join('') : ''}
-    ${!rules.length ? '<div class="empty-state-v2"><div class="empty-state-v2-icon">🔄</div><div class="empty-state-v2-text">还没有周期计划</div><div class="empty-state-v2-hint">把每天 / 每周要重复做的事交给它吧</div></div>' : ''}
+    ${!rules.length ? '<div class="empty-state-v2"><div class="empty-state-v2-icon">'+ICO.refresh+'</div><div class="empty-state-v2-text">还没有周期计划</div><div class="empty-state-v2-hint">把每天 / 每周要重复做的事交给它吧</div></div>' : ''}
   `;
 }
 function addRecurring() {
   let selDays = [], selDom = 1;
-  UI.editModal({ title: '新建周期计划', icon: '🔄', fields: [
+  UI.editModal({ title: '新建周期计划', icon: ICO.refresh, fields: [
     { key: 'title', label: '任务标题', type: 'text', placeholder: '例如：背单词 30 个' },
     { key: 'freq', label: '重复频率', type: 'select', options: [{value:'daily',label:'每天'},{value:'workday',label:'工作日（周一至周五）'},{value:'weekly',label:'每周（指定星期）'},{value:'monthly',label:'每月（指定日期）'}] },
     { key: 'cat', label: '分类', type: 'select', options: Object.entries(TASK_CATEGORIES).map(([k,v])=>({value:k,label:v.name})) },
@@ -1044,7 +1081,7 @@ function addRecurring() {
     const rules = Store.get('wb_recurring', []);
     rules.push({ id: uid(), title: v.title.trim(), freq: v.freq, cat: v.cat, priority: v.priority, days: v.freq === 'weekly' ? selDays : [], dayOfMonth: v.freq === 'monthly' ? selDom : 1, lastGen: '' });
     Store.set('wb_recurring', rules);
-    toast('周期计划已创建 🔄', 'success');
+    toast('周期计划已创建', 'success');
     planSub = 'cycle'; Nav.refresh();
   } });
   injectRecurExtra((v) => selDays = v, (v) => selDom = v, []);
@@ -1052,7 +1089,7 @@ function addRecurring() {
 function editRecurring(id) {
   const rules = Store.get('wb_recurring', []); const r = rules.find(x => x.id === id); if (!r) return;
   let selDays = (r.days || []).slice(), selDom = r.dayOfMonth || 1;
-  UI.editModal({ title: '编辑周期计划', icon: '🔄', fields: [
+  UI.editModal({ title: '编辑周期计划', icon: ICO.refresh, fields: [
     { key: 'title', label: '任务标题', type: 'text' },
     { key: 'freq', label: '重复频率', type: 'select', options: [{value:'daily',label:'每天'},{value:'workday',label:'工作日（周一至周五）'},{value:'weekly',label:'每周（指定星期）'},{value:'monthly',label:'每月（指定日期）'}] },
     { key: 'cat', label: '分类', type: 'select', options: Object.entries(TASK_CATEGORIES).map(([k,v])=>({value:k,label:v.name})) },
@@ -1122,14 +1159,14 @@ Modules.attributes = () => {
         <div class="attr-hero-sub">加入于 ${d.joinDate}</div>
       </div>
       <div class="attr-hero-right">
-        <div class="attr-mini"><span>🪙</span> ${d.coins}</div>
-        <div class="attr-mini"><span>❤️</span> ${d.health}</div>
-        <div class="attr-mini"><span>🔥</span> ${d.streak}</div>
-        <div class="attr-mini"><span>🍅</span> ${d.pomodoros}</div>
+        <div class="attr-mini"><span>${ICONS.coin}</span> ${d.coins}</div>
+        <div class="attr-mini"><span>${ICONS.heart}</span> ${d.health}</div>
+        <div class="attr-mini"><span>${ICONS.flame}</span> ${d.streak}</div>
+        <div class="attr-mini"><span>${ICONS.tomato}</span> ${d.pomodoros}</div>
       </div>
     </div>
-    <div class="card"><div class="card-title">🕸️ 属性雷达</div><div style="display:flex;justify-content:center;">${radarChart(radarData, { size: 280 })}</div></div>
-    <div class="card"><div class="card-title">💪 属性详情（${achieveCount ? '' : ''}${ATTRIBUTES.length} 项）</div>
+    <div class="card"><div class="card-title">属性雷达</div><div style="display:flex;justify-content:center;">${radarChart(radarData, { size: 280 })}</div></div>
+    <div class="card"><div class="card-title">属性详情（${ATTRIBUTES.length} 项）</div>
       <div class="attr-list">${attrs.map(a => `
         <div class="attr-row">
           <div class="attr-icon" style="background:${a.color}1a;color:${a.color}">${a.icon}</div>
@@ -1175,7 +1212,7 @@ Modules.read = () => {
     <div id="wereadData"></div>
     <div class="card"><div class="card-title">🔍 微信读书搜书</div><div class="form-row"><div class="form-group" style="flex:1;"><input type="text" id="wereadSearch" placeholder="输入书名，在微信读书中搜索" onkeydown="if(event.key==='Enter')searchWeRead()"></div><div class="form-group"><button class="btn btn-primary" onclick="searchWeRead()">搜索</button></div></div></div>
     <div class="card"><div class="card-title">📚 豆瓣热门图书推荐</div><div id="bookRecommend">${skelNews(8)}</div></div>
-    <div class="card"><div class="card-title">📖 今日阅读记录</div>
+    <div class="card"><div class="card-title">${ICONS.book} 今日阅读记录</div>
       <div class="form-row"><div class="form-group"><label class="field-label">阅读页数</label><input type="number" id="readPages" value="${todayPages}" min="0"></div><div class="form-group"><label class="field-label">阅读时长（分钟）</label><input type="number" id="readMinutes" value="${today.minutes||0}" min="0"></div></div>
       <div class="form-group"><label class="field-label">阅读笔记</label><textarea id="readNotes" placeholder="今天读到了什么有趣的内容？">${esc(today.notes||'')}</textarea></div>
       <button class="btn btn-primary" onclick="saveReading()">保存今日阅读</button>
@@ -1190,7 +1227,7 @@ Modules.read = () => {
         return `<div class="reading-book-card" data-id="${b.id}"><div class="book-cover" style="background:linear-gradient(135deg,${color},${color}dd);">${isDone ? '✅' : '📕'}</div><div class="book-info"><div class="book-title">${esc(b.title)} <div class="record-actions"><button class="btn-icon" onclick="editBook('${b.id}')">${ICO.edit}</button><button class="btn-icon danger" onclick="confirmDelBook('${b.id}')">${ICO.trash}</button></div></div><div class="book-progress-text">已读 ${b.current} / ${b.total} 页 · ${p}% ${isDone ? '· 已读完 🎉' : ''}</div><div class="book-bar"><div class="book-bar-fill" style="width:${p}%;background:${color};"></div></div><div class="book-actions"><a href="https://weread.qq.com/web/search?keyword=${encodeURIComponent(b.title)}" target="_blank" class="btn btn-outline btn-sm">📖 微信读书</a><button class="btn btn-outline btn-sm" onclick="updateBook('${b.id}', 5)">+5页</button><button class="btn btn-outline btn-sm" onclick="updateBook('${b.id}', 10)">+10页</button><button class="btn btn-outline btn-sm" onclick="updateBook('${b.id}', -5)">-5页</button></div></div></div>`;
       }).join('') : '<div class="empty-state-v2"><div class="empty-state-v2-icon">📚</div><div class="empty-state-v2-text">书架空空如也</div><div class="empty-state-v2-hint">添加一本书开始阅读吧</div></div>'}</div>
     </div>
-    <div class="card"><div class="card-title">📅 阅读历史</div>${history.length ? history.slice(-10).reverse().map(h => `<div class="note-item"><div class="note-item-title">${esc(h.date)} · ${h.pages}页 / ${h.minutes}分钟</div>${h.notes ? `<div class="note-item-body">${esc(h.notes)}</div>` : ''}</div>`).join('') : '<div class="empty-state text-muted text-sm">还没有阅读历史</div>'}</div>
+    <div class="card"><div class="card-title">${ICONS.calendar} 阅读历史</div>${history.length ? history.slice(-10).reverse().map(h => `<div class="note-item"><div class="note-item-title">${esc(h.date)} · ${h.pages}页 / ${h.minutes}分钟</div>${h.notes ? `<div class="note-item-body">${esc(h.notes)}</div>` : ''}</div>`).join('') : '<div class="empty-state text-muted text-sm">还没有阅读历史</div>'}</div>
   `;
 };
 ModuleHooks.read = () => { loadBookRecommend(); if (Store.get('wb_weread_cookie','')) syncWeread(); };
@@ -1201,7 +1238,7 @@ async function loadBookRecommend() {
     const r = await API.books(); const books = r.items || [];
     if (!books.length) { container.innerHTML = '<div class="loading-state">暂无推荐数据，请稍后刷新</div>'; return; }
     container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="online-grid">${books.map(b => `<div class="online-card" onclick="window.open('${b.url}')"><div class="online-card-cover" style="background:#dbeafe;">📖</div><div class="online-card-title">${esc(b.title)}</div><div class="online-card-rate">${b.rate && b.rate !== '暂无' ? `⭐ ${b.rate}` : '暂无评分'}</div><button class="btn btn-outline btn-sm" style="margin-top:6px;width:100%;" onclick="event.stopPropagation();addBookFromDouban('${esc(b.title)}')">加入书架</button></div>`).join('')}</div>`;
-  } catch (e) { container.innerHTML = '<div class="loading-state error">⚠️ 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadBookRecommend()">重试</button></div>'; }
+  } catch (e) { container.innerHTML = `<div class="loading-state error">${ICONS.warn} 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadBookRecommend()">重试</button></div>`; }
 }
 function addBookFromDouban(title) {
   const books = Store.get('wb_books', []);
@@ -1218,7 +1255,7 @@ function searchWeRead() {
 }
 function openWereadSettings() {
   const current = Store.get('wb_weread_cookie', '');
-  UI.editModal({ title: '微信读书 Cookie 设置', icon: '📖', saveLabel: '保存',
+  UI.editModal({ title: '微信读书 Cookie 设置', icon: ICONS.book, saveLabel: '保存',
     fields: [
       { key: 'cookie', label: 'Cookie', type: 'textarea', placeholder: '在此粘贴你的微信读书 Cookie...', minHeight: 120 },
     ],
@@ -1237,7 +1274,7 @@ function openWereadSettings() {
       help.className = 'weread-help';
       help.innerHTML = `
         <div style="margin-top:12px;padding:12px;background:var(--bg-card);border-radius:8px;font-size:13px;line-height:1.8;color:var(--text-light);">
-          <div style="font-weight:700;margin-bottom:6px;">📋 获取 Cookie 步骤：</div>
+          <div style="font-weight:700;margin-bottom:6px;">${ICONS.list} 获取 Cookie 步骤：</div>
           1. 用浏览器打开 <a href="https://weread.qq.com" target="_blank" style="color:var(--primary);">weread.qq.com</a> 并登录<br>
           2. 按 <kbd>F12</kbd> 打开开发者工具<br>
           3. 切换到 <b>Network</b> 标签页<br>
@@ -1254,7 +1291,7 @@ async function syncWeread() {
   const container = $('#wereadData'); if (!container) return;
   const cookie = Store.get('wb_weread_cookie', '');
   if (!cookie) { container.innerHTML = ''; return; }
-  container.innerHTML = '<div class="loading-state">📖 正在同步微信读书数据...</div>';
+  container.innerHTML = `<div class="loading-state">${ICONS.book} 正在同步微信读书数据...</div>`;
   try {
     const data = await API.wereadShelf();
     if (!data || !data.books) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
@@ -1266,14 +1303,14 @@ async function syncWeread() {
     const unread = sortedBooks.filter(b => !b.finishReading && (!b.progress || b.progress === 0));
     container.innerHTML = `
       <div class="compact-stats">
-        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--purple);">${fmtTime(totalReadingTime)}</div><div class="compact-stat-label">⏱️ 总阅读时长</div></div>
-        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--success);">${finishedCount}</div><div class="compact-stat-label">✅ 已读完</div></div>
-        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--primary);">${readingCount}</div><div class="compact-stat-label">📖 在读</div></div>
-        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--text-light);">${totalCount}</div><div class="compact-stat-label">📚 书架总数</div></div>
+        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--purple);">${fmtTime(totalReadingTime)}</div><div class="compact-stat-label">${ICONS.clock} 总阅读时长</div></div>
+        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--success);">${finishedCount}</div><div class="compact-stat-label">${ICONS.check} 已读完</div></div>
+        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--primary);">${readingCount}</div><div class="compact-stat-label">${ICONS.book} 在读</div></div>
+        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--text-light);">${totalCount}</div><div class="compact-stat-label">${ICONS.book} 书架总数</div></div>
       </div>
-      ${reading.length ? `<div class="card"><div class="card-title">📖 在读 (${reading.length})</div><div class="weread-book-list">${reading.slice(0, 10).map(b => `
+      ${reading.length ? `<div class="card"><div class="card-title">${ICONS.book} 在读 (${reading.length})</div><div class="weread-book-list">${reading.slice(0, 10).map(b => `
         <div class="weread-book-item">
-          ${b.cover ? `<img class="weread-book-cover" src="${b.cover}" onerror="this.style.display='none'">` : '<div class="weread-book-cover-placeholder">📖</div>'}
+          ${b.cover ? `<img class="weread-book-cover" src="${b.cover}" onerror="this.style.display='none'">` : '<div class="weread-book-cover-placeholder">'+ICONS.book+'</div>'}
           <div class="weread-book-info">
             <div class="weread-book-title">${esc(b.title)}</div>
             <div class="weread-book-author">${esc(b.author)}</div>
@@ -1284,11 +1321,11 @@ async function syncWeread() {
         </div>`).join('')}</div></div>` : ''}
       ${finished.length ? `<div class="card"><div class="card-title">✅ 已读完 (${finished.length})</div><div class="weread-book-list">${finished.slice(0, 6).map(b => `
         <div class="weread-book-item">
-          ${b.cover ? `<img class="weread-book-cover" src="${b.cover}" onerror="this.style.display='none'">` : '<div class="weread-book-cover-placeholder">✅</div>'}
+          ${b.cover ? `<img class="weread-book-cover" src="${b.cover}" onerror="this.style.display='none'">` : '<div class="weread-book-cover-placeholder">'+ICONS.check+'</div>'}
           <div class="weread-book-info">
             <div class="weread-book-title">${esc(b.title)}</div>
             <div class="weread-book-author">${esc(b.author)}</div>
-            <div class="weread-book-meta">✅ 已读完 · 阅读时长 ${fmtTime(b.readingTime)}</div>
+            <div class="weread-book-meta">${ICONS.check} 已读完 · 阅读时长 ${fmtTime(b.readingTime)}</div>
           </div>
         </div>`).join('')}</div></div>` : ''}
     `;
@@ -1337,7 +1374,7 @@ function confirmDelBook(id) { const books = Store.get('wb_books', []); const b =
 let exerciseTab = 'meditation';
 let medTimer = null, medSeconds = 0, medRunning = false, breathPhase = 0, breathInterval = null;
 const EXERCISE_LIB = [
-  { name:'跑步', icon:'🏃', cat:'有氧', cal:8, dur:30 }, { name:'快走', icon:'🚶', cat:'有氧', cal:4, dur:30 },
+  { name:'跑步', icon:ICONS.run, cat:'有氧', cal:8, dur:30 }, { name:'快走', icon:ICONS.walk, cat:'有氧', cal:4, dur:30 },
   { name:'跳绳', icon:'🤾', cat:'有氧', cal:12, dur:15 }, { name:'骑行', icon:'🚴', cat:'有氧', cal:7, dur:30 },
   { name:'游泳', icon:'🏊', cat:'有氧', cal:10, dur:30 }, { name:'俯卧撑', icon:'💪', cat:'力量', cal:6, dur:15 },
   { name:'深蹲', icon:'🦵', cat:'力量', cal:5, dur:15 }, { name:'引体向上', icon:'🤸', cat:'力量', cal:8, dur:10 },
@@ -1357,13 +1394,13 @@ Modules.exercise = () => {
   const heatData = heatDates.map(date => { const ex = Store.get(`wb_exercise_${date}`, null); const min = ex ? (ex.medMinutes + ex.workouts.reduce((s,w)=>s+(w.minutes||0),0)) : 0; let v = 0; if (min >= 60) v = 5; else if (min >= 40) v = 4; else if (min >= 20) v = 3; else if (min >= 10) v = 2; else if (min > 0) v = 1; return { date, value: v }; });
   return `
     <div class="compact-stats">
-      <div class="compact-stat"><div class="compact-stat-num" style="color:var(--warning);">${totalMin}</div><div class="compact-stat-label">⏱️ 今日运动分钟</div></div>
-      <div class="compact-stat"><div class="compact-stat-num" style="color:var(--danger);">🔥${streak}</div><div class="compact-stat-label">连续运动天数</div></div>
+      <div class="compact-stat"><div class="compact-stat-num" style="color:var(--warning);">${totalMin}</div><div class="compact-stat-label">${ICONS.clock} 今日运动分钟</div></div>
+      <div class="compact-stat"><div class="compact-stat-num" style="color:var(--danger);">${ICONS.flame}${streak}</div><div class="compact-stat-label">连续运动天数</div></div>
       <div class="compact-stat"><div class="compact-stat-num" style="color:var(--primary);">${Math.round(totalCal)}</div><div class="compact-stat-label"> kcal 消耗</div></div>
     </div>
     <div class="exercise-tabs"><div class="exercise-tab ${exerciseTab==='meditation'?'active':''}" onclick="switchExTab('meditation')">🧘 每日冥想</div><div class="exercise-tab ${exerciseTab==='workout'?'active':''}" onclick="switchExTab('workout')">💪 身体锻炼</div></div>
     <div id="exerciseContent">${exerciseTab === 'meditation' ? renderMeditation() : renderWorkout(today)}</div>
-    <div class="card"><div class="card-title">🗓️ 近 4 周运动热力图</div>${heatmap(heatData, { weeks: 4 })}</div>
+    <div class="card"><div class="card-title">${ICONS.calendar} 近 4 周运动热力图</div>${heatmap(heatData, { weeks: 4 })}</div>
   `;
 };
 function renderMeditation() {
@@ -1371,15 +1408,15 @@ function renderMeditation() {
   return `<div class="card"><div class="card-title">🧘 冥想计时器 <span class="card-subtitle">今日已冥想 ${today.medMinutes} 分钟</span></div>
     <div class="meditation-timer"><div class="timer-circle-wrap"><div class="breathing-circle ${medRunning ? (breathPhase ? 'breathing-out' : 'breathing-in') : ''}" id="breathCircle"></div><div class="timer-display" id="medDisplay">${formatTime(medSeconds)}</div></div>
     <div class="timer-instruction" id="breathText">${medRunning ? (breathPhase ? '呼气...' : '吸气...') : '点击开始，跟随呼吸节奏'}</div>
-    <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;"><button class="btn btn-primary" onclick="toggleMed()" id="medBtn">${medRunning?'⏸ 暂停':'▶ 开始冥想'}</button><button class="btn btn-outline" onclick="resetMed()">重置</button><button class="btn btn-success" onclick="saveMed()">💾 保存</button></div></div></div>`;
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;"><button class="btn btn-primary" onclick="toggleMed()" id="medBtn">${medRunning?ICO.pause+' 暂停':ICO.play+' 开始冥想'}</button><button class="btn btn-outline" onclick="resetMed()">重置</button><button class="btn btn-success" onclick="saveMed()">${ICO.save} 保存</button></div></div></div>`;
 }
 function renderWorkout(today) {
   const cats = [...new Set(EXERCISE_LIB.map(e=>e.cat))];
   return `
-    <div class="card"><div class="card-title">💪 快速记录 (Keep风格运动库)</div>
+    <div class="card"><div class="card-title">快速记录 (Keep风格运动库)</div>
       <div class="exercise-library">${cats.map(cat => `<div class="ex-lib-group"><div class="ex-lib-cat">${cat}</div><div class="ex-lib-items">${EXERCISE_LIB.filter(e=>e.cat===cat).map(e => `<div class="ex-lib-item" onclick="quickAddWorkout('${e.name}','${e.icon}',${e.dur})"><span class="ex-lib-icon">${e.icon}</span><span class="ex-lib-name">${e.name}</span><span class="ex-lib-info">${e.dur}min · ${e.cal}kcal</span></div>`).join('')}</div></div>`).join('')}</div>
     </div>
-    <div class="card"><div class="card-title">📋 自定义记录</div>
+    <div class="card"><div class="card-title">${ICONS.list} 自定义记录</div>
       <div class="form-row-3"><div class="form-group"><label class="field-label">运动类型</label><select id="workoutType">${EXERCISE_LIB.map(w=>`<option value="${w.name}" data-icon="${w.icon}">${w.icon} ${w.name}</option>`).join('')}</select></div><div class="form-group"><label class="field-label">时长（分钟）</label><input type="number" id="workoutMinutes" placeholder="30" min="1"></div><div class="form-group"><label class="field-label">备注</label><input type="text" id="workoutNote" placeholder="感觉如何？"></div></div>
       <button class="btn btn-primary" onclick="addWorkout()">记录锻炼</button>
     </div>
@@ -1393,8 +1430,8 @@ function toggleMed() {
   if (medRunning) {
     medTimer = setInterval(() => { medSeconds++; $('#medDisplay').textContent = formatTime(medSeconds); }, 1000);
     breathInterval = setInterval(() => { breathPhase = 1 - breathPhase; const c = $('#breathCircle'), t = $('#breathText'); if (c) { c.classList.remove('breathing-in','breathing-out'); c.classList.add(breathPhase ? 'breathing-out' : 'breathing-in'); } if (t) t.textContent = breathPhase ? '呼气...' : '吸气...'; }, 4000);
-    $('#medBtn').textContent = '⏸ 暂停';
-  } else { clearInterval(medTimer); medTimer = null; clearInterval(breathInterval); breathInterval = null; $('#medBtn').textContent = '▶ 继续'; const c = $('#breathCircle'); if (c) c.classList.remove('breathing-in','breathing-out'); const t = $('#breathText'); if (t) t.textContent = '已暂停'; }
+    $('#medBtn').innerHTML = ICO.pause + ' 暂停';
+  } else { clearInterval(medTimer); medTimer = null; clearInterval(breathInterval); breathInterval = null; $('#medBtn').innerHTML = ICO.play + ' 继续'; const c = $('#breathCircle'); if (c) c.classList.remove('breathing-in','breathing-out'); const t = $('#breathText'); if (t) t.textContent = '已暂停'; }
 }
 function resetMed() { medRunning = false; medSeconds = 0; if (medTimer) { clearInterval(medTimer); medTimer = null; } if (breathInterval) { clearInterval(breathInterval); breathInterval = null; } Nav.refresh(); }
 function saveMed() {
@@ -1412,11 +1449,11 @@ function addWorkout() {
   const sel = $('#workoutType'), type = sel.value, opt = sel.options[sel.selectedIndex], icon = opt.dataset.icon || '⭐', minutes = parseInt($('#workoutMinutes').value) || 0, note = $('#workoutNote').value.trim();
   if (minutes < 1) return toast('请输入运动时长', 'warning');
   const today = Store.getDaily('exercise', { medMinutes: 0, workouts: [] }); today.workouts.push({ id: uid(), type, icon, minutes, note }); Store.setDaily('exercise', today);
-  Game.reward(10, 5, 3, 'strength'); toast(`${type} ${minutes}分钟已记录 💪`, 'success'); Nav.refresh();
+  Game.reward(10, 5, 3, 'strength'); toast(`${type} ${minutes}分钟已记录`, 'success'); Nav.refresh();
 }
 function editWorkout(id) {
   const today = Store.getDaily('exercise', { medMinutes: 0, workouts: [] }); const w = today.workouts.find(x => x.id === id); if (!w) return;
-  UI.editModal({ title: '编辑锻炼记录', icon: '💪', fields: [{ key: 'type', label: '运动类型', type: 'select', options: EXERCISE_LIB.map(e => ({value: e.name, label: `${e.icon} ${e.name}`})) }, { key: 'minutes', label: '时长（分钟）', type: 'number', min: 1 }, { key: 'note', label: '备注', type: 'text' }], values: w,
+  UI.editModal({ title: '编辑锻炼记录', icon: ICONS.run, fields: [{ key: 'type', label: '运动类型', type: 'select', options: EXERCISE_LIB.map(e => ({value: e.name, label: e.name})) }, { key: 'minutes', label: '时长（分钟）', type: 'number', min: 1 }, { key: 'note', label: '备注', type: 'text' }], values: w,
     onSave: (v) => { Object.assign(w, v); w.minutes = parseInt(w.minutes) || 0; Store.setDaily('exercise', today); toast('锻炼记录已更新', 'success'); Nav.refresh(); },
     onDelete: () => { UI.confirm('确定删除这条锻炼记录吗？', () => { today.workouts = today.workouts.filter(x => x.id !== id); Store.setDaily('exercise', today); Nav.refresh(); }); } });
 }
@@ -1445,11 +1482,11 @@ Modules.food = () => {
   for (let i = dates.length - 1; i >= 0; i--) { const f = Store.get(`wb_food_${dates[i]}`, null); if (f && (f.water||0) >= waterGoal) waterStreak++; else if (i < dates.length - 1) break; }
   const mealIcons = { '早餐':'🌅', '午餐':'☀️', '晚餐':'🌆', '零食':'🍪' };
   return `
-    <div class="card"><div class="card-title">💧 好好喝水 <span class="card-subtitle">🔥 连续达标 ${waterStreak} 天</span></div>
+    <div class="card"><div class="card-title">${ICONS.water} 好好喝水 <span class="card-subtitle">${ICONS.flame} 连续达标 ${waterStreak} 天</span></div>
       <div style="display:flex;align-items:center;gap:24px;"><div class="water-bottle" style="flex-shrink:0;"><div class="water-fill" style="height:${waterPct}%;"></div>${today.water >= waterGoal ? '<div class="water-bubble" style="width:8px;height:8px;left:20%;"></div><div class="water-bubble" style="width:6px;height:6px;left:60%;animation-delay:1s;"></div>' : ''}</div>
       <div style="flex:1;text-align:center;"><div class="water-count">${today.water||0}<span style="font-size:18px;color:var(--text-light);"> / ${waterGoal}</span></div><div class="water-goal">杯水 · ${waterPct.toFixed(0)}% ${today.water>=waterGoal?'🎉 已达标！':''}</div><div class="water-cups" style="margin-top:12px;">${Array.from({length:waterGoal},(_,i)=>`<div class="water-cup ${i<(today.water||0)?'filled':''}" onclick="setWater(${i+1})"></div>`).join('')}</div><div style="display:flex;gap:8px;justify-content:center;margin-top:8px;"><button class="btn btn-outline btn-sm" onclick="addWater(-1)">-1</button><button class="btn btn-primary btn-sm" onclick="addWater(1)">+1 💧</button></div></div></div>
     </div>
-    <div class="card"><div class="card-title">🔥 热量追踪 <span class="card-subtitle">目标 ${calGoal} kcal</span></div>
+    <div class="card"><div class="card-title">${ICONS.flame} 热量追踪 <span class="card-subtitle">目标 ${calGoal} kcal</span></div>
       <div class="cal-track"><div class="cal-track-bar"><div class="cal-track-fill ${calPct>=100?'over':''}" style="width:${Math.min(100,calPct)}%"></div></div><div class="cal-track-text"><span class="cal-track-num">${totalCal}</span> / ${calGoal} kcal ${calPct>=100?'⚠️ 超标':''}</div></div>
       <div style="margin-top:10px;display:flex;gap:8px;align-items:center;"><input type="number" id="calGoalInput" placeholder="目标热量" value="${calGoal}" min="0" style="width:120px;"><button class="btn btn-outline btn-sm" onclick="setCalGoal()">设置目标</button></div>
     </div>
@@ -1498,12 +1535,12 @@ Modules.finance = () => {
   const chartData = dates7.map((date, i) => ({ label: dayLabels(7)[i], value: Math.round(records.filter(r => r.type==='expense' && r.date.startsWith(date)).reduce((s,r)=>s+r.amount,0)), today: i===6, color: '#ef4444' }));
   return `
     <div class="finance-summary"><div class="finance-summary-card income"><div class="finance-summary-label">本月收入</div><div class="finance-summary-value">¥${income.toFixed(2)}</div></div><div class="finance-summary-card expense"><div class="finance-summary-label">本月支出</div><div class="finance-summary-value">¥${expense.toFixed(2)}</div></div><div class="finance-summary-card balance"><div class="finance-summary-label">本月结余</div><div class="finance-summary-value">¥${balance.toFixed(2)}</div></div></div>
-    <div class="card"><div class="card-title">💰 记一笔</div>
+    <div class="card"><div class="card-title">${ICONS.coin} 记一笔</div>
       <div class="form-row-3"><div class="form-group"><label class="field-label">类型</label><select id="finType"><option value="expense">💸 支出</option><option value="income">💵 收入</option></select></div><div class="form-group"><label class="field-label">分类</label><select id="finCat">${Object.entries(FINANCE_CATS).map(([k,v])=>`<option value="${k}">${v.icon} ${k}</option>`).join('')}</select></div><div class="form-group"><label class="field-label">金额（¥）</label><input type="number" id="finAmount" placeholder="0.00" step="0.01" min="0"></div></div>
       <div class="form-group"><label class="field-label">备注</label><input type="text" id="finNote" placeholder="可选"></div><button class="btn btn-primary" onclick="addFinance()">记录</button>
     </div>
     ${expense > 0 ? `<div class="card"><div class="card-title">🥧 支出分类占比</div>${donutChart(catData, { size: 150, stroke: 24 })}</div>` : ''}
-    <div class="card"><div class="card-title">📊 预算管理</div>
+    <div class="card"><div class="card-title">${ICONS.chart} 预算管理</div>
       <div class="flex-between" style="margin-bottom:6px;"><span class="text-sm text-muted">月度预算</span><span class="text-sm" style="font-weight:700;color:var(--text);">¥${expense.toFixed(0)} / ¥${budget}</span></div>
       <div class="budget-bar"><div class="budget-bar-fill ${budgetClass}" style="width:${Math.min(100,budgetPct)}%"></div></div>
       <div class="flex-between" style="margin-top:4px;"><span class="text-xs text-muted">已用 ${budgetPct.toFixed(0)}%</span><span class="text-xs" style="color:${budgetPct>=90?'var(--danger)':'var(--text-light)'}">剩余 ¥${Math.max(0,budget-expense).toFixed(0)}</span></div>
@@ -1514,24 +1551,24 @@ Modules.finance = () => {
   `;
 };
 function setBudget() { const v = parseInt($('#budgetInput').value) || 0; if (v < 0) return toast('预算不能为负', 'warning'); Store.set('wb_budget', v); toast('预算已设置', 'success'); Nav.refresh(); }
-function addFinance() { const type = $('#finType').value, cat = $('#finCat').value, amount = parseFloat($('#finAmount').value), note = $('#finNote').value.trim(); if (!amount || amount <= 0) return toast('请输入有效金额', 'warning'); const records = Store.get('wb_finance', []); records.push({ id: uid(), type, cat, amount, note, date: nowDateTime() }); Store.set('wb_finance', records); toast('记录成功 📝', 'success'); Nav.refresh(); }
+function addFinance() { const type = $('#finType').value, cat = $('#finCat').value, amount = parseFloat($('#finAmount').value), note = $('#finNote').value.trim(); if (!amount || amount <= 0) return toast('请输入有效金额', 'warning'); const records = Store.get('wb_finance', []); records.push({ id: uid(), type, cat, amount, note, date: nowDateTime() }); Store.set('wb_finance', records); toast('记录成功', 'success'); Nav.refresh(); }
 function editFinance(id) { const records = Store.get('wb_finance', []); const r = records.find(x => x.id === id); if (!r) return; UI.editModal({ title: '编辑账单', icon: '💰', fields: [{ key: 'type', label: '类型', type: 'select', options: [{value:'expense',label:'💸 支出'},{value:'income',label:'💵 收入'}] }, { key: 'cat', label: '分类', type: 'select', options: Object.entries(FINANCE_CATS).map(([k,v])=>({value:k,label:`${v.icon} ${k}`})) }, { key: 'amount', label: '金额（¥）', type: 'number', min: 0, step: 0.01 }, { key: 'note', label: '备注', type: 'text' }], values: r, onSave: (v) => { Object.assign(r, v); r.amount = parseFloat(r.amount) || 0; Store.set('wb_finance', records); toast('账单已更新', 'success'); Nav.refresh(); }, onDelete: () => { UI.confirm('确定删除这条账单记录吗？', () => { Store.set('wb_finance', records.filter(x => x.id !== id)); Nav.refresh(); }); } }); }
 function confirmDelFinance(id) { UI.confirm('确定删除这条账单记录吗？', () => { let records = Store.get('wb_finance', []); records = records.filter(r => r.id !== id); Store.set('wb_finance', records); Nav.refresh(); }); }
 
 // ---------- 自媒体计划 (看板) ----------
 const MEDIA_PLATFORMS = ['微信公众号','小红书','抖音','B站','知乎','微博','视频号','快手'];
-const MEDIA_STATUSES = [{ key: 'idea', label: '💡 构思中', tag: 'tag-orange' }, { key: 'writing', label: '✍️ 创作中', tag: 'tag-blue' }, { key: 'ready', label: '✅ 待发布', tag: 'tag-green' }, { key: 'published', label: '🚀 已发布', tag: 'tag-purple' }];
+const MEDIA_STATUSES = [{ key: 'idea', label: '构思中', tag: 'tag-orange' }, { key: 'writing', label: '创作中', tag: 'tag-blue' }, { key: 'ready', label: '待发布', tag: 'tag-green' }, { key: 'published', label: '已发布', tag: 'tag-purple' }];
 Modules.media = () => {
   const plans = Store.get('wb_media', []);
   return `
-    <div class="compact-stats"><div class="compact-stat"><div class="compact-stat-num" style="color:var(--primary);">${plans.length}</div><div class="compact-stat-label">📋 总计划</div></div><div class="compact-stat"><div class="compact-stat-num" style="color:var(--warning);">${plans.filter(p=>p.status==='idea').length}</div><div class="compact-stat-label">💡 构思</div></div><div class="compact-stat"><div class="compact-stat-num" style="color:var(--success);">${plans.filter(p=>p.status==='ready').length}</div><div class="compact-stat-label">✅ 待发</div></div><div class="compact-stat"><div class="compact-stat-num" style="color:var(--purple);">${plans.filter(p=>p.status==='published').length}</div><div class="compact-stat-label">🚀 已发</div></div></div>
-    <div class="card"><div class="card-title">➕ 添加内容计划</div>
+    <div class="compact-stats"><div class="compact-stat"><div class="compact-stat-num" style="color:var(--primary);">${plans.length}</div><div class="compact-stat-label">${ICONS.list} 总计划</div></div><div class="compact-stat"><div class="compact-stat-num" style="color:var(--warning);">${plans.filter(p=>p.status==='idea').length}</div><div class="compact-stat-label">${ICONS.bulb} 构思</div></div><div class="compact-stat"><div class="compact-stat-num" style="color:var(--success);">${plans.filter(p=>p.status==='ready').length}</div><div class="compact-stat-label">${ICONS.check} 待发</div></div><div class="compact-stat"><div class="compact-stat-num" style="color:var(--purple);">${plans.filter(p=>p.status==='published').length}</div><div class="compact-stat-label">${ICONS.rocket} 已发</div></div></div>
+    <div class="card"><div class="card-title">${ICO.plus} 添加内容计划</div>
       <div class="form-row-3"><div class="form-group"><label class="field-label">平台</label><select id="mediaPlatform">${MEDIA_PLATFORMS.map(p=>`<option value="${p}">${p}</option>`).join('')}</select></div><div class="form-group"><label class="field-label">计划日期</label><input type="date" id="mediaDate" value="${todayKey()}"></div><div class="form-group"><label class="field-label">状态</label><select id="mediaStatus">${MEDIA_STATUSES.map(s=>`<option value="${s.key}">${s.label}</option>`).join('')}</select></div></div>
       <div class="form-group"><label class="field-label">内容标题</label><input type="text" id="mediaTitle" placeholder="这次想做什么内容？"></div>
       <div class="form-group"><label class="field-label">内容描述</label><textarea id="mediaDesc" placeholder="详细描述内容方向、目标受众等"></textarea></div>
       <button class="btn btn-primary" onclick="addMedia()">添加计划</button>
     </div>
-    <div class="card"><div class="card-title">📋 内容看板</div>
+    <div class="card"><div class="card-title">${ICONS.list} 内容看板</div>
       <div class="kanban">${MEDIA_STATUSES.map(s => { const items = plans.filter(p => p.status === s.key); return `<div class="kanban-col"><div class="kanban-col-header"><div class="kanban-col-title">${s.label}</div><div class="kanban-col-count">${items.length}</div></div>${items.map(p => `<div class="kanban-card" data-id="${p.id}"><div class="kanban-card-title">${esc(p.title)}</div>${p.desc ? `<div class="kanban-card-desc">${esc(p.desc.slice(0,60))}${p.desc.length>60?'...':''}</div>` : ''}<div class="kanban-card-meta"><span class="tag tag-blue">📍 ${esc(p.platform)}</span><span class="text-xs text-muted">📅 ${esc(p.date)}</span></div><div class="kanban-card-actions"><button class="btn-icon" onclick="event.stopPropagation();editMedia('${p.id}')" title="编辑">${ICO.edit}</button>${s.key !== 'published' ? `<button class="btn-icon" onclick="event.stopPropagation();cycleMediaStatus('${p.id}')" title="推进">${ICO.chevronRight}</button>` : ''}<button class="btn-icon danger" onclick="event.stopPropagation();confirmDelMedia('${p.id}')" title="删除">${ICO.trash}</button></div></div>`).join('') || '<div style="text-align:center;padding:20px;color:var(--text-lighter);font-size:12px;">暂无内容</div>'}</div>`; }).join('')}</div>
     </div>
   `;
@@ -1586,7 +1623,7 @@ async function loadOnlineVideos() {
       const labelMap = { 1:'🆕', 2:'🔥', 3:'💥', 4:'⭐' };
       container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="news-list">${items.slice(0, 20).map((item, i) => `<div class="news-item" onclick="window.open('${item.url}')"><div class="news-rank rank-${i<3?'top':'normal'}">${i+1}</div><div class="news-content"><div class="news-title">${labelMap[item.label]||''} ${esc(item.title)}</div><div class="news-hot">🔥 ${formatNum(item.hot)}</div></div><button class="btn-icon" onclick="event.stopPropagation();saveDouyinHot(${i})" title="收藏">⭐</button></div>`).join('')}</div>`;
     }
-  } catch (e) { container.innerHTML = `<div class="loading-state error">⚠️ 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineVideos()">重试</button></div>`; }
+  } catch (e) { container.innerHTML = `<div class="loading-state error">${ICONS.warn} 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineVideos()">重试</button></div>`; }
 }
 function saveVideoFromOnline(idx) {
   const v = window._onlineVideos?.[idx]; if (!v) return;
@@ -1606,7 +1643,7 @@ function saveDouyinHot(idx) {
   Game.reward(5, 3, 0);
   toast('已收藏到灵感库 🎬', 'success');
 }
-function addVideo() { const title = $('#videoTitle').value.trim(), platform = $('#videoPlatform').value, element = $('#videoElement').value, script = $('#videoScript').value.trim(); if (!title) return toast('请输入视频标题', 'warning'); const ideas = Store.get('wb_videos', []); ideas.push({ id: uid(), title, platform, element, script, date: todayKey() }); Store.set('wb_videos', ideas); toast('灵感已保存 💡', 'success'); Nav.refresh(); }
+function addVideo() { const title = $('#videoTitle').value.trim(), platform = $('#videoPlatform').value, element = $('#videoElement').value, script = $('#videoScript').value.trim(); if (!title) return toast('请输入视频标题', 'warning'); const ideas = Store.get('wb_videos', []); ideas.push({ id: uid(), title, platform, element, script, date: todayKey() }); Store.set('wb_videos', ideas); toast('灵感已保存', 'success'); Nav.refresh(); }
 function editVideo(id) { const ideas = Store.get('wb_videos', []); const v = ideas.find(x => x.id === id); if (!v) return; UI.editModal({ title: '编辑视频灵感', icon: '🎬', fields: [{ key: 'title', label: '视频标题/选题', type: 'text' }, { key: 'platform', label: '平台', type: 'select', options: ['抖音','小红书','B站','视频号','快手','YouTube'].map(p=>({value:p,label:p})) }, { key: 'element', label: '爆款要素', type: 'select', options: VIDEO_ELEMENTS.map(e=>({value:e.key,label:e.key})) }, { key: 'script', label: '脚本结构', type: 'textarea', minHeight: 100 }], values: v, onSave: (v2) => { Object.assign(v, v2); Store.set('wb_videos', ideas); toast('灵感已更新', 'success'); Nav.refresh(); }, onDelete: () => { UI.confirm(`确定删除「${v.title.slice(0,30)}」吗？`, () => { Store.set('wb_videos', ideas.filter(x => x.id !== id)); Nav.refresh(); }); } }); }
 function confirmDelVideo(id) { const ideas = Store.get('wb_videos', []); const v = ideas.find(x => x.id === id); if (!v) return; UI.confirm(`确定删除「${v.title.slice(0,30)}」吗？`, () => { Store.set('wb_videos', ideas.filter(x => x.id !== id)); Nav.refresh(); }); }
 
@@ -1627,7 +1664,7 @@ async function loadOnlineNews() {
     if (!news.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
     window._onlineNews = news;
     container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="news-list">${news.map((n, i) => `<div class="news-item" onclick="window.open('${n.url}')"><div class="news-rank ${i<3?'top':''}">${i+1}</div><div class="news-item-content"><div class="news-item-title">${esc(n.title)}</div>${n.hot ? `<div class="news-item-hot">🔥 ${formatNum(n.hot)}</div>` : ''}</div><button class="btn-icon news-save-btn" onclick="event.stopPropagation();saveNewsFromOnline(${i})" title="收藏">⭐</button></div>`).join('')}</div>`;
-  } catch (e) { container.innerHTML = '<div class="loading-state error">⚠️ 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineNews()">重试</button></div>'; }
+  } catch (e) { container.innerHTML = `<div class="loading-state error">${ICONS.warn} 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineNews()">重试</button></div>`; }
 }
 function saveNewsFromOnline(idx) {
   const n = window._onlineNews?.[idx]; if (!n) return;
@@ -1664,7 +1701,7 @@ async function loadOnlineDramas() {
     if (!items.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
     window._onlineDramas = items;
     container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="online-grid">${items.map((d, i) => `<div class="online-card" onclick="window.open('${d.url}')"><div class="online-card-cover" style="background-image:url('${d.cover}');background-size:cover;background-position:center;"></div><div class="online-card-title">${esc(d.title)}</div><div class="online-card-rate">${d.rate && d.rate !== '暂无' ? `⭐ ${d.rate}` : '暂无评分'}</div>${d.episodes ? `<div class="online-card-ep">${esc(d.episodes)}</div>` : ''}<button class="btn btn-outline btn-sm" style="margin-top:6px;width:100%;" onclick="event.stopPropagation();addDramaFromOnline(${i})">加入追剧</button></div>`).join('')}</div>`;
-  } catch (e) { container.innerHTML = '<div class="loading-state error">⚠️ 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineDramas()">重试</button></div>'; }
+  } catch (e) { container.innerHTML = `<div class="loading-state error">${ICONS.warn} 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineDramas()">重试</button></div>`; }
 }
 function addDramaFromOnline(idx) {
   const d = window._onlineDramas?.[idx]; if (!d) return;
@@ -1672,19 +1709,19 @@ function addDramaFromOnline(idx) {
   if (dramas.find(x => x.title === d.title)) return toast('已在追剧列表中', 'warning');
   dramas.push({ id: uid(), title: d.title, type: dramaOnlineTab === 'tv' ? '国产剧' : '电影', status: 'planned', rating: parseFloat(d.rate) || 0, ep: '', note: '', date: todayKey() });
   Store.set('wb_dramas', dramas);
-  toast(`《${d.title}》已加入追剧列表 🎭`, 'success');
+  toast(`《${d.title}》已加入追剧列表`, 'success');
 }
-function addDrama() { const title = $('#dramaTitle').value.trim(); if (!title) return toast('请输入剧名', 'warning'); const dramas = Store.get('wb_dramas', []); dramas.push({ id: uid(), title, type: $('#dramaType').value, status: $('#dramaStatus').value, rating: parseFloat($('#dramaRating').value) || 0, ep: $('#dramaEp').value.trim(), note: $('#dramaNote').value.trim(), date: todayKey() }); Store.set('wb_dramas', dramas); toast('已添加 🎭', 'success'); Nav.refresh(); }
+function addDrama() { const title = $('#dramaTitle').value.trim(); if (!title) return toast('请输入剧名', 'warning'); const dramas = Store.get('wb_dramas', []); dramas.push({ id: uid(), title, type: $('#dramaType').value, status: $('#dramaStatus').value, rating: parseFloat($('#dramaRating').value) || 0, ep: $('#dramaEp').value.trim(), note: $('#dramaNote').value.trim(), date: todayKey() }); Store.set('wb_dramas', dramas); toast('已添加', 'success'); Nav.refresh(); }
 function editDrama(id) { const dramas = Store.get('wb_dramas', []); const d = dramas.find(x => x.id === id); if (!d) return; UI.editModal({ title: '编辑剧集', icon: '🎭', fields: [{ key: 'title', label: '剧名', type: 'text' }, { key: 'type', label: '类型', type: 'select', options: ['国产剧','美剧','日剧','韩剧','英剧','动漫','综艺','纪录片','电影'].map(t=>({value:t,label:t})) }, { key: 'status', label: '状态', type: 'select', options: [{value:'watching',label:'📺 在追'},{value:'finished',label:'✅ 看完'},{value:'planned',label:'📝 想看'},{value:'dropped',label:'❌ 弃剧'}] }, { key: 'rating', label: '评分（1-10）', type: 'number', min: 1, max: 10, step: 0.1 }, { key: 'ep', label: '当前集数', type: 'text' }, { key: 'note', label: '观后感/推荐理由', type: 'textarea' }], values: d, onSave: (v) => { Object.assign(d, v); d.rating = parseFloat(d.rating) || 0; Store.set('wb_dramas', dramas); toast('剧集信息已更新', 'success'); Nav.refresh(); }, onDelete: () => { UI.confirm(`确定删除「${d.title}」吗？`, () => { Store.set('wb_dramas', dramas.filter(x => x.id !== id)); Nav.refresh(); }); } }); }
 function confirmDelDrama(id) { const dramas = Store.get('wb_dramas', []); const d = dramas.find(x => x.id === id); if (!d) return; UI.confirm(`确定删除「${d.title}」吗？`, () => { Store.set('wb_dramas', dramas.filter(x => x.id !== id)); Nav.refresh(); }); }
 
 // ---------- 理财知识 (每日推荐 + 知识库) ----------
 const FIN_KNOWLEDGE_CATS = ['股票','基金','ETF','债券','可转债','期权','外汇','Crypto','宏观经济','保险','税务','技术分析','其他'];
-const MASTERY_LEVELS = ['💡 了解概念','📖 初步理解','✍️ 能复述','🎯 能应用','🏆 精通'];
+const MASTERY_LEVELS = ['了解概念','初步理解','能复述','能应用','精通'];
 Modules.knowledge = () => {
   const notes = Store.get('wb_finknow', []);
   return `
-    <div class="card"><div class="flex-between"><div class="card-title" style="margin:0;">📊 今日理财知识推荐</div><button class="btn btn-outline btn-sm" onclick="loadOnlineFinance()">${ICO.refresh} 换一批</button></div><div id="financeOnline"><div class="loading-state">📊 正在获取今日理财知识...</div></div></div>
+    <div class="card"><div class="flex-between"><div class="card-title" style="margin:0;">${ICONS.chart} 今日理财知识推荐</div><button class="btn btn-outline btn-sm" onclick="loadOnlineFinance()">${ICO.refresh} 换一批</button></div><div id="financeOnline"><div class="loading-state">${ICONS.chart} 正在获取今日理财知识...</div></div></div>
     <div class="card"><div class="card-title">📚 记录理财知识</div>
       <div class="form-group"><label class="field-label">知识点标题</label><input type="text" id="fkTitle" placeholder="如：定投策略、PE估值法等"></div>
       <div class="form-row"><div class="form-group"><label class="field-label">分类</label><select id="fkCat">${FIN_KNOWLEDGE_CATS.map(c=>`<option value="${c}">${c}</option>`).join('')}</select></div><div class="form-group"><label class="field-label">掌握程度</label><select id="fkLevel">${MASTERY_LEVELS.map((l,i)=>`<option value="${i}">${l}</option>`).join('')}</select></div></div>
@@ -1697,7 +1734,7 @@ Modules.knowledge = () => {
 ModuleHooks.knowledge = () => { loadOnlineFinance(); };
 async function loadOnlineFinance() {
   const container = $('#financeOnline'); if (!container) return;
-  container.innerHTML = '<div class="loading-state">📊 正在获取今日理财知识...</div>';
+  container.innerHTML = '<div class="loading-state">${ICONS.chart} 正在获取今日理财知识...</div>';
   try {
     API._cache.finance = null; // Force refresh for "换一批"
     const items = await API.finance();
@@ -1705,7 +1742,7 @@ async function loadOnlineFinance() {
     window._onlineFinance = items;
     const diffIcons = ['入门','进阶','高级'];
     container.innerHTML = items.map((f, i) => `<div class="finance-card"><div class="finance-card-header"><div class="finance-card-title">${esc(f.title)}</div><div class="finance-card-tags"><span class="tag tag-blue">${esc(f.category)}</span><span class="tag ${f.difficulty===1?'tag-green':f.difficulty===2?'tag-orange':'tag-red'}">${diffIcons[f.difficulty-1]}</span></div></div><div class="finance-card-content">${esc(f.content)}</div><div class="finance-card-tip">💡 ${esc(f.tip)}</div><button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="saveFKFromOnline(${i})">收藏到知识库</button></div>`).join('');
-  } catch (e) { container.innerHTML = '<div class="loading-state error">⚠️ 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineFinance()">重试</button></div>'; }
+  } catch (e) { container.innerHTML = `<div class="loading-state error">${ICONS.warn} 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineFinance()">重试</button></div>`; }
 }
 function saveFKFromOnline(idx) {
   const f = window._onlineFinance?.[idx]; if (!f) return;
@@ -1718,7 +1755,7 @@ function saveFKFromOnline(idx) {
 }
 function addFK() { const title = $('#fkTitle').value.trim(), cat = $('#fkCat').value, level = parseInt($('#fkLevel').value), content = $('#fkContent').value.trim(); if (!title) return toast('请输入知识点标题', 'warning'); const notes = Store.get('wb_finknow', []); notes.push({ id: uid(), title, cat, level, content, date: todayKey() }); Store.set('wb_finknow', notes); toast('知识已记录 📚', 'success'); Nav.refresh(); }
 function editFK(id) { const notes = Store.get('wb_finknow', []); const n = notes.find(x => x.id === id); if (!n) return; UI.editModal({ title: '编辑知识点', icon: '📚', fields: [{ key: 'title', label: '知识点标题', type: 'text' }, { key: 'cat', label: '分类', type: 'select', options: FIN_KNOWLEDGE_CATS.map(c=>({value:c,label:c})) }, { key: 'level', label: '掌握程度', type: 'select', options: MASTERY_LEVELS.map((l,i)=>({value:i,label:l})) }, { key: 'content', label: '详细笔记', type: 'textarea', minHeight: 100 }], values: { ...n, level: String(n.level) }, onSave: (v) => { Object.assign(n, v); n.level = parseInt(n.level) || 0; Store.set('wb_finknow', notes); toast('知识点已更新', 'success'); Nav.refresh(); }, onDelete: () => { UI.confirm(`确定删除「${n.title.slice(0,30)}」吗？`, () => { Store.set('wb_finknow', notes.filter(x => x.id !== id)); Nav.refresh(); }); } }); }
-function upgradeFK(id) { const notes = Store.get('wb_finknow', []); const n = notes.find(x => x.id === id); if (!n) return; if (n.level < 4) { n.level++; Store.set('wb_finknow', notes); Game.reward(5, 3, 0); toast(`掌握度提升: ${MASTERY_LEVELS[n.level]}`, 'success'); Nav.refresh(); } else toast('已经精通了 🏆', 'warning'); }
+function upgradeFK(id) { const notes = Store.get('wb_finknow', []); const n = notes.find(x => x.id === id); if (!n) return; if (n.level < 4) { n.level++; Store.set('wb_finknow', notes); Game.reward(5, 3, 0); toast(`掌握度提升: ${MASTERY_LEVELS[n.level]}`, 'success'); Nav.refresh(); } else toast('已经精通了', 'warning'); }
 function confirmDelFK(id) { const notes = Store.get('wb_finknow', []); const n = notes.find(x => x.id === id); if (!n) return; UI.confirm(`确定删除「${n.title.slice(0,30)}」吗？`, () => { Store.set('wb_finknow', notes.filter(x => x.id !== id)); Nav.refresh(); }); }
 
 // ---------- 每日复盘 ----------
@@ -1733,14 +1770,14 @@ Modules.review = () => {
   const dates7 = lastNDays(7);
   const moodData = dates7.map((date, i) => { const r = Store.get(`wb_review_${date}`, null); return { date, mood: r?.mood ?? null, hasReview: !!r }; });
   return `
-    <div class="reading-streak-banner" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);"><div class="reading-streak-flame">${streak > 0 ? '✍️' : '📝'}</div><div class="reading-streak-info"><div class="reading-streak-num" style="color:var(--primary);">${streak} 天连续复盘</div><div class="reading-streak-text">${streak > 0 ? '复盘是成长的加速器，继续保持！' : '今天开始记录你的成长吧'}</div></div></div>
-    <div class="card"><div class="card-title">📝 今日复盘 · ${todayKey()}</div>
+    <div class="reading-streak-banner" style="background:linear-gradient(135deg,#fef3c7,#fde6c4);"><div class="reading-streak-flame">${streak > 0 ? ICONS.pen : ICONS.notebook}</div><div class="reading-streak-info"><div class="reading-streak-num" style="color:var(--primary);">${streak} 天连续复盘</div><div class="reading-streak-text">${streak > 0 ? '复盘是成长的加速器，继续保持！' : '今天开始记录你的成长吧'}</div></div></div>
+    <div class="card"><div class="card-title">${ICONS.notebook} 今日复盘 · ${todayKey()}</div>
       <div class="form-group"><label class="field-label">今天的心情</label><div class="mood-selector" id="moodSelector">${moods.map((m,i) => `<div class="mood-option ${today?.mood===i?'selected':''}" data-mood="${i}" title="${moodLabels[i]}">${m}</div>`).join('')}</div></div>
-      <div class="form-group"><label class="field-label">✅ 今天做对了什么？</label><textarea id="reviewGood" placeholder="记录今天做得好的事情">${esc(today?.good||'')}</textarea></div>
-      <div class="form-group"><label class="field-label">❌ 今天有什么不足？</label><textarea id="reviewBad" placeholder="哪里可以做得更好？">${esc(today?.bad||'')}</textarea></div>
-      <div class="form-group"><label class="field-label">💡 学到了什么？</label><textarea id="reviewLearn" placeholder="今天的收获和感悟">${esc(today?.learn||'')}</textarea></div>
+      <div class="form-group"><label class="field-label">${ICONS.check} 今天做对了什么？</label><textarea id="reviewGood" placeholder="记录今天做得好的事情">${esc(today?.good||'')}</textarea></div>
+      <div class="form-group"><label class="field-label">${ICONS.close} 今天有什么不足？</label><textarea id="reviewBad" placeholder="哪里可以做得更好？">${esc(today?.bad||'')}</textarea></div>
+      <div class="form-group"><label class="field-label">${ICONS.bulb} 学到了什么？</label><textarea id="reviewLearn" placeholder="今天的收获和感悟">${esc(today?.learn||'')}</textarea></div>
       <div class="form-group"><label class="field-label">🙏 感恩的事</label><textarea id="reviewThanks" placeholder="感谢今天遇到的人或事">${esc(today?.thanks||'')}</textarea></div>
-      <div class="form-group"><label class="field-label">🎯 明天计划</label><textarea id="reviewPlan" placeholder="明天要做什么？">${esc(today?.plan||'')}</textarea></div>
+      <div class="form-group"><label class="field-label">${ICONS.target} 明天计划</label><textarea id="reviewPlan" placeholder="明天要做什么？">${esc(today?.plan||'')}</textarea></div>
       <button class="btn btn-primary" onclick="saveReview()">保存复盘</button>
     </div>
     <div class="card"><div class="card-title">📈 近 7 天心情趋势</div><div class="mood-chart">${moodData.map((d, i) => { const mood = d.mood !== null ? moods[d.mood] : '○'; return `<div class="mood-chart-item"><div class="mood-chart-emoji ${d.mood!==null?'active':''}">${mood}</div><div class="mood-chart-day">${dayLabels(7)[i]}</div></div>`; }).join('')}</div></div>
@@ -1761,7 +1798,7 @@ function saveReview() {
   if (idx >= 0) history[idx] = { date: today, ...data }; else history.push({ date: today, ...data });
   Store.set('wb_review_history', history);
   Game.reward(15, 8, 3, 'discipline');
-  toast('今日复盘已保存 📝', 'success'); Nav.refresh();
+  toast('今日复盘已保存', 'success'); Nav.refresh();
 }
 function editReviewHistory(date) {
   const history = Store.get('wb_review_history', []); const h = history.find(x => x.date === date); if (!h) return;
@@ -1820,24 +1857,24 @@ Modules.reports = () => {
   const startDate = dates[0].slice(5).replace('-', '/'), endDate = dates[dates.length - 1].slice(5).replace('-', '/');
 
   const stats = [
-    ['📅', '打卡天数', `${checkDays}/${n}`, 'var(--primary)'],
-    ['✅', '完成任务', totalDone, 'var(--success)'],
-    ['🏃', '运动分钟', totalEx, 'var(--warning)'],
-    ['📖', '阅读页数', totalPages, 'var(--purple)'],
-    ['🍅', '专注番茄', totalPomo, 'var(--danger)'],
-    ['💸', '区间花费', '¥' + totalExpense.toFixed(0), 'var(--teal)'],
+    { icon: ICONS.calendar, label: '打卡天数', val: `${checkDays}/${n}`, color: 'var(--primary)' },
+    { icon: ICONS.check, label: '完成任务', val: totalDone, color: 'var(--success)' },
+    { icon: ICONS.run, label: '运动分钟', val: totalEx, color: 'var(--warning)' },
+    { icon: ICONS.book, label: '阅读页数', val: totalPages, color: 'var(--purple)' },
+    { icon: ICONS.tomato, label: '专注番茄', val: totalPomo, color: 'var(--danger)' },
+    { icon: ICONS.coin, label: '区间花费', val: '¥' + totalExpense.toFixed(0), color: 'var(--teal)' },
   ];
 
   return `
     <div class="plan-subnav" style="margin-bottom:16px;">
-      <div class="plan-sub ${reportRange === 'week' ? 'active' : ''}" onclick="switchReportRange('week')">📊 周报</div>
-      <div class="plan-sub ${reportRange === 'month' ? 'active' : ''}" onclick="switchReportRange('month')">🗓️ 月报</div>
+      <div class="plan-sub ${reportRange === 'week' ? 'active' : ''}" onclick="switchReportRange('week')">${ICONS.chart} 周报</div>
+      <div class="plan-sub ${reportRange === 'month' ? 'active' : ''}" onclick="switchReportRange('month')">${ICONS.calendar} 月报</div>
       <div class="plan-sub-spacer"></div>
       <div class="text-muted text-sm" style="font-weight:600;">${rangeLabel} · ${startDate} – ${endDate}</div>
     </div>
 
     <div class="grid-3 report-stats">
-      ${stats.map(s => `<div class="card report-stat"><div class="report-stat-icon">${s[0]}</div><div class="report-stat-val" style="color:${s[3]}">${s[2]}</div><div class="report-stat-label">${s[1]}</div></div>`).join('')}
+      ${stats.map(s => `<div class="card report-stat"><div class="report-stat-icon">${s.icon}</div><div class="report-stat-val" style="color:${s.color}">${s.val}</div><div class="report-stat-label">${s.label}</div></div>`).join('')}
     </div>
 
     <div class="grid-2 report-charts" style="margin-top:16px;">
@@ -1846,27 +1883,27 @@ Modules.reports = () => {
         <div style="overflow-x:auto;">${barChart(series.map(s => ({ label: s.label, value: s.done, today: s.date === todayKey() })), { height: 130 })}</div>
       </div>
       <div class="card">
-        <div class="card-title">🔥 活力趋势 <span class="card-subtitle">综合打卡/运动/阅读/专注</span></div>
+        <div class="card-title">${ICONS.flame} 活力趋势 <span class="card-subtitle">综合打卡/运动/阅读/专注</span></div>
         <div style="overflow-x:auto;">${lineChart(series.map(s => ({ label: s.label, value: s.score })), { height: 150, color: '#8b5cf6', max: Math.max(...series.map(s => s.score), 1) })}</div>
       </div>
     </div>
 
     <div class="grid-2 report-charts" style="margin-top:16px;">
       <div class="card">
-        <div class="card-title">💰 记账分类占比 <span class="card-subtitle">支出 ¥${totalExpense.toFixed(0)} · 收入 ¥${totalIncome.toFixed(0)}</span></div>
+        <div class="card-title">${ICONS.coin} 记账分类占比 <span class="card-subtitle">支出 ¥${totalExpense.toFixed(0)} · 收入 ¥${totalIncome.toFixed(0)}</span></div>
         ${donutData.length ? donutChart(donutData, { size: 150, stroke: 22 }) : '<div class="empty-state text-muted text-sm" style="padding:28px 0;">该区间还没有记账记录</div>'}
       </div>
       <div class="card">
-        <div class="card-title">🌟 个人属性快照 <span class="card-subtitle">当前五项属性</span></div>
+        <div class="card-title">${ICONS.star} 个人属性快照 <span class="card-subtitle">当前五项属性</span></div>
         <div style="display:flex;justify-content:center;">${radarChart(attrRadar, { size: 240 })}</div>
       </div>
     </div>
 
     <div class="card" style="margin-top:16px;">
-      <div class="card-title">📋 区间明细</div>
+      <div class="card-title">${ICONS.list} 区间明细</div>
       <div class="report-table">
         <div class="report-tr report-th"><div>日期</div><div>打卡</div><div>任务</div><div>运动</div><div>阅读</div><div>专注</div></div>
-        ${series.slice().reverse().map(s => `<div class="report-tr"><div>${s.label}${s.date === todayKey() ? ' ·今' : ''}</div><div>${s.checked ? '✅' : '—'}</div><div>${s.done}</div><div>${s.exMin}′</div><div>${s.pages}p</div><div>${s.pomoCount}🍅</div></div>`).join('')}
+        ${series.slice().reverse().map(s => `<div class="report-tr"><div>${s.label}${s.date === todayKey() ? ' ·今' : ''}</div><div>${s.checked ? ICONS.check : '—'}</div><div>${s.done}</div><div>${s.exMin}′</div><div>${s.pages}p</div><div>${s.pomoCount}${ICONS.tomato}</div></div>`).join('')}
       </div>
     </div>
   `;
@@ -1897,18 +1934,18 @@ Modules.pomo = () => {
           <div class="pomo-label">${pomoRunning ? '专注中...' : '准备开始'}</div>
         </div>
         <div class="pomo-controls">
-          <button class="btn btn-primary" onclick="togglePomo()" id="pomoBtn">${pomoRunning ? '⏸ 暂停' : '▶ 开始'}</button>
+          <button class="btn btn-primary" onclick="togglePomo()" id="pomoBtn">${pomoRunning ? ICO.pause + ' 暂停' : ICO.play + ' 开始'}</button>
           <button class="btn btn-outline" onclick="resetPomo()">重置</button>
-          ${pomoRunning && pomoMode === 'focus' ? '<button class="btn btn-success" onclick="completePomo()">✅ 提前完成</button>' : ''}
+          ${pomoRunning && pomoMode === 'focus' ? '<button class="btn btn-success" onclick="completePomo()">'+ICONS.check+' 提前完成</button>' : ''}
         </div>
       </div>
       <div class="compact-stats">
-        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--danger);">${today.count || 0}</div><div class="compact-stat-label">🍅 今日番茄</div></div>
-        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--primary);">${totalFocusMin}</div><div class="compact-stat-label">⏱️ 专注分钟</div></div>
-        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--success);">${d.pomodoros || 0}</div><div class="compact-stat-label">🏆 累计番茄</div></div>
+        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--danger);">${today.count || 0}</div><div class="compact-stat-label">${ICONS.tomato} 今日番茄</div></div>
+        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--primary);">${totalFocusMin}</div><div class="compact-stat-label">${ICONS.clock} 专注分钟</div></div>
+        <div class="compact-stat"><div class="compact-stat-num" style="color:var(--success);">${d.pomodoros || 0}</div><div class="compact-stat-label">${ICONS.medal} 累计番茄</div></div>
       </div>
-      <div class="card"><div class="card-title">📋 今日番茄记录</div>${todaySessions.length ? todaySessions.slice().reverse().map(s => `<div class="task-item-v2"><span style="font-size:18px;">🍅</span><span class="task-text">${POMO_PRESETS.find(p=>p.mode===s.mode)?.label || s.mode} · ${s.minutes}分钟 ${s.task ? `· ${esc(s.task)}` : ''}</span><span class="text-muted text-sm">${esc(s.time || '')}</span></div>`).join('') : '<div class="empty-state-v2"><div class="empty-state-v2-icon">🍅</div><div class="empty-state-v2-text">还没有完成番茄钟</div><div class="empty-state-v2-hint">开始你的第一个 25 分钟专注吧</div></div>'}</div>
-      <div class="card"><div class="card-title">💡 番茄工作法</div><div class="note-item-body" style="font-size:13px;line-height:1.8;">1. 选择一个任务，设定 25 分钟专注时间<br>2. 专注期间不看手机、不分心<br>3. 铃声响起，休息 5 分钟<br>4. 每完成 4 个番茄钟，休息 15-30 分钟<br>5. 专注时只做一件事，休息时真正放松</div></div>
+      <div class="card"><div class="card-title">${ICONS.list} 今日番茄记录</div>${todaySessions.length ? todaySessions.slice().reverse().map(s => `<div class="task-item-v2"><span style="font-size:18px;color:var(--danger);">${ICONS.tomato}</span><span class="task-text">${POMO_PRESETS.find(p=>p.mode===s.mode)?.label || s.mode} · ${s.minutes}分钟 ${s.task ? `· ${esc(s.task)}` : ''}</span><span class="text-muted text-sm">${esc(s.time || '')}</span></div>`).join('') : '<div class="empty-state-v2"><div class="empty-state-v2-icon">'+ICONS.tomato+'</div><div class="empty-state-v2-text">还没有完成番茄钟</div><div class="empty-state-v2-hint">开始你的第一个 25 分钟专注吧</div></div>'}</div>
+      <div class="card"><div class="card-title">${ICONS.bulb} 番茄工作法</div><div class="note-item-body" style="font-size:13px;line-height:1.8;">1. 选择一个任务，设定 25 分钟专注时间<br>2. 专注期间不看手机、不分心<br>3. 铃声响起，休息 5 分钟<br>4. 每完成 4 个番茄钟，休息 15-30 分钟<br>5. 专注时只做一件事，休息时真正放松</div></div>
     </div>
   `;
 };
@@ -1923,10 +1960,10 @@ function togglePomo() {
       const el = $('.pomo-display'); if (el) el.textContent = `${String(Math.floor((targetSec - pomoSeconds)/60)).padStart(2,'0')}:${String((targetSec - pomoSeconds) % 60).padStart(2,'0')}`;
       const circle = $('.pomo-ring circle:last-child'); if (circle) circle.setAttribute('stroke-dashoffset', 565.5 * (1 - pomoSeconds / targetSec));
     }, 1000);
-    $('#pomoBtn').textContent = '⏸ 暂停';
+    $('#pomoBtn').innerHTML = ICO.pause + ' 暂停';
   } else {
     clearInterval(pomoTimer); pomoTimer = null;
-    $('#pomoBtn').textContent = '▶ 继续';
+    $('#pomoBtn').innerHTML = ICO.play + ' 继续';
   }
   Nav.refresh();
 }
@@ -1943,9 +1980,9 @@ function completePomo() {
     Game.data.pomodoros = (Game.data.pomodoros || 0) + 1;
     Game.save();
     Game.reward(minutes * 2, minutes, 2, 'discipline');
-    toast(`🍅 番茄完成！专注 ${minutes} 分钟`, 'success');
+    toast(`番茄完成！专注 ${minutes} 分钟`, 'success');
   } else {
-    toast(`休息结束，继续加油！💪`, 'success');
+    toast(`休息结束，继续加油！`, 'success');
   }
   pomoSeconds = 0;
   Nav.refresh();
@@ -1968,7 +2005,7 @@ Modules.shop = () => {
   const d = Game.data;
   return `
     <div class="card weread-banner" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">
-      <div class="weread-logo" style="background:linear-gradient(135deg,#f59e0b,#d97706);">🪙</div>
+      <div class="weread-logo" style="background:linear-gradient(135deg,#f59e0b,#d97706);">${ICONS.coin}</div>
       <div class="weread-info"><div class="weread-title" style="color:#92400e;">我的金币: ${d.coins}</div><div class="weread-desc" style="color:#78350f;">完成任务赚取金币，在商店兑换奖励</div></div>
     </div>
     <div class="card"><div class="card-title">🛒 添加奖励商品</div>
@@ -1986,7 +2023,7 @@ Modules.shop = () => {
         return `<div class="shop-card ${!canAfford?'disabled':''}">
           <div class="shop-icon">${item.icon}</div>
           <div class="shop-info"><div class="shop-name">${esc(item.name)}</div>${item.desc?`<div class="shop-desc">${esc(item.desc)}</div>`:''}</div>
-          <div class="shop-price">🪙 ${item.cost}</div>
+          <div class="shop-price">${ICONS.coin} ${item.cost}</div>
           <div class="shop-actions">
             <button class="btn ${canAfford?'btn-primary':'btn-outline'} btn-sm" ${!canAfford?'disabled':''} onclick="buyShopItem('${item.id}')">兑换</button>
             <button class="btn-icon" onclick="editShopItem('${item.id}')">${ICO.edit}</button>
@@ -2010,7 +2047,7 @@ function addShopItem() {
 function buyShopItem(id) {
   const items = Store.get('wb_shop', DEFAULT_SHOP_ITEMS);
   const item = items.find(i => i.id === id); if (!item) return;
-  if (Game.data.coins < item.cost) return toast('金币不足，继续努力！💪', 'warning');
+  if (Game.data.coins < item.cost) return toast('金币不足，继续努力！', 'warning');
   Game.data.coins -= item.cost;
   if (!Game.data.shopPurchases) Game.data.shopPurchases = [];
   Game.data.shopPurchases.push({ id: uid(), name: item.name, icon: item.icon, cost: item.cost, date: nowDateTime() });
@@ -2062,10 +2099,10 @@ Modules.achieve = () => {
   const d = Game.data;
   return `
     <div class="compact-stats">
-      <div class="compact-stat"><div class="compact-stat-num" style="color:var(--warning);">${unlocked.length}</div><div class="compact-stat-label">🏆 已解锁</div></div>
-      <div class="compact-stat"><div class="compact-stat-num" style="color:var(--text-light);">${ALL_ACHIEVEMENTS.length}</div><div class="compact-stat-label">📋 总成就</div></div>
-      <div class="compact-stat"><div class="compact-stat-num" style="color:var(--primary);">${(unlocked.length / ALL_ACHIEVEMENTS.length * 100).toFixed(0)}%</div><div class="compact-stat-label">📊 完成率</div></div>
-      <div class="compact-stat"><div class="compact-stat-num" style="color:var(--danger);">Lv.${d.level}</div><div class="compact-stat-label">⭐ 当前等级</div></div>
+      <div class="compact-stat"><div class="compact-stat-num" style="color:var(--warning);">${unlocked.length}</div><div class="compact-stat-label">${ICONS.medal} 已解锁</div></div>
+      <div class="compact-stat"><div class="compact-stat-num" style="color:var(--text-light);">${ALL_ACHIEVEMENTS.length}</div><div class="compact-stat-label">${ICONS.list} 总成就</div></div>
+      <div class="compact-stat"><div class="compact-stat-num" style="color:var(--primary);">${(unlocked.length / ALL_ACHIEVEMENTS.length * 100).toFixed(0)}%</div><div class="compact-stat-label">${ICONS.chart} 完成率</div></div>
+      <div class="compact-stat"><div class="compact-stat-num" style="color:var(--danger);">Lv.${d.level}</div><div class="compact-stat-label">${ICONS.star} 当前等级</div></div>
     </div>
     ${cats.map(cat => {
       const catAch = ALL_ACHIEVEMENTS.filter(a => a.cat === cat);
@@ -2076,8 +2113,8 @@ Modules.achieve = () => {
           const unlockInfo = unlocked.find(u => u.id === a.id);
           return `<div class="achieve-card ${isUnlocked?'unlocked':'locked'}">
             <div class="achieve-icon ${isUnlocked?'':'locked'}">${a.icon}</div>
-            <div class="achieve-info"><div class="achieve-name">${a.name}</div><div class="achieve-desc">${a.desc}</div>${isUnlocked && unlockInfo?.date ? `<div class="achieve-date">📅 ${unlockInfo.date}</div>` : ''}</div>
-            ${isUnlocked ? '<div class="achieve-badge">✅</div>' : '<div class="achieve-badge">🔒</div>'}
+            <div class="achieve-info"><div class="achieve-name">${a.name}</div><div class="achieve-desc">${a.desc}</div>${isUnlocked && unlockInfo?.date ? `<div class="achieve-date">${ICONS.calendar} ${unlockInfo.date}</div>` : ''}</div>
+            ${isUnlocked ? '<div class="achieve-badge">'+ICONS.check+'</div>' : '<div class="achieve-badge">'+ICONS.lock+'</div>'}
           </div>`;
         }).join('')}</div>
       </div>`;
@@ -2106,7 +2143,7 @@ function exportBackup() {
   a.download = `workbench-backup-${new Date().toISOString().slice(0, 10)}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   URL.revokeObjectURL(url);
-  toast(`已导出 ${payload.count} 项数据 ✅`, 'success');
+  toast(`已导出 ${payload.count} 项数据`, 'success');
 }
 function importBackup(file) {
   if (!file) return;
@@ -2142,7 +2179,7 @@ Modules.backup = () => {
   const sizeKB = (JSON.stringify(data).length / 1024).toFixed(1);
   return `
     <div class="card">
-      <div class="card-title">☁️ 云端同步状态</div>
+      <div class="card-title">${ICONS.cloud} 云端同步状态</div>
       <div class="card-subtitle">所有 <b>wb_</b> 开头的本地数据会自动同步到服务器（同源 <code>/api/sync</code>），手机与电脑实时同步。首次在新设备打开时，数据会自动从服务器合并下来。</div>
       <div class="backup-stat">
         <span id="syncStatusText">检测中...</span>
@@ -2150,21 +2187,21 @@ Modules.backup = () => {
       </div>
       <div id="syncErrorDetail" class="sync-error-detail" style="display:none;"></div>
       <div class="backup-actions">
-        <button class="btn btn-primary" onclick="manualSync()" id="btnManualSync">🔄 立即同步</button>
-        <button class="btn btn-outline" onclick="forcePullAll()">⬇️ 从云端拉取</button>
+        <button class="btn btn-primary" onclick="manualSync()" id="btnManualSync">${ICO.refresh} 立即同步</button>
+        <button class="btn btn-outline" onclick="forcePullAll()">${ICO.download} 从云端拉取</button>
       </div>
-      <div class="backup-tip" id="syncTip">💡 首次使用多设备同步？先在旧设备打开一次工作台（会自动推送数据），然后在新设备打开即可看到同步的数据。右下角的同步状态图标可实时查看连接状态。</div>
+      <div class="backup-tip" id="syncTip">${ICONS.bulb} 首次使用多设备同步？先在旧设备打开一次工作台（会自动推送数据），然后在新设备打开即可看到同步的数据。右下角的同步状态图标可实时查看连接状态。</div>
     </div>
     <div class="card" style="margin-top:16px;">
-      <div class="card-title">💾 数据备份与迁移</div>
+      <div class="card-title">${ICONS.archive} 数据备份与迁移</div>
       <div class="card-subtitle">工作台的所有数据都保存在本浏览器本地（localStorage）。换设备、部署到云服务器后，用下方功能把数据带走。</div>
-      <div class="backup-stat"><span>📦 当前数据项：<b>${keys.length}</b></span><span>📏 约占用：<b>${sizeKB} KB</b></span></div>
+      <div class="backup-stat"><span>当前数据项：<b>${keys.length}</b></span><span>约占用：<b>${sizeKB} KB</b></span></div>
       <div class="backup-actions">
-        <button class="btn btn-primary" onclick="exportBackup()">⬇️ 导出备份 (JSON)</button>
+        <button class="btn btn-primary" onclick="exportBackup()">${ICO.download} 导出备份 (JSON)</button>
         <label class="btn btn-outline">⬆️ 导入备份<input type="file" id="backupFile" accept="application/json,.json" hidden></label>
         <button class="btn btn-danger-outline" onclick="clearAllData()">🗑️ 清空全部数据</button>
       </div>
-      <div class="backup-tip">💡 提示：部署到云或换手机后，先在此「导出备份」，再到新环境的「数据备份」页「导入备份」，即可完整迁移（含微信读书 Cookie、游戏进度等）。</div>
+      <div class="backup-tip">${ICONS.bulb} 提示：部署到云或换手机后，先在此「导出备份」，再到新环境的「数据备份」页「导入备份」，即可完整迁移（含微信读书 Cookie、游戏进度等）。</div>
     </div>`;
 };
 ModuleHooks.backup = () => {
@@ -2198,7 +2235,7 @@ Modules.settings = () => {
         </div>
       </div>
       <div class="backup-actions" style="margin-top:14px;">
-        <button class="btn btn-primary" onclick="saveUserProfile()">💾 保存设置</button>
+        <button class="btn btn-primary" onclick="saveUserProfile()">${ICONS.archive} 保存设置</button>
       </div>
       <div class="backup-tip">修改后会立即生效，并随数据备份一起保存。</div>
     </div>`;
@@ -2217,11 +2254,11 @@ window.saveUserProfile = function() {
     const now = new Date();
     const hr = now.getHours();
     const g = hr < 6 ? '凌晨好' : hr < 12 ? '早上好' : hr < 14 ? '中午好' : hr < 18 ? '下午好' : hr < 22 ? '晚上好' : '夜深了';
-    greet.textContent = `${g}，${UserProfile.displayName} 👋`;
+    greet.textContent = `${g}，${UserProfile.displayName}`;
   }
   const dashGreet = $('#dashHeroGreet');
-  if (dashGreet) dashGreet.textContent = `${greet ? greet.textContent.replace(' 👋', '') : '你好，' + UserProfile.displayName} 👋 今天也要元气满满 ✨`;
-  toast('✅ 个人设置已保存', 'success');
+  if (dashGreet) dashGreet.textContent = `${g}，${UserProfile.displayName} 今天也要元气满满`;
+  toast('个人设置已保存', 'success');
 };
 
 // 云端同步辅助函数
@@ -2243,7 +2280,7 @@ function updateSyncStatusUI() {
       var k = localStorage.key(i);
       if (k && k.charAt(0) === 'w' && k.charAt(1) === 'b' && k.charAt(2) === '_' && k !== '_wb_sync_meta') count++;
     }
-    if (elCount) elCount.textContent = '📊 本地可同步项：' + count;
+    if (elCount) elCount.textContent = '本地可同步项：' + count;
     var errEl = document.getElementById('syncErrorDetail');
     if (errEl) {
       if (window.wbSync && window.wbSync.lastError) {
@@ -2258,7 +2295,7 @@ function updateSyncStatusUI() {
 window.manualSync = function() {
   if (window.wbSync && window.wbSync.enabled) {
     window.wbSync.pushAll();
-    toast('🔄 正在同步数据到云端...', 'success');
+    toast('正在同步数据到云端...', 'success');
     // 延迟刷新状态
     setTimeout(updateSyncStatusUI, 1500);
   } else {
@@ -2339,7 +2376,7 @@ function init() {
     }
   }, 30000);
   if (Game.data.totalCheckIns === 0 && !Game.hasCheckedInToday()) {
-    setTimeout(() => toast('欢迎来到个人工作台！记得每天打卡哦 📍', 'success'), 500);
+    setTimeout(() => toast('欢迎来到个人工作台！记得每天打卡哦', 'success'), 500);
   }
   // 注册 Service Worker (PWA 离线 / 全屏)
   // 仅在 localhost 或 https 下注册：局域网 HTTP 非安全上下文不支持 SW，静默跳过即可
