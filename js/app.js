@@ -363,6 +363,16 @@ function toast(msg, type = '') {
   setTimeout(() => { el.classList.add('removing'); setTimeout(() => el.remove(), 300); }, 2500);
 }
 
+// 发现 Service Worker 新版本时，显示可点击的刷新提示条（根治"手机端更新不可见"）
+function showSWUpdateBar() {
+  if (document.getElementById('swUpdateBar')) return;
+  const bar = document.createElement('div');
+  bar.id = 'swUpdateBar';
+  bar.innerHTML = '✨ 发现新版本，点击立即更新';
+  bar.addEventListener('click', () => location.reload());
+  document.body.appendChild(bar);
+}
+
 // ===== UI: 通用编辑弹窗 =====
 const UI = {
   modalEl: null,
@@ -2335,7 +2345,16 @@ function init() {
   // 仅在 localhost 或 https 下注册：局域网 HTTP 非安全上下文不支持 SW，静默跳过即可
   if ('serviceWorker' in navigator && (location.hostname === 'localhost' || location.protocol === 'https:')) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
+      navigator.serviceWorker.register('/sw.js').then((reg) => {
+        // 检测到新版本：安装完成后若有旧 SW 在运行，提示用户刷新以应用更新
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener('statechange', () => {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) showSWUpdateBar();
+          });
+        });
+      }).catch(() => {});
     });
   }
   // 移动端首次滑动提示

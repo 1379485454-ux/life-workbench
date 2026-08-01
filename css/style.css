@@ -2487,6 +2487,21 @@ body { font-family: var(--font-body); letter-spacing: .1px; }
 .attr-icon svg { width: 26px; height: 26px; }
 .achieve-icon svg { width: 28px; height: 28px; }
 
+/* ===== PWA 新版本更新提示条 ===== */
+#swUpdateBar {
+  position: fixed; left: 50%; bottom: calc(64px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 200;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  color: #fff; font-size: 13px; font-weight: 600;
+  padding: 10px 18px; border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(37,99,235,0.4);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  animation: swBarIn 0.3s ease;
+}
+#swUpdateBar:active { transform: translateX(-50%) scale(0.96); }
+@keyframes swBarIn { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }
+
 /* ===== 交互状态 (UI/UX checklist) ===== */
 button, .nav-item, .card, .task-item, .btn, [data-module], [data-action] { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 6px; }
