@@ -1,5 +1,5 @@
 /* 个人工作台 · Service Worker (App Shell + 智能缓存 + 后台同步) */
-const CACHE = 'workbench-v4';
+const CACHE = 'workbench-v5';
 const PRE_CACHE = [
   '/',
   '/index.html',
@@ -46,18 +46,16 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // 静态资源：stale-while-revalidate（秒开 + 后台更新）
+  // 静态资源：网络优先（保证每次部署都拿到最新代码，根除旧缓存导致的"手机端不更新"）
+  // 离线时回退到缓存，兼顾 PWA 可用性
   e.respondWith(
     caches.open(CACHE).then((cache) =>
-      cache.match(req).then((cached) => {
-        const network = fetch(req).then((res) => {
-          if (res && res.status === 200 && res.type === 'basic') {
-            cache.put(req, res.clone());
-          }
-          return res;
-        }).catch(() => cached);
-        return cached || network;
-      })
+      fetch(req).then((res) => {
+        if (res && res.status === 200 && res.type === 'basic') {
+          cache.put(req, res.clone());
+        }
+        return res;
+      }).catch(() => cache.match(req))
     )
   );
 });
