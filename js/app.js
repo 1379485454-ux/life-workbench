@@ -317,7 +317,7 @@ const Game = {
             <svg class="sg-ring" viewBox="0 0 40 40" width="40" height="40">
               <circle cx="20" cy="20" r="18" fill="none" stroke="var(--bg-light)" stroke-width="4"/>
               <circle cx="20" cy="20" r="18" fill="none" stroke="url(#sgRingGrad)" stroke-width="4"
-                stroke-dasharray="${expPct} ${100 - expPct}" stroke-linecap="round" transform="rotate(-90 20 20)"/>
+                stroke-dasharray="${(expPct/100*113.1).toFixed(1)} ${((100-expPct)/100*113.1).toFixed(1)}" stroke-linecap="round" transform="rotate(-90 20 20)"/>
               <defs><linearGradient id="sgRingGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F4B740"/><stop offset="100%" stop-color="#D97706"/></linearGradient></defs>
             </svg>
           </div>
