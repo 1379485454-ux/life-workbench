@@ -2423,7 +2423,7 @@ function initQuickFab() {
     closeFab();
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { closeFab(); if (window._customizeOverlay) closeCustomize(); }
+    if (e.key === 'Escape') { Sidebar.close(); closeFab(); if (window._customizeOverlay) closeCustomize(); }
   });
 }
 function toggleFab() {

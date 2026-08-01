@@ -161,6 +161,21 @@ body {
   padding: 22px 20px 18px;
   border-bottom: 1px solid rgba(120,90,40,0.08);
 }
+.sidebar-close {
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 34px; height: 34px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 10px;
+  border: 1px solid rgba(120,90,40,0.14);
+  background: rgba(255,255,255,0.5);
+  color: var(--text);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.sidebar-close:hover { background: rgba(255,255,255,0.85); color: var(--primary); }
+.sidebar-close:active { transform: scale(0.92); }
+.sidebar-close svg { width: 18px; height: 18px; }
 .logo-icon {
   width: 36px; height: 36px;
   background: linear-gradient(135deg, var(--primary-light), var(--primary));
@@ -273,7 +288,10 @@ body {
 
 .content {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
   padding: 24px 28px;
   animation: fadeInUp 0.4s ease;
 }
@@ -2044,6 +2062,8 @@ input:focus, select:focus, textarea:focus {
 }
 :root[data-theme="dark"] .sidebar::after { background: rgba(255,255,255,0.05); }
 :root[data-theme="dark"] .sidebar-logo { border-bottom-color: rgba(255,255,255,0.06); }
+:root[data-theme="dark"] .sidebar-close { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.16); color: #FCD34D; }
+:root[data-theme="dark"] .sidebar-close:hover { background: rgba(255,255,255,0.18); }
 :root[data-theme="dark"] .logo-text { color: rgba(255,255,255,0.9); }
 :root[data-theme="dark"] .nav-item { color: rgba(255,255,255,0.65); }
 :root[data-theme="dark"] .nav-item:hover { color: rgba(255,255,255,0.9); }
