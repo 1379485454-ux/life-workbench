@@ -318,7 +318,7 @@ const Game = {
               <circle cx="20" cy="20" r="18" fill="none" stroke="var(--bg-light)" stroke-width="4"/>
               <circle cx="20" cy="20" r="18" fill="none" stroke="url(#sgRingGrad)" stroke-width="4"
                 stroke-dasharray="${(expPct/100*113.1).toFixed(1)} ${((100-expPct)/100*113.1).toFixed(1)}" stroke-linecap="round" transform="rotate(-90 20 20)"/>
-              <defs><linearGradient id="sgRingGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#F4B740"/><stop offset="100%" stop-color="#D97706"/></linearGradient></defs>
+              <defs><linearGradient id="sgRingGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#38BDF8"/><stop offset="100%" stop-color="#0EA5E9"/></linearGradient></defs>
             </svg>
           </div>
           <div class="sg-meta">
@@ -2296,10 +2296,11 @@ function updateSyncStatusUI() {
   try {
     var badge = document.getElementById('wbSyncBadge');
     var status = badge ? badge.className : '';
-    var txt = badge ? (badge.querySelector('.txt') || {}).textContent || '未知' : '未检测到';
+    var txt = badge && badge.querySelector('.txt') ? badge.querySelector('.txt').textContent : '未检测到';
     el.textContent = '📡 状态：' + txt;
     if (status.indexOf('ok') >= 0) el.style.color = '#10b981';
     else if (status.indexOf('error') >= 0) el.style.color = '#ef4444';
+    else if (status.indexOf('local') >= 0) el.style.color = '#64748b';
     else if (status.indexOf('syncing') >= 0 || status.indexOf('connecting') >= 0) el.style.color = '#f59e0b';
     // 统计云端可同步的数据项数量
     var count = 0;

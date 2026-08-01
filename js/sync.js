@@ -53,8 +53,12 @@
   }
   function setStatus(state, text) {
     if (!badge) return;
+    state = (state && String(state)) || 'connecting';
+    text = (text === 0 ? '0' : (text && String(text))) || '同步';
     badge.className = 'wb-sync-' + state;
-    var t = badge.querySelector('.txt'); if (t) t.textContent = text || '同步';
+    var t = badge.querySelector('.txt');
+    if (t) t.textContent = text;
+    badge.title = '云端同步：' + text;
   }
 
   /* ---------- 推送（防抖批量 upsert，带本地时间戳） ---------- */
@@ -213,7 +217,7 @@
   }
   function fallbackLocal() {
     ready = false; localOnly = true;
-    setStatus('error', '未启用同步');
+    setStatus('local', '本地模式');
   }
 
   /* ---------- 公共 API ---------- */
