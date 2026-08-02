@@ -1,9 +1,10 @@
 /* 个人工作台 · Service Worker (App Shell + 智能缓存 + 后台同步) */
-const CACHE = 'workbench-v22';
+const CACHE = 'workbench-v23';
 const PRE_CACHE = [
   '/',
   '/index.html',
   '/css/style.css',
+  '/css/extra.css',
   '/js/sync.js',
   '/js/app.js',
   '/js/charts.js',

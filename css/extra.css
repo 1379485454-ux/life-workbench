@@ -1,0 +1,152 @@
+/* ============================================================
+   个人工作台 · 扩展样式（子任务 / 自定义成就 / 惊喜盒子）
+   仅补充新增组件，复用 style.css 的 CSS 变量与卡片体系
+   ============================================================ */
+
+/* ---------- 任务子任务 ---------- */
+.task-subtoggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  background: var(--border-light, #eef6fb);
+  border: 1px solid var(--border, #dbeafe);
+  border-radius: 999px;
+  padding: 3px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.task-subtoggle:hover { filter: brightness(0.97); }
+.task-item-v2.done .task-subtoggle { color: var(--text-lighter, #94a3b8); }
+
+.subtask-wrap {
+  flex-basis: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px dashed var(--border, #dbeafe);
+  border-radius: var(--radius-xs, 10px);
+}
+.subtask-add { display: flex; gap: 6px; margin-bottom: 8px; }
+.subtask-add input {
+  flex: 1; min-width: 0;
+  border: 1px solid var(--border, #dbeafe);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  background: #fff;
+  color: var(--text, #1e293b);
+}
+.subtask-add input:focus { outline: none; border-color: var(--primary); }
+.subtask-list { display: flex; flex-direction: column; gap: 4px; }
+.subtask-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 6px; border-radius: 8px;
+}
+.subtask-item:hover { background: rgba(15, 90, 130, 0.04); }
+.subtask-item .task-checkbox { width: 16px; height: 16px; }
+.subtask-text { flex: 1; font-size: 13px; color: var(--text, #1e293b); }
+.subtask-item.done .subtask-text { color: var(--text-lighter, #94a3b8); }
+.subtask-empty,
+.subtask-empty { font-size: 12px; color: var(--text-lighter, #94a3b8); padding: 4px 2px; }
+
+/* ---------- 自定义成就进度 ---------- */
+.achieve-progress { margin-top: 6px; }
+.achieve-progress-bar {
+  height: 6px; border-radius: 999px;
+  background: var(--border-light, #eef6fb); overflow: hidden;
+}
+.achieve-progress-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), var(--success-light, #10b981));
+  transition: width 0.4s ease;
+}
+.achieve-progress-text { font-size: 11px; color: var(--text-light, #64748b); margin-top: 3px; }
+.achieve-del { margin-left: auto; align-self: flex-start; }
+.achieve-card { position: relative; }
+
+/* ---------- 惊喜盒子 ---------- */
+.box-inv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.box-inv-card {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 14px 10px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border, #dbeafe);
+  border-radius: var(--radius-sm, 14px);
+}
+.box-inv-card .box-icon { font-size: 30px; line-height: 1; }
+.box-inv-name { font-size: 13px; font-weight: 600; color: var(--text, #1e293b); text-align: center; }
+.box-inv-count { font-size: 12px; color: var(--text-light, #64748b); }
+.box-inv-card .btn { margin-top: 2px; width: 100%; }
+
+.box-card {
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid var(--border, #dbeafe);
+  border-radius: var(--radius-sm, 14px);
+  margin-top: 12px;
+}
+.box-card-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.box-card-top .box-icon { font-size: 26px; line-height: 1; }
+.box-card-info { flex: 1; min-width: 110px; }
+.box-card-name { font-size: 14px; font-weight: 700; color: var(--text, #1e293b); }
+.box-card-meta { font-size: 12px; color: var(--text-light, #64748b); margin-top: 2px; }
+.box-card-top .btn-icon { width: 34px; height: 34px; }
+.box-pool {
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px dashed var(--border, #dbeafe);
+}
+.box-pool-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; color: var(--text-light, #64748b); margin-bottom: 8px;
+}
+.box-reward-row { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.box-reward-row select,
+.box-reward-row input {
+  border: 1px solid var(--border, #dbeafe);
+  border-radius: 8px; padding: 5px 8px; font-size: 12px; background: #fff; color: var(--text, #1e293b);
+}
+.box-reward-row select { flex: 1.4; min-width: 0; }
+.box-reward-row input[type="number"] { width: 56px; flex: 0 0 auto; }
+.box-reward-row .btn-icon { width: 30px; height: 30px; flex: 0 0 auto; }
+
+/* ---------- 开箱揭晓动画 ---------- */
+.box-reveal-overlay { background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(3px); }
+.box-reveal {
+  text-align: center;
+  padding: 30px 26px 24px;
+  animation: boxPop 0.42s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+.box-reveal-box {
+  font-size: 64px; line-height: 1; margin-bottom: 12px;
+  animation: boxShake 0.6s ease;
+}
+.box-reveal-title { font-size: 16px; font-weight: 700; color: var(--text, #1e293b); margin-bottom: 8px; }
+.box-reveal-result {
+  font-size: 26px; font-weight: 800; color: var(--primary);
+  margin-bottom: 18px; padding: 10px 14px;
+  background: var(--border-light, #eef6fb); border-radius: 12px;
+  display: inline-block;
+}
+@keyframes boxPop {
+  0% { transform: scale(0.7); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes boxShake {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(-12deg) scale(1.08); }
+  40% { transform: rotate(12deg) scale(1.08); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(8deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .box-reveal, .box-reveal-box { animation: none; }
+}

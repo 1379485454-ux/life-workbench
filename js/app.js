@@ -74,6 +74,9 @@ const ICONS = {
   arrowRight: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
   archive: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 8h16M9 3v5h6V3M9 13h6"/></svg>',
   lock: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>',
+  chevronUp: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>',
+  chevronDown: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+  gift: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9M12 8v13M12 8S9 4 7 5.5 12 8 12 8zM12 8s3-4 5-2.5S12 8 12 8z"/></svg>',
 };
 const ICO = {
   edit: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
@@ -105,6 +108,7 @@ const MENU = [
   { id: 'pomo', name: '番茄专注', icon: ICONS.pomo, group: 'grow' },
   { id: 'shop', name: '奖励商店', icon: ICONS.shop, group: 'grow' },
   { id: 'achieve', name: '成就墙', icon: ICONS.trophy, group: 'grow' },
+  { id: 'box', name: '惊喜盒子', icon: ICONS.gift, group: 'grow' },
   { id: 'attributes', name: '个人属性', icon: ICONS.attr, group: 'grow' },
   { id: 'reports', name: '周报月报', icon: ICONS.report, group: 'grow' },
   { id: 'backup', name: '数据备份', icon: ICONS.backup, group: 'sys' },
@@ -200,12 +204,16 @@ const Game = {
       pomodoros: 0,
       achievements: [],
       shopPurchases: [],
+      boxes: {},
+      coinsEarned: 0,
     });
     if (!this.data.healthReset) { this.data.health = 100; this.data.healthReset = true; this.save(); }
     if (!this.data.attributes) { this.data.attributes = { strength:{lv:1,exp:0}, intelligence:{lv:1,exp:0}, charisma:{lv:1,exp:0}, creativity:{lv:1,exp:0}, discipline:{lv:1,exp:0} }; this.save(); }
     if (!this.data.pomodoros) this.data.pomodoros = 0;
     if (!this.data.achievements) this.data.achievements = [];
     if (!this.data.shopPurchases) this.data.shopPurchases = [];
+    if (!this.data.boxes) this.data.boxes = {};
+    if (typeof this.data.coinsEarned !== 'number') this.data.coinsEarned = 0;
     this.dailyCheck();
     this.checkAchievements();
   },
@@ -232,7 +240,7 @@ const Game = {
     }
     this.save();
   },
-  addCoins(n) { this.data.coins += n; this.save(); },
+  addCoins(n) { this.data.coins += n; if (n > 0) { this.data.coinsEarned = (this.data.coinsEarned || 0) + n; } this.save(); },
   addHealth(n) { this.data.health = Math.min(this.data.healthMax, Math.max(0, this.data.health + n)); this.save(); },
   addTaskDone() { this.data.totalTasksDone++; this.save(); },
   addAttrExp(attr, exp) {
@@ -314,6 +322,12 @@ const Game = {
     lastNDays(60).forEach(date => { const ex = Store.get(`wb_exercise_${date}`); if (ex) exCount += (ex.workouts || []).length + (ex.medMinutes > 0 ? 1 : 0); });
     if (exCount >= 10) tryUnlock('ex_10', '运动新手', '完成 10 次锻炼', '💪');
     if (exCount >= 50) tryUnlock('ex_50', '运动达人', '完成 50 次锻炼', '🏃');
+    // 自定义成就（自动检测解锁条件）
+    const custom = Store.get('wb_custom_achievements', []);
+    custom.forEach(c => {
+      if (c.unlocked) return;
+      if (achConditionValue(c.cond) >= (c.cond.target || 0)) { c.unlocked = true; c.date = todayKey(); Store.set('wb_custom_achievements', custom); toast(`${ICONS.medal} 成就解锁: ${c.name}！`, 'success'); }
+    });
   },
   renderSidebar() {
     const d = this.data;
@@ -1000,10 +1014,12 @@ function planDailyHtml() {
             <div class="task-cat-dot ${cat.dotClass}" title="${cat.name}"></div>
             <span class="task-text ${t.done?'line-through':''}" onclick="editTaskInline('${t.id}')">${esc(t.text)}</span>
             ${recurTag}
+            ${(t.subtasks && t.subtasks.length) ? `<button class="task-subtoggle" onclick="toggleSubtaskView('${t.id}')" title="子任务">📋 ${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length}</button>` : ''}
             <div class="task-actions">
               <button class="btn-icon" onclick="editTaskModal('${t.id}')" title="编辑">${ICO.edit}</button>
               <button class="btn-icon danger" onclick="confirmDelTask('${t.id}')" title="删除">${ICO.trash}</button>
             </div>
+            ${subtaskOpen[t.id] ? subtaskPanelHtml(t) : ''}
           </div>`;
         }).join('') : `<div class="empty-state-v2"><div class="empty-state-v2-icon">${ICONS.notebook}</div><div class="empty-state-v2-text">${planTab==='done'?'还没有完成的任务':'今天还没有任务'}</div><div class="empty-state-v2-hint">${planTab==='today'?`<button class="btn btn-primary btn-sm" onclick="document.getElementById('taskInput').focus()">+ 添加第一个任务</button>`:''}</div></div>`}
       </div>
@@ -1054,6 +1070,7 @@ function _doToggleTask(tasks, t, date, fromHome) {
     const cat = TASK_CATEGORIES[t.cat] || TASK_CATEGORIES.life;
     Game.reward(10, 5, 2, cat.attr);
     toast(`完成！${cat.attr ? ATTRIBUTES.find(a=>a.key===cat.attr).icon + ' ' : ''}干得好`, 'success');
+    dropBoxChance();
   } else if (!t.done && wasDone) {
     toast('任务已恢复', 'info');
   }
@@ -2288,6 +2305,7 @@ Modules.achieve = () => {
         }).join('')}</div>
       </div>`;
     }).join('')}
+    ${customAchSection()}
   `;
 };
 
@@ -2787,6 +2805,253 @@ function init() {
     document.body.appendChild(hint);
     setTimeout(function() { if (hint.parentNode) hint.remove(); }, 3500);
     localStorage.setItem('wb_swipe_hint_shown', '1');
+  }
+}
+
+// ===================== 子任务（呼应人升子任务） =====================
+let subtaskOpen = {};
+function toggleSubtaskView(id) { subtaskOpen[id] = !subtaskOpen[id]; Nav.refresh(); }
+function subtaskPanelHtml(t) {
+  const subs = t.subtasks || [];
+  return `<div class="subtask-wrap">
+    <div class="subtask-add">
+      <input type="text" id="subInput_${t.id}" placeholder="添加子任务，回车确认" maxlength="60" onkeydown="if(event.key==='Enter')addSubtask('${t.id}')">
+      <button class="btn-icon" onclick="addSubtask('${t.id}')" title="添加子任务">${ICO.plus}</button>
+    </div>
+    ${subs.length ? `<div class="subtask-list">${subs.map(s => `<div class="subtask-item ${s.done ? 'done' : ''}">
+      <div class="task-checkbox ${s.done ? 'checked' : ''}" onclick="toggleSubtask('${t.id}','${s.id}')"></div>
+      <span class="subtask-text ${s.done ? 'line-through' : ''}" onclick="toggleSubtask('${t.id}','${s.id}')">${esc(s.text)}</span>
+      <button class="btn-icon danger" onclick="delSubtask('${t.id}','${s.id}')">${ICO.trash}</button>
+    </div>`).join('')}</div>` : `<div class="subtask-empty">还没有子任务，先加一个吧</div>`}
+  </div>`;
+}
+function addSubtask(taskId) {
+  const input = $('#subInput_' + taskId); if (!input) return;
+  const text = input.value.trim(); if (!text) return toast('请输入子任务内容', 'warning');
+  const tasks = getPlan(planDate); const t = tasks.find(x => x.id === taskId); if (!t) return;
+  if (!t.subtasks) t.subtasks = [];
+  t.subtasks.push({ id: uid(), text, done: false });
+  setPlan(planDate, tasks); Nav.refresh();
+}
+function toggleSubtask(taskId, subId) {
+  const tasks = getPlan(planDate); const t = tasks.find(x => x.id === taskId); if (!t) return;
+  if (!t.subtasks) t.subtasks = [];
+  const s = t.subtasks.find(x => x.id === subId); if (!s) return;
+  s.done = !s.done;
+  const allDone = t.subtasks.length && t.subtasks.every(x => x.done);
+  if (allDone && !t.done) {
+    t.done = true; setPlan(planDate, tasks);
+    Game.addTaskDone();
+    const cat = TASK_CATEGORIES[t.cat] || TASK_CATEGORIES.life;
+    Game.reward(10, 5, 2, cat.attr);
+    toast('🎉 子任务全部完成，任务达成！', 'success');
+  } else if (!allDone && t.done) {
+    t.done = false; setPlan(planDate, tasks);
+    toast('任务已取消完成（仍有子任务未完成）', 'info');
+  } else {
+    setPlan(planDate, tasks);
+  }
+  Nav.refresh();
+}
+function delSubtask(taskId, subId) {
+  const tasks = getPlan(planDate); const t = tasks.find(x => x.id === taskId); if (!t || !t.subtasks) return;
+  t.subtasks = t.subtasks.filter(x => x.id !== subId);
+  setPlan(planDate, tasks); Nav.refresh();
+}
+
+// ===================== 自定义成就（条件自动检测，呼应人升） =====================
+function achConditionValue(cond) {
+  const d = Game.data;
+  switch (cond.type) {
+    case 'level': return d.level || 1;
+    case 'checkin': return d.totalCheckIns || 0;
+    case 'streak': return d.streak || 0;
+    case 'pomodoro': return d.pomodoros || 0;
+    case 'task_total': return d.totalTasksDone || 0;
+    case 'coins_earned': return d.coinsEarned || 0;
+    case 'reading_pages': { const h = Store.get('wb_reading_history', []); return h.reduce((s, x) => s + (x.pages || 0), 0); }
+    case 'attr_level': return (d.attributes[cond.attr] || { lv: 1 }).lv;
+    default: return 0;
+  }
+}
+function achCondText(cond) {
+  const map = { level: '等级', checkin: '累计打卡天数', streak: '连续打卡天数', pomodoro: '累计番茄钟', task_total: '累计完成任务', coins_earned: '累计获得金币', reading_pages: '累计阅读页数', attr_level: '属性等级' };
+  if (cond.type === 'attr_level') { const a = ATTRIBUTES.find(x => x.key === cond.attr); return (a ? a.name : '属性') + '等级'; }
+  return map[cond.type] || cond.type;
+}
+function customAchCardHtml(c) {
+  const target = c.cond.target || 1;
+  const cur = c.unlocked ? target : achConditionValue(c.cond);
+  const pct = Math.min(100, Math.round(cur / target * 100));
+  return `<div class="achieve-card ${c.unlocked ? 'unlocked' : 'locked'}">
+    <div class="achieve-icon ${c.unlocked ? '' : 'locked'}">${c.icon || '🎯'}</div>
+    <div class="achieve-info">
+      <div class="achieve-name">${esc(c.name)}</div>
+      <div class="achieve-desc">${esc(c.desc || '')}</div>
+      ${c.unlocked ? `<div class="achieve-date">${ICONS.calendar} ${c.date}</div>` : `<div class="achieve-progress"><div class="achieve-progress-bar"><div class="achieve-progress-fill" style="width:${pct}%"></div></div><div class="achieve-progress-text">${achCondText(c.cond)}：${cur} / ${target}</div></div>`}
+    </div>
+    ${c.unlocked ? '<div class="achieve-badge">' + ICONS.check + '</div>' : '<div class="achieve-badge">' + ICONS.lock + '</div>'}
+    <button class="btn-icon danger achieve-del" onclick="delCustomAch('${c.id}')" title="删除">${ICO.trash}</button>
+  </div>`;
+}
+function customAchSection() {
+  const custom = Store.get('wb_custom_achievements', []);
+  return `<div class="card">
+    <div class="flex-between"><div class="card-title">🎯 我的自定义成就 (${custom.length})</div><button class="btn btn-primary btn-sm" onclick="openCustomAchModal()">+ 新建成就</button></div>
+    <div class="card-subtitle">设定解锁条件，系统会自动检测并解锁（呼应人升的自定义成就）。</div>
+    ${custom.length ? custom.map(customAchCardHtml).join('') : '<div class="empty-state-v2"><div class="empty-state-v2-icon">' + ICONS.target + '</div><div class="empty-state-v2-text">还没有自定义成就</div><div class="empty-state-v2-hint">把中长期目标变成可自动追踪的成就吧</div></div>'}
+  </div>`;
+}
+function openCustomAchModal() {
+  UI.editModal({ title: '新建自定义成就', icon: '🎯', fields: [
+    { key: 'name', label: '成就名称', type: 'text', placeholder: '例如：阅读达人' },
+    { key: 'icon', label: '图标 (emoji)', type: 'text', placeholder: '📚' },
+    { key: 'desc', label: '描述', type: 'text', placeholder: '成就说明' },
+    { key: 'condType', label: '解锁条件', type: 'select', options: [
+      { value: 'level', label: '等级达到 N 级' },
+      { value: 'checkin', label: '累计打卡 N 天' },
+      { value: 'streak', label: '连续打卡 N 天' },
+      { value: 'pomodoro', label: '累计完成 N 个番茄钟' },
+      { value: 'task_total', label: '累计完成 N 个任务' },
+      { value: 'coins_earned', label: '累计获得 N 金币' },
+      { value: 'reading_pages', label: '累计阅读 N 页' },
+      { value: 'attr_level', label: '某项属性达到 N 级' },
+    ] },
+    { key: 'attr', label: '属性（仅“属性等级”需要）', type: 'select', options: ATTRIBUTES.map(a => ({ value: a.key, label: a.name })) },
+    { key: 'target', label: '目标数值 N', type: 'number', placeholder: '15' },
+  ], values: { condType: 'task_total', attr: 'strength', target: 15 }, onSave: (v) => {
+    const list = Store.get('wb_custom_achievements', []);
+    list.push({ id: uid(), name: v.name.trim(), icon: (v.icon || '🎯').trim(), desc: (v.desc || '').trim(), cond: { type: v.condType, target: Math.max(1, parseInt(v.target) || 1), attr: v.attr }, unlocked: false });
+    Store.set('wb_custom_achievements', list);
+    Game.checkAchievements();
+    toast('自定义成就已创建', 'success'); Nav.refresh();
+  } });
+}
+function delCustomAch(id) {
+  UI.confirm('确定删除该自定义成就吗？', () => {
+    Store.set('wb_custom_achievements', Store.get('wb_custom_achievements', []).filter(c => c.id !== id));
+    Nav.refresh();
+  });
+}
+
+// ===================== 惊喜盒子（呼应人升开箱） =====================
+const BOX_REWARD_TYPES = [
+  { value: 'coins', label: '金币' },
+  { value: 'exp', label: '经验' },
+  { value: 'health', label: '体力' },
+  { value: 'nothing', label: '谢谢参与' },
+];
+let boxExpand = {};
+Modules.box = () => {
+  const boxes = Store.get('wb_boxes', []);
+  const inv = Game.data.boxes || {};
+  const owned = boxes.filter(b => (inv[b.id] || 0) > 0);
+  const d = Game.data;
+  return `
+    <div class="card weread-banner" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe);">
+      <div class="weread-logo" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);">${ICONS.gift}</div>
+      <div class="weread-info"><div class="weread-title" style="color:#5b21b6;">我的金币：${d.coins}</div><div class="weread-desc" style="color:#6d28d9;">完成任务有概率掉落宝箱；也可花费金币抽取。开启后随机获得 金币 / 经验 / 体力 奖励。</div></div>
+    </div>
+    ${owned.length ? `<div class="card"><div class="card-title">📦 我的库存 (${owned.length})</div><div class="box-inv-grid">${owned.map(b => `<div class="box-inv-card"><div class="box-icon">${b.icon}</div><div class="box-inv-name">${esc(b.name)}</div><div class="box-inv-count">x${inv[b.id]}</div><button class="btn btn-primary btn-sm" onclick="openBox('${b.id}')">开箱</button></div>`).join('')}</div></div>` : '<div class="empty-state-v2"><div class="empty-state-v2-icon">' + ICONS.gift + '</div><div class="empty-state-v2-text">还没有宝箱</div><div class="empty-state-v2-hint">完成任务有概率掉落，或花费金币抽取</div></div>'}
+    <div class="card"><div class="flex-between"><div class="card-title">🎲 宝箱模板 (${boxes.length})</div><button class="btn btn-primary btn-sm" onclick="addBoxTemplate()">+ 新建宝箱</button></div>
+      <div class="card-subtitle">为每个宝箱设定奖励池（权重越高越容易被抽到）。「谢谢参与」代表空奖。</div>
+      ${boxes.length ? boxes.map(b => boxTemplateCardHtml(b)).join('') : '<div class="empty-state-v2"><div class="empty-state-v2-icon">' + ICONS.gift + '</div><div class="empty-state-v2-text">还没有宝箱模板</div><div class="empty-state-v2-hint">新建一个宝箱，设定你的奖励池</div></div>'}
+    </div>
+  `;
+};
+function boxTemplateCardHtml(b) {
+  const expanded = boxExpand[b.id];
+  const poolRows = (b.pool || []).map((p, i) => `<div class="box-reward-row">
+    <select onchange="updateBoxReward('${b.id}',${i},'type',this.value)">${BOX_REWARD_TYPES.map(t => `<option value="${t.value}" ${p.type === t.value ? 'selected' : ''}>${t.label}</option>`).join('')}</select>
+    <input type="number" value="${p.value || 0}" min="0" title="数值" onchange="updateBoxReward('${b.id}',${i},'value',this.value)">
+    <input type="number" value="${p.weight || 1}" min="1" title="权重" onchange="updateBoxReward('${b.id}',${i},'weight',this.value)">
+    <button class="btn-icon danger" onclick="removeBoxReward('${b.id}',${i})">${ICO.trash}</button>
+  </div>`).join('');
+  return `<div class="box-card ${expanded ? 'expanded' : ''}">
+    <div class="box-card-top">
+      <div class="box-icon">${b.icon}</div>
+      <div class="box-card-info"><div class="box-card-name">${esc(b.name)}</div><div class="box-card-meta">${ICONS.coin} ${b.cost} 抽取 · ${(b.pool || []).length} 种奖励</div></div>
+      <button class="btn btn-outline btn-sm" onclick="buyBox('${b.id}')">🪙${b.cost} 抽取</button>
+      <button class="btn-icon" onclick="editBoxTemplate('${b.id}')" title="编辑">${ICO.edit}</button>
+      <button class="btn-icon danger" onclick="delBoxTemplate('${b.id}')" title="删除">${ICO.trash}</button>
+      <button class="btn-icon" onclick="toggleBoxExpand('${b.id}')" title="展开奖励池">${expanded ? ICONS.chevronUp : ICONS.chevronDown}</button>
+    </div>
+    ${expanded ? `<div class="box-pool"><div class="box-pool-head"><span>奖励项（类型 / 数值 / 权重）</span><button class="btn btn-outline btn-sm" onclick="addBoxReward('${b.id}')">+ 添加奖励项</button></div>${poolRows || '<div class="subtask-empty">还没有奖励项</div>'}</div>` : ''}
+  </div>`;
+}
+function toggleBoxExpand(id) { boxExpand[id] = !boxExpand[id]; Nav.refresh(); }
+function addBoxTemplate() {
+  UI.editModal({ title: '新建宝箱', icon: ICONS.gift, fields: [
+    { key: 'name', label: '宝箱名称', type: 'text', placeholder: '例如：幸运宝箱' },
+    { key: 'icon', label: '图标(emoji)', type: 'text', placeholder: '🎁' },
+    { key: 'cost', label: '抽取花费金币', type: 'number', placeholder: '30' },
+  ], values: { name: '', icon: '🎁', cost: 30 }, onSave: (v) => {
+    const boxes = Store.get('wb_boxes', []);
+    boxes.push({ id: uid(), name: v.name.trim(), icon: (v.icon || '🎁').trim(), cost: Math.max(1, parseInt(v.cost) || 1), pool: [{ type: 'coins', value: 20, weight: 4 }, { type: 'exp', value: 15, weight: 4 }, { type: 'health', value: 10, weight: 2 }, { type: 'nothing', value: 0, weight: 3 }] });
+    Store.set('wb_boxes', boxes); toast('宝箱已创建', 'success'); Nav.refresh();
+  } });
+}
+function editBoxTemplate(id) {
+  const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b) return;
+  UI.editModal({ title: '编辑宝箱', icon: ICONS.gift, fields: [
+    { key: 'name', label: '宝箱名称', type: 'text' },
+    { key: 'icon', label: '图标(emoji)', type: 'text' },
+    { key: 'cost', label: '抽取花费金币', type: 'number' },
+  ], values: b, onSave: (v) => { Object.assign(b, { name: v.name.trim(), icon: (v.icon || '🎁').trim(), cost: Math.max(1, parseInt(v.cost) || 1) }); Store.set('wb_boxes', boxes); toast('宝箱已更新', 'success'); Nav.refresh(); }, onDelete: () => confirmDelBoxTemplate(id) });
+}
+function confirmDelBoxTemplate(id) { const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b) return; UI.confirm(`确定删除宝箱「${b.name}」吗？`, () => { Store.set('wb_boxes', boxes.filter(x => x.id !== id)); Nav.refresh(); }); }
+function delBoxTemplate(id) { confirmDelBoxTemplate(id); }
+function addBoxReward(id) { const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b) return; if (!b.pool) b.pool = []; b.pool.push({ type: 'coins', value: 10, weight: 1 }); Store.set('wb_boxes', boxes); Nav.refresh(); }
+function updateBoxReward(id, i, key, val) { const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b || !b.pool || !b.pool[i]) return; if (key === 'value' || key === 'weight') val = Math.max(0, parseInt(val) || 0); b.pool[i][key] = val; Store.set('wb_boxes', boxes); }
+function removeBoxReward(id, i) { const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b || !b.pool) return; b.pool.splice(i, 1); Store.set('wb_boxes', boxes); Nav.refresh(); }
+function buyBox(id) {
+  const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b) return;
+  if (Game.data.coins < b.cost) return toast('金币不足，继续努力！', 'warning');
+  Game.addCoins(-b.cost);
+  const inv = Game.data.boxes || {}; inv[b.id] = (inv[b.id] || 0) + 1; Game.data.boxes = inv; Game.save();
+  Game.renderSidebar();
+  toast(`🎁 获得宝箱「${b.name}」`, 'success'); Nav.refresh();
+}
+function openBox(id) {
+  const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b) return;
+  const inv = Game.data.boxes || {}; if (!(inv[b.id] > 0)) return toast('没有该宝箱', 'warning');
+  const pool = b.pool || []; if (!pool.length) return toast('该宝箱没有奖励项', 'warning');
+  const totalW = pool.reduce((s, p) => s + (p.weight || 1), 0);
+  let r = Math.random() * totalW, pick = pool[0];
+  for (const p of pool) { r -= (p.weight || 1); if (r <= 0) { pick = p; break; } }
+  let resultText = '', resultIcon = '🎉', gained = false;
+  if (pick.type === 'coins') { Game.addCoins(pick.value); resultText = `+${pick.value} 金币`; resultIcon = ICONS.coin; gained = true; }
+  else if (pick.type === 'exp') { Game.addExp(pick.value); resultText = `+${pick.value} 经验`; resultIcon = ICONS.sparkles; gained = true; }
+  else if (pick.type === 'health') { Game.addHealth(pick.value); resultText = `+${pick.value} 体力`; resultIcon = ICONS.heart; gained = true; }
+  else { resultText = '谢谢参与～'; resultIcon = '🍃'; }
+  inv[b.id] -= 1; if (inv[b.id] <= 0) delete inv[b.id]; Game.data.boxes = inv; Game.save(); Game.renderSidebar();
+  boxReveal(b, resultText, resultIcon, gained);
+}
+function boxReveal(b, resultText, resultIcon, gained) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay box-reveal-overlay';
+  overlay.innerHTML = `<div class="box-reveal">
+    <div class="box-reveal-box">${b.icon}</div>
+    <div class="box-reveal-title">${gained ? '🎉 恭喜获得' : '开箱结果'}</div>
+    <div class="box-reveal-result">${resultIcon} ${resultText}</div>
+    <button class="btn btn-primary" onclick="closeBoxReveal(this)">好的</button>
+  </div>`;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('show'));
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeBoxReveal(overlay); });
+  Game.checkAchievements();
+}
+window.closeBoxReveal = function(node) { const o = node.closest ? node.closest('.modal-overlay') : node; if (o) o.remove(); Nav.refresh(); };
+
+// 任务完成掉落宝箱（呼应人升开箱）
+function dropBoxChance() {
+  const boxes = Store.get('wb_boxes', []);
+  if (!boxes.length) return;
+  if (Math.random() < 0.25) {
+    const tpl = boxes[Math.floor(Math.random() * boxes.length)];
+    const inv = Game.data.boxes || {}; inv[tpl.id] = (inv[tpl.id] || 0) + 1;
+    Game.data.boxes = inv; Game.save();
+    toast(`🎁 恭喜！完成任务掉落宝箱「${tpl.name}」`, 'success');
   }
 }
 
