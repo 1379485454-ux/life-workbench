@@ -50,7 +50,6 @@
 .subtask-item .task-checkbox { width: 16px; height: 16px; }
 .subtask-text { flex: 1; font-size: 13px; color: var(--text, #1e293b); }
 .subtask-item.done .subtask-text { color: var(--text-lighter, #94a3b8); }
-.subtask-empty,
 .subtask-empty { font-size: 12px; color: var(--text-lighter, #94a3b8); padding: 4px 2px; }
 
 /* ---------- 自定义成就进度 ---------- */
