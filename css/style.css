@@ -10,8 +10,8 @@
   --primary-light: #38BDF8;
   --primary-lighter: #7DD3FC;
   --primary-lightest: #E0F2FE;
-  --primary-bg: #F0F9FF;
-  --primary-bg-soft: #E0F2FE;
+  --primary-bg: #DFF3FF;
+  --primary-bg-soft: #C9EAFD;
 
   /* 强调：翡翠绿（习惯完成 / 正向反馈） */
   --accent: #059669;
@@ -20,17 +20,17 @@
   --accent-bg: #D1FAE5;
   --accent-lightest: #ECFDF5;
 
-  /* 中性暖色 */
-  --bg: #F4F8FB;
-  --bg-card: #FFFFFF;
-  --bg-soft: #F8FBFD;
-  --bg-light: #EAF4FA;
-  --bg-hover: #EAF4FA;
-  --bg-active: #DDF1FC;
+  /* 天蓝色系背景 */
+  --bg: #E3F2FA;
+  --bg-card: #F7FCFF;
+  --bg-soft: #EDF7FD;
+  --bg-light: #D6EEFB;
+  --bg-hover: #D0EBFA;
+  --bg-active: #B9E3F8;
 
-  /* 侧边栏：温暖浅色（去深色模板感） */
-  --sidebar-bg: #F7FBFE;
-  --sidebar-bg-2: #EDF6FC;
+  /* 侧边栏：天蓝色 */
+  --sidebar-bg: #EBF6FD;
+  --sidebar-bg-2: #DFF1FB;
   --sidebar-active: #0EA5E9;
   --sidebar-hover: rgba(14,165,233,0.10);
   --sidebar-text: #334155;
@@ -2599,7 +2599,7 @@ input:focus, select:focus, textarea:focus {
 
 /* ===== 云端同步状态徽标 ===== */
 #wbSyncBadge {
-  position: fixed; right: 14px; bottom: 88px;
+  position: fixed; left: 14px; bottom: 14px;
   z-index: 35; display: inline-flex; align-items: center; gap: 6px;
   padding: 6px 12px; border-radius: 999px;
   background: rgba(255,255,255,0.92); color: #475569;
@@ -2613,8 +2613,8 @@ input:focus, select:focus, textarea:focus {
 #wbSyncBadge:hover { transform: translateY(-1px); }
 @media (max-width: 768px) {
   #wbSyncBadge {
-    bottom: calc(88px + env(safe-area-inset-bottom));
-    right: 10px;
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    left: 10px;
     padding: 5px 10px;
     font-size: 11px;
   }

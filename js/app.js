@@ -2317,7 +2317,7 @@ Modules.settings = () => {
       <div class="backup-tip">修改后会立即生效，并随数据备份一起保存。</div>
     </div>
     <div class="card" style="margin-top:16px;">
-      <div class="card-title">${ICONS.ai} AI 助手设置</div>
+      <div class="card-title">${(ICONS && ICONS.ai) ? ICONS.ai : '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2 5.6L20 9l-4.8 3.8L16.5 20 12 16.5 7.5 20l1.3-7.2L4 9l6-1.4L12 2z"/><circle cx="12" cy="11" r="2" fill="currentColor" stroke="none"/></svg>'} AI 助手设置</div>
       <div class="card-subtitle">配置兼容 OpenAI 格式的 API，即可在右下角召唤 AI 帮你制定计划、拆解目标。</div>
       <div class="form-row" style="margin-top:12px;">
         <div class="form-group">
@@ -3252,16 +3252,17 @@ JSON 格式：
 
 function renderAIFab() {
   if (document.getElementById('aiFab')) return;
+  const aiIcon = (ICONS && ICONS.ai) ? ICONS.ai : '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2 5.6L20 9l-4.8 3.8L16.5 20 12 16.5 7.5 20l1.3-7.2L4 9l6-1.4L12 2z"/><circle cx="12" cy="11" r="2" fill="currentColor" stroke="none"/></svg>';
   const fab = document.createElement('button');
   fab.className = 'ai-fab'; fab.id = 'aiFab';
   fab.setAttribute('aria-label', 'AI 助手');
-  fab.innerHTML = ICONS.ai;
+  fab.innerHTML = aiIcon;
   fab.onclick = toggleAI;
   document.body.appendChild(fab);
   const panel = document.createElement('div');
   panel.className = 'ai-panel'; panel.id = 'aiPanel'; panel.style.display = 'none';
   panel.innerHTML = `
-    <div class="ai-panel-head"><div class="ai-panel-title">${ICONS.ai} AI 助手</div><button class="btn-icon" onclick="toggleAI()">${ICONS.close}</button></div>
+    <div class="ai-panel-head"><div class="ai-panel-title">${aiIcon} AI 助手</div><button class="btn-icon" onclick="toggleAI()">${ICONS.close}</button></div>
     <div class="ai-panel-body" id="aiBody"></div>
     <div class="ai-panel-input"><textarea id="aiInput" placeholder="说点什么，比如：帮我制定一个 30 天学英语计划…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}"></textarea><button class="btn btn-primary" id="aiSendBtn" onclick="aiSend()">发送</button></div>
   `;
