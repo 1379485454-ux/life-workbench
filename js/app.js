@@ -796,18 +796,40 @@ Modules.home = () => {
       </div>
     </div>`;
 
+  const dayPct = todayTasks.length ? Math.round(doneTasks / todayTasks.length * 100) : (checkedIn ? 100 : 0);
   return `
     <div class="dash-hero glass">
       <span class="hero-float f1"></span>
       <span class="hero-float f2"></span>
-      <div class="dash-hero-greet" id="dashHeroGreet">你好，${UserProfile.displayName}</div>
-      <div class="dash-hero-tagline">用游戏化的方式，把自律养成习惯</div>
-      <div class="dash-hero-main">
-        <div class="dash-hero-left">
+      <div class="hero-top">
+        <div class="hero-greet-wrap">
+          <div class="dash-hero-greet" id="dashHeroGreet">你好，${UserProfile.displayName}</div>
+          <div class="dash-hero-status" id="dashHeroStatus">已连续打卡 <b>${d.streak}</b> 天 · 今天完成 <b>${doneTasks}/${todayTasks.length}</b> 项</div>
+        </div>
+        <div class="hero-clock-mini">
           <div class="dash-clock-time" id="dashClockTime">00:00:00</div>
           <div class="dash-clock-date" id="dashClockDate">载入中...</div>
         </div>
-        <button class="dash-checkin-btn ${checkedIn ? 'done' : ''}" id="checkInBtn" ${checkedIn ? 'disabled' : ''}>${checkedIn ? ICONS.check + ' 今日已打卡' : ICONS.pin + ' 立即打卡'}<span class="dash-checkin-sub">${checkedIn ? `连续第 ${d.streak} 天 ${ICONS.flame}` : '开启元气满满的一天'}</span></button>
+      </div>
+      <div class="hero-cockpit">
+        <div class="hero-metrics">
+          <div class="hero-metric" onclick="Nav.switchTo('plan')" title="前往计划">
+            <div class="hero-metric-num" style="color:var(--primary)">${doneTasks}<small>/${todayTasks.length}</small></div>
+            <div class="hero-metric-label">${ICONS.list} 待办</div>
+          </div>
+          <div class="hero-metric" onclick="Nav.switchTo('pomo')" title="前往番茄钟">
+            <div class="hero-metric-num" style="color:var(--danger)">${focusMinToday}<small>分</small></div>
+            <div class="hero-metric-label">${ICONS.tomato} 专注</div>
+          </div>
+          <div class="hero-metric" onclick="Nav.switchTo('food')" title="前往喝水">
+            <div class="hero-metric-num" style="color:#06b6d4">${todayWater.water || 0}<small>/8</small></div>
+            <div class="hero-metric-label">${ICONS.water} 喝水</div>
+          </div>
+        </div>
+        <div class="hero-action">
+          ${progressRing(dayPct, { size: 76, stroke: 7, color: '#3b82f6', label: Math.round(dayPct) + '%', sub: '今日进度' })}
+          <button class="dash-checkin-btn ${checkedIn ? 'done' : ''}" id="checkInBtn" ${checkedIn ? 'disabled' : ''}>${checkedIn ? ICONS.check + ' 已打卡' : ICONS.pin + ' 立即打卡'}<span class="dash-checkin-sub">${checkedIn ? `连续第 ${d.streak} 天 ${ICONS.flame}` : '开启元气满满的一天'}</span></button>
+        </div>
       </div>
     </div>
     <div class="dash-rings">${ringsHtml}</div>
@@ -3135,6 +3157,43 @@ function goalHistory(g) {
   if (!logs.length) return `<div class="empty-state-v2" style="padding:18px 0;"><div class="empty-state-v2-text">暂无打卡记录</div><div class="empty-state-v2-hint">每次投入后都会在这里留下足迹</div></div>`;
   return `<div class="goal-history"><div class="goal-history-title">最近打卡</div>${logs.map(l => `<div class="goal-history-item"><div class="goal-history-dot" style="background:${g.color || TRACK_COLORS[0]}"></div><div class="goal-history-info"><div class="goal-history-amount">+${l.amount} ${goalUnitLabel(g)}</div><div class="goal-history-meta">${l.date}${l.time ? ' ' + l.time : ''}${l.note ? ' · ' + esc(l.note) : ''}</div></div></div>`).join('')}</div>`;
 }
+function goalStreakDays(g) {
+  const dates = [...new Set((g.logs || []).map(l => l.date))].sort();
+  if (!dates.length) return 0;
+  let streak = 1;
+  for (let i = dates.length - 1; i > 0; i--) {
+    const a = new Date(dates[i]), b = new Date(dates[i - 1]);
+    if ((a - b) / 86400000 === 1) streak++; else break;
+  }
+  return streak;
+}
+function goalEta(g) {
+  const logs = g.logs || [];
+  if (!logs.length || (g.value || 0) <= 0) return null;
+  const days = new Set(logs.map(l => l.date)).size || 1;
+  const total = logs.reduce((s, l) => s + (parseFloat(l.amount) || 0), 0);
+  const perDay = total / days;
+  if (perDay <= 0) return null;
+  const need = Math.ceil(goalRemaining(g) / perDay);
+  if (!isFinite(need) || need <= 0) return null;
+  const eta = new Date(); eta.setDate(eta.getDate() + need);
+  return eta.toISOString().slice(0, 10);
+}
+function goalBadges(g) {
+  const ms = goalMilestones(g);
+  const val = g.value || 0;
+  const reach = ms.filter(m => m < (g.target || 1) && val >= m);
+  const names = ['启程者', '初阶实践', '稳步前行', '进阶达人', '半程达成', '冲刺者', '接近目标', '准达成者', '临门一脚'];
+  if (!reach.length) return `<div class="goal-badges"><div class="goal-badges-title">里程碑徽章</div><div class="empty-state-v2" style="padding:10px 0;"><div class="empty-state-v2-hint">达成第一个里程碑即可解锁专属徽章</div></div></div>`;
+  return `<div class="goal-badges"><div class="goal-badges-title">已解锁徽章 <span class="badge">${reach.length}/${ms.filter(m => m < (g.target || 1)).length}</span></div><div class="goal-badge-row">${reach.map((m, i) => `<div class="goal-badge" style="--gc:${g.color || TRACK_COLORS[0]}"><div class="goal-badge-ico">${ICONS.trophy}</div><div class="goal-badge-name">${names[Math.min(i, names.length - 1)]}</div><div class="goal-badge-sub">${m}${goalUnitLabel(g)}</div></div>`).join('')}</div></div>`;
+}
+function goalTrend(g) {
+  const days = lastNDays(14);
+  const data = days.map(date => ({ date, sum: (g.logs || []).filter(l => l.date === date).reduce((s, l) => s + (parseFloat(l.amount) || 0), 0) }));
+  const max = Math.max(0.0001, ...data.map(d => d.sum));
+  const color = g.color || TRACK_COLORS[0];
+  return `<div class="goal-trend"><div class="goal-trend-title">近 14 天投入 <span class="goal-trend-hint">单位 ${goalUnitLabel(g)}</span></div><div class="goal-trend-bars">${data.map(d => `<div class="gt-bar" title="${d.date}: ${d.sum}${goalUnitLabel(g)}"><div class="gt-bar-fill" style="height:${Math.round(d.sum / max * 100)}%;background:${color}"></div><div class="gt-bar-day">${d.date.slice(5)}</div></div>`).join('')}</div></div>`;
+}
 function goalStats(g) {
   const logs = g.logs || [];
   const totalDays = new Set(logs.map(l => l.date)).size;
@@ -3170,21 +3229,27 @@ function goalDetailView(g) {
       <div class="goal-detail-head">
         <button class="btn btn-ghost btn-sm" onclick="goalDetailId=null;Nav.refresh();"><span style="margin-right:4px;">←</span>返回列表</button>
         <div class="goal-detail-title">${esc(g.name)} ${g.done ? '<span class="tag tag-green">已完成</span>' : isOverdue(g) ? '<span class="tag tag-red">已逾期</span>' : ''}</div>
+        ${g.category ? `<div class="goal-detail-cat">${esc(g.category)}</div>` : ''}
       </div>
       <div class="goal-detail-main">
         <div class="goal-ring-lg-wrap">${goalRing(g)}</div>
         <div class="goal-detail-info">
           <div class="goal-detail-stat">目标 <b>${g.target}</b> ${goalUnitLabel(g)} · 当前 <b>${(g.value || 0).toFixed(goalValueDecimals(g))}</b> ${goalUnitLabel(g)} · 完成度 <b>${goalPct(g)}%</b></div>
-          <div class="goal-detail-dates">${ICONS.calendar} ${g.startDate || '未设置'} ${g.endDate ? '→ ' + g.endDate : ''}</div>
+          <div class="goal-detail-meta">
+            <span>${ICONS.calendar} 已坚持 <b>${goalStreakDays(g)}</b> 天</span>
+            ${goalEta(g) ? `<span>${ICONS.target} 预计 <b>${goalEta(g)}</b> 达成</span>` : `<span class="goal-eta-hint">继续打卡以预测达成日</span>`}
+          </div>
           ${goalPips(g)}
           <div class="goal-detail-actions">
             ${steps.map(s => `<button class="btn btn-soft" onclick="goalAddValue('${g.id}', ${s})">+${s}${goalUnitLabel(g)}</button>`).join('')}
             <button class="btn btn-primary" onclick="openGoalCheckIn('${g.id}')">${ICONS.check} 打卡</button>
             <button class="btn btn-outline" onclick="goalAddFromPomo('${g.id}')">${ICONS.tomato} 番茄+</button>
-            <button class="btn btn-outline" onclick="openGoalModal('${g.id}')">${ICONS.edit} 编辑</button>
+            <button class="btn btn-outline" onclick="openGoalModal('${g.id}')">${ICO.edit} 编辑</button>
           </div>
         </div>
       </div>
+      ${goalBadges(g)}
+      ${goalTrend(g)}
       ${goalStats(g)}
       ${goalHistory(g)}
     </div>`;
