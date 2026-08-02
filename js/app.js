@@ -778,6 +778,23 @@ Modules.home = () => {
     return `<div class="dash-ring-card" onclick="Nav.switchTo('${link}')" title="查看详情">${progressRing(r.pct, r.opt)}<div class="dash-ring-label">${r.label}</div></div>`;
   }).join('');
 
+  // ---- 进行中速览（专注 / 最近成就 / 百时挑战） ----
+  const todayPomoD = Store.getDaily('pomo', { count: 0, sessions: [] });
+  const focusMinToday = (todayPomoD.sessions || []).filter(s => s.mode === 'focus').reduce((s, x) => s + (x.minutes || 0), 0);
+  const customAchAll = Store.get('wb_custom_achievements', []);
+  let nearAch = null, nearPct = -1;
+  customAchAll.filter(c => !c.unlocked).forEach(c => { const cur = achConditionValue(c.cond); const tgt = c.cond.target || 1; const p = cur / tgt; if (p > nearPct) { nearPct = p; nearAch = c; } });
+  const chAll = getChallenges(); const activeCh = chAll.find(c => !c.done) || null;
+  const progressCardHtml = `
+    <div class="card" id="secProgress">
+      <div class="card-title">${ICONS.bolt} 进行中 <span class="card-subtitle">点任意卡片直达对应模块</span></div>
+      <div class="grid-3" style="gap:12px;">
+        <div class="dash-mini-stat" onclick="Nav.switchTo('pomo')" title="前往番茄钟"><div class="dash-mini-stat-num" style="color:var(--danger)">${focusMinToday}</div><div class="dash-mini-stat-label">${ICONS.tomato} 今日专注(分)</div></div>
+        ${nearAch ? `<div class="dash-mini-stat" onclick="Nav.switchTo('achieve')" title="查看成就"><div class="dash-mini-stat-num" style="color:var(--purple)">${Math.round(nearPct*100)}%</div><div class="dash-mini-stat-label">${ICONS.medal} ${esc(nearAch.name)}</div><div class="dash-mini-stat-sub" style="font-size:11px;color:var(--muted);margin-top:2px;">${achCondText(nearAch.cond)} ${Math.round(achConditionValue(nearAch.cond))}/${nearAch.cond.target||1}</div></div>` : `<div class="dash-mini-stat" onclick="Nav.switchTo('achieve')" title="设置自定义成就"><div class="dash-mini-stat-num" style="color:var(--purple)">—</div><div class="dash-mini-stat-label">${ICONS.medal} 暂无进行中成就</div></div>`}
+        ${activeCh ? `<div class="dash-mini-stat" onclick="Nav.switchTo('track100')" title="查看百时挑战"><div class="dash-mini-stat-num" style="color:var(--primary)">${Math.round((activeCh.hours||0)/(activeCh.target||100)*100)}%</div><div class="dash-mini-stat-label">${ICONS.target} ${esc(activeCh.name)}</div><div class="dash-mini-stat-sub" style="font-size:11px;color:var(--muted);margin-top:2px;">${(activeCh.hours||0).toFixed(1)}/${(activeCh.target||100)}h</div></div>` : `<div class="dash-mini-stat" onclick="Nav.switchTo('track100')" title="新建百时挑战"><div class="dash-mini-stat-num" style="color:var(--primary)">—</div><div class="dash-mini-stat-label">${ICONS.target} 暂无百时挑战</div></div>`}
+      </div>
+    </div>`;
+
   return `
     <div class="dash-hero glass">
       <span class="hero-float f1"></span>
@@ -817,6 +834,7 @@ Modules.home = () => {
       <div class="card"><div class="card-title">${ICONS.list} 今日计划进度 <span class="card-subtitle">${doneTasks}/${todayTasks.length} 已完成</span></div>${todayTasks.length ? (doneTasks === todayTasks.length ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:100%"></div></div><div class="all-done-state"><div class="all-done-icon">${ICONS.star}</div><div class="all-done-text">今日任务全部完成！</div><div class="all-done-sub">太棒了，给自己一点奖励吧</div></div>` : `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${taskPct}%"></div></div><div style="margin-top:12px;">${todayTasks.slice(0,5).map(t => `<div class="task-item-v2 ${t.done?'done':''}" style="margin-bottom:6px;padding:9px 12px;" title="点击完成/取消"><div class="task-checkbox ${t.done?'checked':''}" onclick="toggleTaskFromHome('${t.id}')"></div><span class="task-text">${esc(t.text)}</span></div>`).join('')}${todayTasks.length > 5 ? `<div class="text-muted text-sm" style="padding:8px 4px;">还有 ${todayTasks.length-5} 项待办...</div>` : ''}</div>`) : '<div class="empty-state"><div class="empty-state-icon">'+ICONS.notebook+'</div><div class="empty-state-text">还没有添加今日计划</div><a class="empty-state-action" onclick="Nav.switchTo(\'plan\')">去制定计划 →</a></div>'}<button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="Nav.switchTo('plan')">前往计划 →</button></div>
       <div class="card"><div class="card-title">${ICONS.chart} 今日数据概览</div><div class="grid-2 dash-stats-grid" style="gap:12px;">${[{icon:ICONS.water,label:'杯水',val:todayWater.water||0,color:'var(--primary)',link:'food'},{icon:ICONS.run,label:'运动分钟',val:exMin,color:'var(--warning)',link:'exercise'},{icon:ICONS.book,label:'阅读页数',val:todayRead.pages||0,color:'var(--success)',link:'read'},{icon:ICONS.clock,label:'阅读分钟',val:todayRead.minutes||0,color:'var(--purple)',link:'read'}].map(s=>`<div class="dash-mini-stat" onclick="Nav.switchTo('${s.link}')" title="查看${s.label}"><div class="dash-mini-stat-num" style="color:${s.color}">${s.val}</div><div class="dash-mini-stat-label">${s.icon} ${s.label}</div></div>`).join('')}</div></div>
     </div>
+    ${progressCardHtml}
     <div class="card" id="secStreak"><div class="card-title">${ICONS.calendar} 最近 7 天打卡</div><div class="streak-calendar">${calHtml}</div></div>
     <div class="dash-quote glass" id="secQuote"><div class="dash-quote-deco">"</div><div class="dash-quote-cn">${ICONS.bulb} ${esc(q.cn)}</div><div class="dash-quote-en">${esc(q.en)}</div></div>
   `;
@@ -1814,12 +1832,13 @@ Modules.reports = () => {
     const exMin = (ex.medMinutes || 0) + (ex.workouts || []).reduce((s, w) => s + (w.minutes || 0), 0);
     const rd = Store.get(`wb_reading_${date}`, { pages: 0, minutes: 0 });
     const pages = rd.pages || 0;
-    const pomo = Store.get(`wb_pomo_${date}`, { count: 0 });
+    const pomo = Store.get(`wb_pomo_${date}`, { count: 0, sessions: [] });
     const pomoCount = pomo.count || 0;
+    const focusMin = (pomo.sessions || []).filter(s => s.mode === 'focus').reduce((s, x) => s + (x.minutes || 0), 0);
     const checked = checkIns.includes(date) ? 1 : 0;
     const score = done * 2 + exMin * 0.5 + pages * 0.3 + pomoCount * 3 + checked * 5;
     const M = +date.slice(5, 7), D = +date.slice(8, 10);
-    return { date, label: `${M}/${D}`, done, exMin, pages, pomoCount, checked, score: Math.round(score) };
+    return { date, label: `${M}/${D}`, done, exMin, pages, pomoCount, focusMin, checked, score: Math.round(score) };
   });
 
   const sum = (k) => series.reduce((s, x) => s + x[k], 0);
@@ -1909,6 +1928,11 @@ Modules.reports = () => {
       </div>
     </div>
 
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">${ICONS.tomato} 每日专注分钟 <span class="card-subtitle">${sum('focusMin')} 分钟 / ${rangeLabel}</span></div>
+      <div style="overflow-x:auto;">${barChart(series.map(s => ({ label: s.label, value: s.focusMin, today: s.date === todayKey() })), { height: 130 })}</div>
+    </div>
+
     <div class="grid-2 report-charts" style="margin-top:16px;">
       <div class="card">
         <div class="card-title">${ICONS.coin} 记账分类占比 <span class="card-subtitle">支出 ¥${totalExpense.toFixed(0)} · 收入 ¥${totalIncome.toFixed(0)}</span></div>
@@ -1937,12 +1961,13 @@ const POMO_PRESETS = [
   { mode: 'short', label: '☕ 短休', minutes: 5, color: '#10b981' },
   { mode: 'long', label: '🛋️ 长休', minutes: 15, color: '#3b82f6' },
 ];
+function pomoPreset() { return POMO_PRESETS.find(p => p.mode === pomoMode) || POMO_PRESETS[0]; }
 Modules.pomo = () => {
   const today = Store.getDaily('pomo', { count: 0, sessions: [] });
   const d = Game.data;
   const fmt = (s) => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
-  const targetSec = POMO_PRESETS.find(p => p.mode === pomoMode).minutes * 60;
-  const preset = POMO_PRESETS.find(p => p.mode === pomoMode);
+  const targetSec = pomoPreset().minutes * 60;
+  const preset = pomoPreset();
   const todaySessions = today.sessions || [];
   const _planTasks = getPlan(todayKey()).filter(t => !t.done);
   const todayTasksOpts = _planTasks.map(t => `<option value="${t.id}" ${pomoTaskId === t.id ? 'selected' : ''}>${esc(t.text.slice(0, 24))}</option>`).join('');
@@ -1977,7 +2002,7 @@ function switchPomoMode(mode) { pomoMode = mode; resetPomo(); Nav.refresh(); }
 window.setPomoTask = function(v) { pomoTaskId = v || null; };
 function togglePomo() {
   pomoRunning = !pomoRunning;
-  const targetSec = POMO_PRESETS.find(p => p.mode === pomoMode).minutes * 60;
+  const targetSec = pomoPreset().minutes * 60;
   if (pomoRunning) {
     pomoTimer = setInterval(() => {
       pomoSeconds++;
@@ -1995,7 +2020,7 @@ function togglePomo() {
 function resetPomo() { pomoRunning = false; pomoSeconds = 0; if (pomoTimer) { clearInterval(pomoTimer); pomoTimer = null; } Nav.refresh(); }
 function completePomo() {
   pomoRunning = false; if (pomoTimer) { clearInterval(pomoTimer); pomoTimer = null; }
-  const minutes = POMO_PRESETS.find(p => p.mode === pomoMode).minutes;
+  const minutes = pomoPreset().minutes;
   const today = Store.getDaily('pomo', { count: 0, sessions: [] });
   today.count = (today.count || 0) + 1;
   if (!today.sessions) today.sessions = [];
@@ -2762,7 +2787,7 @@ function openCustomAchModal() {
     { key: 'target', label: '目标数值 N', type: 'number', placeholder: '15' },
   ], values: { condType: 'task_total', attr: 'strength', target: 15 }, onSave: (v) => {
     const list = Store.get('wb_custom_achievements', []);
-    list.push({ id: uid(), name: v.name.trim(), icon: (v.icon || '🎯').trim(), desc: (v.desc || '').trim(), cond: { type: v.condType, target: Math.max(1, parseInt(v.target) || 1), attr: v.attr }, unlocked: false });
+    list.push({ id: uid(), name: v.name.trim(), icon: (v.icon || '🎯').trim(), desc: (v.desc || '').trim(), cond: { type: v.condType, target: Math.max(1, parseInt(v.target) || 1), attr: v.condType === 'attr_level' ? v.attr : null }, unlocked: false });
     Store.set('wb_custom_achievements', list);
     Game.checkAchievements();
     toast('自定义成就已创建', 'success'); Nav.refresh();
@@ -2843,7 +2868,7 @@ function editBoxTemplate(id) {
 function confirmDelBoxTemplate(id) { const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b) return; UI.confirm(`确定删除宝箱「${b.name}」吗？`, () => { Store.set('wb_boxes', boxes.filter(x => x.id !== id)); Nav.refresh(); }); }
 function delBoxTemplate(id) { confirmDelBoxTemplate(id); }
 function addBoxReward(id) { const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b) return; if (!b.pool) b.pool = []; b.pool.push({ type: 'coins', value: 10, weight: 1 }); Store.set('wb_boxes', boxes); Nav.refresh(); }
-function updateBoxReward(id, i, key, val) { const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b || !b.pool || !b.pool[i]) return; if (key === 'value' || key === 'weight') val = Math.max(0, parseInt(val) || 0); b.pool[i][key] = val; Store.set('wb_boxes', boxes); }
+function updateBoxReward(id, i, key, val) { const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b || !b.pool || !b.pool[i]) return; if (key === 'value' || key === 'weight') val = Math.max(0, parseInt(val) || 0); if (key === 'value' && b.pool[i].type !== 'nothing') val = Math.max(1, val); b.pool[i][key] = val; Store.set('wb_boxes', boxes); }
 function removeBoxReward(id, i) { const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b || !b.pool) return; b.pool.splice(i, 1); Store.set('wb_boxes', boxes); Nav.refresh(); }
 function buyBox(id) {
   const boxes = Store.get('wb_boxes', []); const b = boxes.find(x => x.id === id); if (!b) return;
@@ -2963,11 +2988,11 @@ Modules.track100 = () => {
   const ring = (ch) => {
     const target = ch.target || 100; const pct = Math.min(100, Math.round(ch.hours / target * 100));
     const r = 52, c = 2 * Math.PI * r, off = c * (1 - pct / 100);
-    return `<svg class="track-ring" viewBox="0 0 120 120"><circle class="track-ring-bg" cx="60" cy="60" r="${r}"/><circle class="track-ring-fg" cx="60" cy="60" r="${r}" style="stroke:${ch.color};stroke-dasharray:${c.toFixed(1)};stroke-dashoffset:${off.toFixed(1)};"/><text class="track-ring-pct" x="60" y="56">${pct}%</text><text class="track-ring-sub" x="60" y="78">${ch.hours.toFixed(1)}h</text></svg>`;
+    return `<svg class="track-ring" viewBox="0 0 120 120"><circle class="track-ring-bg" cx="60" cy="60" r="${r}"/><circle class="track-ring-fg" cx="60" cy="60" r="${r}" style="stroke:${ch.color || TRACK_COLORS[0]};stroke-dasharray:${c.toFixed(1)};stroke-dashoffset:${off.toFixed(1)};"/><text class="track-ring-pct" x="60" y="56">${pct}%</text><text class="track-ring-sub" x="60" y="78">${ch.hours.toFixed(1)}h</text></svg>`;
   };
-  const pips = (ch) => `<div class="track-pips">${TRACK_MILESTONES.map(t => `<span class="track-pip ${ch.hours >= t ? 'on' : ''} ${t === 100 ? 'finish' : ''}" style="${ch.hours >= t ? `background:${ch.color};border-color:${ch.color};` : ''}" title="${t}h">${t === 100 ? '✓' : t}</span>`).join('')}</div>`;
+  const pips = (ch) => `<div class="track-pips">${TRACK_MILESTONES.map(t => `<span class="track-pip ${ch.hours >= t ? 'on' : ''} ${t === 100 ? 'finish' : ''}" style="${ch.hours >= t ? `background:${ch.color || TRACK_COLORS[0]};border-color:${ch.color || TRACK_COLORS[0]};` : ''}" title="${t}h">${t === 100 ? '✓' : t}</span>`).join('')}</div>`;
   const card = (ch) => `
-    <div class="track-card" style="--tc:${ch.color};">
+    <div class="track-card" style="--tc:${ch.color || TRACK_COLORS[0]};">
       <div class="track-ring-wrap">${ring(ch)}</div>
       <div class="track-info">
         <div class="track-name">${esc(ch.name)} ${ch.done ? '<span class="tag tag-green">已达成</span>' : ''}</div>
