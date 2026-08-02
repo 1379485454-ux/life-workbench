@@ -255,7 +255,9 @@ body {
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-xs);
-  z-index: 5;
+  position: sticky;
+  top: 0;
+  z-index: 50;
   min-height: 60px;
 }
 .header-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
@@ -298,8 +300,7 @@ body {
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain;
-  padding: 24px 28px;
+  padding: 24px 28px 48px;
   animation: fadeInUp 0.4s ease;
 }
 @keyframes fadeInUp {
@@ -1298,6 +1299,18 @@ label.field-label {
   transition: var(--transition-fast); flex-shrink: 0;
 }
 .quick-add-btn:hover { background: var(--primary-dark); transform: scale(1.05); }
+.quick-add-bar.plan-quick-add {
+  background: #fff; border: 2px solid var(--border-light); border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(15,23,42,0.04); padding: 8px 10px 8px 14px;
+}
+.quick-add-bar.plan-quick-add:focus-within {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 4px rgba(14,165,233,0.10), 0 4px 12px rgba(14,165,233,0.08);
+}
+.quick-add-icon { display: inline-flex; color: var(--primary-light); flex-shrink: 0; }
+.quick-add-icon svg { width: 20px; height: 20px; }
+.task-text.line-through { text-decoration: line-through; opacity: 0.6; }
+.empty-state-v2 .btn { margin-top: 10px; }
 
 /* ========== 精简侧边栏 ========== */
 .sidebar-stats-minimal {
@@ -1862,7 +1875,7 @@ input:focus, select:focus, textarea:focus {
   .header-menu-btn { width: 36px; height: 36px; }
   .header-title { font-size: 17px; }
   .header-date { font-size: 12px; }
-  .content { padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); }
+  .content { padding: 12px 12px calc(86px + env(safe-area-inset-bottom)); }
   .card { padding: 12px; border-radius: 14px; }
   .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
   .dash-rings { grid-template-columns: repeat(2, 1fr) !important; }
@@ -2679,3 +2692,38 @@ button, .nav-item, .card, .task-item, .btn, [data-module], [data-action] { curso
 .emoji-quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .emoji-quick-item { font-size: 20px; line-height: 1; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: var(--bg-hover); cursor: pointer; transition: transform var(--transition-fast), background var(--transition-fast); }
 .emoji-quick-item:hover { transform: scale(1.12); background: var(--primary-light); }
+
+/* ===== 首页快捷打卡 v2 ===== */
+.quick-habits-v2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+.qh-card {
+  position: relative; border: 1px solid var(--border-light); border-radius: 16px;
+  padding: 14px 10px 10px; background: var(--bg-card);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  cursor: pointer; transition: var(--transition); overflow: hidden;
+  box-shadow: var(--shadow-xs);
+}
+.qh-card::before {
+  content: ''; position: absolute; inset: 0; opacity: 0.08; pointer-events: none;
+}
+.qh-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--primary-light); }
+.qh-card:active { transform: translateY(0) scale(0.98); }
+.qh-card-top { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--text-light); }
+.qh-card-ico { display: inline-flex; }
+.qh-card-ico svg { width: 18px; height: 18px; }
+.qh-card-stat { font-size: 26px; font-weight: 800; color: var(--text); line-height: 1; }
+.qh-card-stat small { font-size: 12px; font-weight: 600; color: var(--text-light); margin-left: 2px; }
+.qh-card-action {
+  width: 100%; padding: 7px 0; border-radius: 10px; font-size: 12px; font-weight: 700;
+  text-align: center; background: var(--bg-soft); color: var(--text-light);
+  transition: var(--transition-fast);
+}
+.qh-card:hover .qh-card-action { background: var(--primary-lightest); color: var(--primary-dark); }
+.qh-water::before { background: linear-gradient(180deg, var(--primary-light), transparent); }
+.qh-reading::before { background: linear-gradient(180deg, var(--success-light), transparent); }
+.qh-exercise::before { background: linear-gradient(180deg, var(--warning-light), transparent); }
+@media (max-width: 380px) {
+  .quick-habits-v2 { gap: 8px; }
+  .qh-card { padding: 12px 6px 8px; border-radius: 12px; }
+  .qh-card-stat { font-size: 22px; }
+  .qh-card-action { padding: 6px 0; }
+}

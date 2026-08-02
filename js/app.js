@@ -99,7 +99,7 @@ const MENU = [
   { id: 'review', name: '每日复盘', icon: ICONS.review, group: 'habit' },
   { id: 'media', name: '自媒体计划', icon: ICONS.media, group: 'inspire' },
   { id: 'video', name: '爆款视频', icon: ICONS.video, group: 'inspire' },
-  { id: 'news', name: '新闻热点', icon: ICONS.news, group: 'inspire' },
+  { id: 'news', name: '灵感记录', icon: ICONS.bulb, group: 'inspire' },
   { id: 'drama', name: '新剧分享', icon: ICONS.drama, group: 'inspire' },
   { id: 'knowledge', name: '理财知识', icon: ICONS.knowledge, group: 'inspire' },
   { id: 'pomo', name: '番茄专注', icon: ICONS.pomo, group: 'grow' },
@@ -456,7 +456,7 @@ function showSWUpdateBar() {
   if (document.getElementById('swUpdateBar')) return;
   const bar = document.createElement('div');
   bar.id = 'swUpdateBar';
-  bar.innerHTML = ICONS.sparkles + ' 发现新版本，点击立即更新';
+  bar.innerHTML = (ICONS.sparkles || '✨') + ' 发现新版本，点击立即更新';
   bar.addEventListener('click', () => location.reload());
   document.body.appendChild(bar);
 }
@@ -607,11 +607,16 @@ const Sidebar = {
 
 const Nav = {
   current: 'home',
+  history: [],
   scrollPositions: {},
   isMobile: function() { return window.innerWidth <= 768; },
   init() {
     this.renderNav();
     window.addEventListener('resize', () => { this.renderNav(); });
+  },
+  back() {
+    const prev = this.history.length ? this.history.pop() : 'home';
+    this.switchTo(prev, true);
   },
   renderNav() {
     const nav = $('#sidebarNav');
@@ -632,12 +637,17 @@ const Nav = {
       Sidebar.close();
     };
   },
-  switchTo(id) {
-    if (this.current) this.scrollPositions[this.current] = $('#content').scrollTop;
+  switchTo(id, isBack) {
+    if (this.current && this.current !== id && !isBack) {
+      this.scrollPositions[this.current] = $('#content').scrollTop;
+      this.history.push(this.current);
+      if (this.history.length > 10) this.history.shift();
+    }
     this.current = id;
     $$('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.module === id));
     const mod = MENU.find(m => m.id === id);
-    $('#mainHeader').innerHTML = `<div class="header-left"><button class="header-menu-btn" id="menuToggle" onclick="Sidebar.toggle()" title="打开菜单" aria-label="菜单">${ICONS.menu}</button><div class="header-title-wrap"><div class="header-greeting" id="headerGreeting">你好</div><div class="header-title">${mod.icon} ${mod.name}</div></div></div><div class="header-right"><span class="header-date" id="headerDate">${ICONS.calendar}<span class="header-date-text"></span></span><button class="header-theme-toggle" id="themeToggle" onclick="Theme.toggle()" title="切换亮色/暗色">${Theme.current === 'dark' ? ICONS.sun : ICONS.moon}</button><div class="header-avatar" id="headerAvatar" title="${UserProfile.displayName}">${UserProfile.initials}</div></div>`;
+    const showBack = id !== 'home';
+    $('#mainHeader').innerHTML = `<div class="header-left">${showBack ? `<button class="header-menu-btn" id="backBtn" onclick="Nav.back()" title="返回" aria-label="返回"><span style="font-size:20px;line-height:1">←</span></button>` : ''}<button class="header-menu-btn" id="menuToggle" onclick="Sidebar.toggle()" title="打开菜单" aria-label="菜单">${ICONS.menu}</button><div class="header-title-wrap"><div class="header-greeting" id="headerGreeting">你好</div><div class="header-title">${mod.icon} ${mod.name}</div></div></div><div class="header-right"><span class="header-date" id="headerDate">${ICONS.calendar}<span class="header-date-text"></span></span><button class="header-theme-toggle" id="themeToggle" onclick="Theme.toggle()" title="切换亮色/暗色">${Theme.current === 'dark' ? ICONS.sun : ICONS.moon}</button><div class="header-avatar" id="headerAvatar" title="${UserProfile.displayName}">${UserProfile.initials}</div></div>`;
     const renderer = Modules[id];
     $('#content').innerHTML = renderer ? renderer() : '<div class="empty-state"><div class="empty-state-icon">'+ICONS.target+'</div><div class="empty-state-text">功能开发中...</div></div>';
     if (ModuleHooks[id]) ModuleHooks[id]();
@@ -780,24 +790,21 @@ Modules.home = () => {
     <div class="dash-rings">${ringsHtml}</div>
     <div class="card" id="secQuickHabits">
       <div class="card-title">${ICONS.bolt} 今日快捷打卡 <span class="card-subtitle">一键记录，省去进子页面</span></div>
-      <div class="quick-habits">
-        <button class="quick-habit" onclick="quickWater()">
-          <span class="qh-ico" style="color:var(--primary)">${ICONS.water}</span>
-          <span class="qh-label">喝水</span>
-          <span class="qh-val">${todayWater.water || 0}<small>/8</small></span>
-          <span class="qh-add">+1 杯</span>
+      <div class="quick-habits-v2">
+        <button class="qh-card qh-water" onclick="quickWater()">
+          <div class="qh-card-top"><span class="qh-card-ico">${ICONS.water}</span><span class="qh-card-name">喝水</span></div>
+          <div class="qh-card-stat">${todayWater.water || 0}<small>/8 杯</small></div>
+          <div class="qh-card-action">+1 杯</div>
         </button>
-        <button class="quick-habit" onclick="quickReading()">
-          <span class="qh-ico" style="color:var(--success)">${ICONS.book}</span>
-          <span class="qh-label">阅读</span>
-          <span class="qh-val">${todayRead.pages || 0}<small>页</small></span>
-          <span class="qh-add">+5 页</span>
+        <button class="qh-card qh-reading" onclick="quickReading()">
+          <div class="qh-card-top"><span class="qh-card-ico">${ICONS.book}</span><span class="qh-card-name">阅读</span></div>
+          <div class="qh-card-stat">${todayRead.pages || 0}<small>页</small></div>
+          <div class="qh-card-action">+5 页</div>
         </button>
-        <button class="quick-habit" onclick="quickExercise()">
-          <span class="qh-ico" style="color:var(--warning)">${ICONS.run}</span>
-          <span class="qh-label">运动</span>
-          <span class="qh-val">${exMin}<small>分</small></span>
-          <span class="qh-add">+10 分</span>
+        <button class="qh-card qh-exercise" onclick="quickExercise()">
+          <div class="qh-card-top"><span class="qh-card-ico">${ICONS.run}</span><span class="qh-card-name">运动</span></div>
+          <div class="qh-card-stat">${exMin}<small>分</small></div>
+          <div class="qh-card-action">+10 分</div>
         </button>
       </div>
     </div>
@@ -977,9 +984,10 @@ function planDailyHtml() {
       </div>
     </div>
     <div class="card">
-      <div class="quick-add-bar">
-        <input type="text" id="taskInput" placeholder="添加任务，按 Enter 快速创建..." maxlength="80">
-        <select id="taskCat">${Object.entries(TASK_CATEGORIES).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('')}</select>
+      <div class="quick-add-bar plan-quick-add">
+        <span class="quick-add-icon">${ICONS.list}</span>
+        <input type="text" id="taskInput" placeholder="添加今日任务，按 Enter 快速创建…" maxlength="80">
+        <select id="taskCat" title="分类">${Object.entries(TASK_CATEGORIES).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('')}</select>
         <button class="quick-add-btn" onclick="addTask()" title="添加任务">${ICO.plus}</button>
       </div>
       <div id="taskList">
@@ -990,14 +998,14 @@ function planDailyHtml() {
           return `<div class="task-item-v2 ${t.done?'done':''} ${priClass}" data-id="${t.id}" draggable="true" title="拖拽可调整顺序">
             <div class="task-checkbox ${t.done?'checked':''}" onclick="toggleTask('${t.id}')"></div>
             <div class="task-cat-dot ${cat.dotClass}" title="${cat.name}"></div>
-            <span class="task-text" onclick="editTaskInline('${t.id}')">${esc(t.text)}</span>
+            <span class="task-text ${t.done?'line-through':''}" onclick="editTaskInline('${t.id}')">${esc(t.text)}</span>
             ${recurTag}
             <div class="task-actions">
               <button class="btn-icon" onclick="editTaskModal('${t.id}')" title="编辑">${ICO.edit}</button>
               <button class="btn-icon danger" onclick="confirmDelTask('${t.id}')" title="删除">${ICO.trash}</button>
             </div>
           </div>`;
-        }).join('') : `<div class="empty-state-v2"><div class="empty-state-v2-icon">${ICONS.notebook}</div><div class="empty-state-v2-text">${planTab==='done'?'还没有完成的任务':'没有待办任务'}</div><div class="empty-state-v2-hint">${planTab==='today'?'在上方输入框中添加任务吧':''}</div></div>`}
+        }).join('') : `<div class="empty-state-v2"><div class="empty-state-v2-icon">${ICONS.notebook}</div><div class="empty-state-v2-text">${planTab==='done'?'还没有完成的任务':'今天还没有任务'}</div><div class="empty-state-v2-hint">${planTab==='today'?`<button class="btn btn-primary btn-sm" onclick="document.getElementById('taskInput').focus()">+ 添加第一个任务</button>`:''}</div></div>`}
       </div>
     </div>
     <div class="card"><div class="card-title">📈 近 7 天完成率</div>${barChart(chartData, { height: 80, max: 100 })}</div>
@@ -1762,31 +1770,44 @@ function confirmDelVideo(id) { const ideas = Store.get('wb_videos', []); const v
 Modules.news = () => {
   const saved = Store.get('wb_news', []);
   return `
-    <div class="card"><div class="flex-between"><div class="card-title" style="margin:0;">📰 实时热榜</div><button class="btn btn-outline btn-sm" onclick="loadOnlineNews()">${ICO.refresh} 刷新</button></div><div id="newsOnline">${skelNews(10)}</div></div>
-    <div class="card"><div class="card-title">📚 我的收藏 (${saved.length})</div>${saved.length ? saved.slice().reverse().map(n => `<div class="note-item" data-id="${n.id}"><div class="note-item-title">${esc(n.title)}</div>${n.note ? `<div class="note-item-body">💬 ${esc(n.note)}</div>` : ''}<div class="note-item-meta">${n.source?`<span>📌 ${esc(n.source)}</span>`:''}<span>📅 ${esc(n.date)}</span></div><div style="margin-top:6px;display:flex;gap:4px;"><button class="btn btn-outline btn-sm" onclick="editNews('${n.id}')">编辑</button><button class="btn-icon danger" onclick="confirmDelNews('${n.id}')">${ICO.trash}</button></div></div>`).join('') : '<div class="empty-state-v2"><div class="empty-state-v2-icon">📰</div><div class="empty-state-v2-text">还没有收藏新闻</div><div class="empty-state-v2-hint">点击热榜旁的 ⭐ 收藏感兴趣的新闻</div></div>'}</div>
+    <div class="card">
+      <div class="card-title">💡 记录新灵感</div>
+      <div class="form-group"><label class="field-label">灵感标题</label><input type="text" id="inspTitle" placeholder="一个念头、选题、创意…"></div>
+      <div class="form-group"><label class="field-label">详细内容</label><textarea id="inspBody" placeholder="把想法展开写下来，方便日后回看…" style="min-height:90px;"></textarea></div>
+      <div class="form-group"><label class="field-label">标签（用空格分隔）</label><input type="text" id="inspTags" placeholder="如：短视频 读书笔记 产品灵感"></div>
+      <button class="btn btn-primary" onclick="addInspiration()">${ICO.save} 保存灵感</button>
+    </div>
+    <div class="card"><div class="card-title">${ICONS.bulb} 我的灵感 (${saved.length})</div>
+      ${saved.length ? saved.slice().reverse().map(n => {
+        const tags = (n.tags || '').split(/\s+/).filter(Boolean).map(t => `<span class="tag tag-blue">${esc(t)}</span>`).join('');
+        const bodyPreview = n.body ? `<div class="note-item-body">${esc(n.body.length > 80 ? n.body.slice(0,80)+'…' : n.body)}</div>` : '';
+        return `<div class="note-item" data-id="${n.id}"><div class="note-item-title">${esc(n.title)}</div>${bodyPreview}<div class="note-item-meta">${tags}<span>📅 ${esc(n.date)}</span></div><div style="margin-top:8px;display:flex;gap:4px;"><button class="btn btn-outline btn-sm" onclick="editInspiration('${n.id}')">编辑</button><button class="btn-icon danger" onclick="confirmDelInspiration('${n.id}')">${ICO.trash}</button></div></div>`;
+      }).join('') : '<div class="empty-state-v2"><div class="empty-state-v2-icon">💡</div><div class="empty-state-v2-text">还没有记录灵感</div><div class="empty-state-v2-hint">有想法就写下来，别让灵感溜走</div></div>'}
+    </div>
   `;
 };
-ModuleHooks.news = () => { loadOnlineNews(); };
-async function loadOnlineNews() {
-  const container = $('#newsOnline'); if (!container) return;
-  container.innerHTML = skelNews(10);
-  try {
-    const r = await API.news(); const news = r.items || [];
-    if (!news.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
-    window._onlineNews = news;
-    container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="news-list">${news.map((n, i) => `<div class="news-item" onclick="window.open('${n.url}')"><div class="news-rank ${i<3?'top':''}">${i+1}</div><div class="news-item-content"><div class="news-item-title">${esc(n.title)}</div>${n.hot ? `<div class="news-item-hot">🔥 ${formatNum(n.hot)}</div>` : ''}</div><button class="btn-icon news-save-btn" onclick="event.stopPropagation();saveNewsFromOnline(${i})" title="收藏">⭐</button></div>`).join('')}</div>`;
-  } catch (e) { container.innerHTML = `<div class="loading-state error">${ICONS.warn} 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineNews()">重试</button></div>`; }
+ModuleHooks.news = () => { $('#inspTitle')?.focus(); };
+function addInspiration() {
+  const title = $('#inspTitle').value.trim();
+  const body = $('#inspBody').value.trim();
+  const tags = $('#inspTags').value.trim();
+  if (!title && !body) return toast('请至少填写标题或内容', 'warning');
+  const items = Store.get('wb_news', []);
+  items.push({ id: uid(), title: title || '未命名灵感', body, tags, date: todayKey() });
+  Store.set('wb_news', items);
+  toast('灵感已记录 💡', 'success');
+  Nav.refresh();
 }
-function saveNewsFromOnline(idx) {
-  const n = window._onlineNews?.[idx]; if (!n) return;
-  const news = Store.get('wb_news', []);
-  if (news.find(x => x.title === n.title)) return toast('已收藏过此新闻', 'warning');
-  news.push({ id: uid(), title: n.title, cat: '其他', source: '头条热榜', note: '', date: todayKey() });
-  Store.set('wb_news', news);
-  toast('已收藏 📰', 'success');
+function editInspiration(id) {
+  const items = Store.get('wb_news', []);
+  const n = items.find(x => x.id === id); if (!n) return;
+  UI.editModal({ title: '编辑灵感', icon: '💡', fields: [
+    { key: 'title', label: '标题', type: 'text' },
+    { key: 'body', label: '内容', type: 'textarea' },
+    { key: 'tags', label: '标签', type: 'text' }
+  ], values: n, onSave: (v) => { Object.assign(n, v); Store.set('wb_news', items); toast('灵感已更新', 'success'); Nav.refresh(); }, onDelete: () => { UI.confirm('确定删除这条灵感吗？', () => { Store.set('wb_news', items.filter(x => x.id !== id)); Nav.refresh(); }); } });
 }
-function editNews(id) { const news = Store.get('wb_news', []); const n = news.find(x => x.id === id); if (!n) return; UI.editModal({ title: '编辑新闻', icon: '📰', fields: [{ key: 'title', label: '新闻标题', type: 'text' }, { key: 'source', label: '来源', type: 'text' }, { key: 'note', label: '我的观点/分析', type: 'textarea' }], values: n, onSave: (v) => { Object.assign(n, v); Store.set('wb_news', news); toast('新闻已更新', 'success'); Nav.refresh(); }, onDelete: () => { UI.confirm(`确定删除「${n.title.slice(0,30)}」吗？`, () => { Store.set('wb_news', news.filter(x => x.id !== id)); Nav.refresh(); }); } }); }
-function confirmDelNews(id) { const news = Store.get('wb_news', []); const n = news.find(x => x.id === id); if (!n) return; UI.confirm(`确定删除「${n.title.slice(0,30)}」吗？`, () => { Store.set('wb_news', news.filter(x => x.id !== id)); Nav.refresh(); }); }
+function confirmDelInspiration(id) { UI.confirm('确定删除这条灵感吗？', () => { const items = Store.get('wb_news', []).filter(x => x.id !== id); Store.set('wb_news', items); Nav.refresh(); }); }
 
 // ---------- 新剧分享 (豆瓣热门 + 追剧列表) ----------
 let dramaOnlineTab = 'tv';
@@ -2581,7 +2602,7 @@ function initQuickFab() {
   const fab = document.createElement('div');
   fab.className = 'quick-fab'; fab.id = 'quickFab';
   fab.setAttribute('role', 'button'); fab.setAttribute('aria-label', '快捷添加');
-  fab.innerHTML = ICONS.plus;
+  fab.innerHTML = ICONS.plus || ICO.plus || '<span style="font-size:26px;font-weight:700">+</span>';
   fab.onclick = toggleFab;
   const sheet = document.createElement('div');
   sheet.className = 'fab-sheet'; sheet.id = 'fabSheet';
