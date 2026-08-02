@@ -230,20 +230,28 @@
    UI 2.0 视觉升级覆盖层（保留 style.css 变量体系，覆盖关键组件）
    ============================================================ */
 
-/* 全局更柔和的动态背景 */
-body { background: linear-gradient(180deg, #e8f4fc 0%, #d9eef9 100%); }
-
-/* 卡片升级：更轻盈、更有层次 */
-.card {
-  background: rgba(247, 252, 255, 0.92);
-  border: 1px solid rgba(191, 225, 247, 0.9);
-  box-shadow: 0 4px 18px rgba(2, 132, 199, 0.08), 0 1px 2px rgba(2, 132, 199, 0.05);
-  border-radius: 20px;
-  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+/* 全局更柔和的动态背景 — 多层天空渐变，有层次不单调 */
+body { background:
+  radial-gradient(1200px 800px at 12% -8%, #E0F2FE 0%, rgba(224,242,254,0) 60%),
+  radial-gradient(1000px 700px at 100% 0%, #EDE9FE 0%, rgba(237,233,254,0) 55%),
+  radial-gradient(1100px 900px at 50% 120%, #CFFAFE 0%, rgba(207,250,254,0) 60%),
+  linear-gradient(180deg, #F4FAFF 0%, #EAF4FC 100%);
 }
-.card:hover { box-shadow: 0 8px 28px rgba(2, 132, 199, 0.14); }
-.card-title { font-weight: 800; letter-spacing: -0.01em; }
-.card-subtitle { font-weight: 500; }
+
+/* 卡片升级：真玻璃拟态，更轻盈、更有层次 */
+.card {
+  background: rgba(255, 255, 255, 0.62);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 8px 30px rgba(15, 90, 130, 0.10), 0 1px 2px rgba(15, 90, 130, 0.06),
+              inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-radius: 22px;
+  transition: transform .2s cubic-bezier(0.34,1.56,0.64,1), box-shadow .2s ease, border-color .2s ease;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(15, 90, 130, 0.16), inset 0 1px 0 rgba(255,255,255,0.9); border-color: rgba(56,189,248,0.5); }
+.card-title { font-weight: 800; letter-spacing: -0.01em; color: #0F172A; }
+.card-subtitle { font-weight: 600; color: var(--text-light); }
 
 /* 按钮升级 */
 .btn {
@@ -267,28 +275,36 @@ body { background: linear-gradient(180deg, #e8f4fc 0%, #d9eef9 100%); }
 .btn-ghost { background: transparent; box-shadow: none; color: var(--text-light); }
 .btn-ghost:hover { background: var(--bg-light); box-shadow: none; }
 
-/* Hero 区域更有视觉冲击力 */
+/* Hero 区域更有视觉冲击力 — 真玻璃 + 顶部高光 */
 .dash-hero {
-  background: linear-gradient(135deg, rgba(255,255,255,0.82) 0%, rgba(183, 226, 250, 0.72) 100%);
-  border: 1px solid rgba(255,255,255,0.7);
-  box-shadow: 0 8px 32px rgba(14, 165, 233, 0.16);
-  border-radius: 24px;
+  position: relative;
+  background: linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(186, 230, 253, 0.55) 100%);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.8);
+  box-shadow: 0 12px 40px rgba(14, 165, 233, 0.18), inset 0 1px 0 rgba(255,255,255,0.95);
+  border-radius: 26px;
+  overflow: hidden;
 }
-.dash-hero-greet { font-weight: 800; letter-spacing: -0.02em; }
-.dash-hero-tagline { color: var(--text-light); font-weight: 500; }
+.dash-hero-greet { font-weight: 800; letter-spacing: -0.02em; color: #0F172A; font-size: 24px; }
+.dash-hero-tagline { color: var(--text-light); font-weight: 600; font-size: 13.5px; }
 
-/* 仪表盘小卡 */
+/* 仪表盘小卡 — 玻璃质感 + 图标更清晰 */
 .dash-mini-stat {
-  background: rgba(247, 252, 255, 0.82);
-  border: 1px solid rgba(191, 225, 247, 0.85);
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(14px) saturate(150%);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.65);
   border-radius: 16px;
   padding: 14px;
+  box-shadow: 0 4px 14px rgba(15, 90, 130, 0.06), inset 0 1px 0 rgba(255,255,255,0.8);
   transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   cursor: pointer;
 }
-.dash-mini-stat:hover { transform: translateY(-2px); border-color: var(--border-blue); box-shadow: 0 6px 16px rgba(2, 132, 199, 0.12); }
-.dash-mini-stat-num { font-weight: 800; font-size: 22px; letter-spacing: -0.02em; }
-.dash-mini-stat-label { font-weight: 600; font-size: 12px; }
+.dash-mini-stat:hover { transform: translateY(-2px); border-color: rgba(56,189,248,0.5); box-shadow: 0 8px 22px rgba(2, 132, 199, 0.14); }
+.dash-mini-stat-num { font-weight: 800; font-size: 23px; letter-spacing: -0.02em; line-height: 1.1; }
+.dash-mini-stat-label { font-weight: 600; font-size: 12px; color: var(--text-light); display: inline-flex; align-items: center; gap: 4px; }
+.dash-mini-stat-label svg { width: 14px; height: 14px; }
 
 /* 表单输入升级 */
 input[type="text"], input[type="number"], input[type="date"], input[type="search"], textarea, select {
