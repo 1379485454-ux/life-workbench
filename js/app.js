@@ -559,9 +559,18 @@ function attachRipple() {
 
 // ===== 导航 =====
 const Sidebar = {
+  _scrollY: 0,
   open() {
     const sb = $('#sidebar');
     if (!sb) return;
+    // iOS 安全区 body scroll lock：记录当前滚动位置并固定 body，而不是粗暴 overflow:hidden
+    this._scrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${this._scrollY}px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
     sb.classList.add('open');
     let overlay = $('#sidebarOverlay');
     if (!overlay) {
@@ -572,14 +581,23 @@ const Sidebar = {
       document.body.appendChild(overlay);
     }
     overlay.classList.add('show');
-    document.body.style.overflow = 'hidden';
   },
   close() {
     const sb = $('#sidebar');
     if (sb) sb.classList.remove('open');
     const overlay = $('#sidebarOverlay');
     if (overlay) overlay.classList.remove('show');
+    // 恢复 body 滚动
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
     document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    if (this._scrollY > 0) {
+      window.scrollTo(0, this._scrollY);
+      this._scrollY = 0;
+    }
   },
   toggle() {
     const sb = $('#sidebar');
@@ -2507,6 +2525,30 @@ function initSwipeGesture() {
   });
 }
 
+function initSidebarSwipe() {
+  if (window.innerWidth > 768) return;
+  const EDGE = 28; // 左边缘触发打开抽屉的距离
+  let sx = 0, sy = 0, startedInside = false;
+  document.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) return;
+    sx = e.touches[0].clientX;
+    sy = e.touches[0].clientY;
+    startedInside = $('#sidebar')?.contains(e.touches[0].target) || false;
+  }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    if (e.changedTouches.length !== 1) return;
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dy) > Math.abs(dx) || Math.abs(dx) < 50) return;
+    const sb = $('#sidebar');
+    const isOpen = sb && sb.classList.contains('open');
+    // 侧栏已打开：在侧栏内向左滑关闭
+    if (isOpen && startedInside && dx < 0) { Sidebar.close(); return; }
+    // 侧栏关闭：从左边缘向右滑打开
+    if (!isOpen && !startedInside && sx <= EDGE && dx > 0) Sidebar.open();
+  }, { passive: true });
+}
+
 // ===== 首页个性化（纯个人偏好，无解锁/奖励） =====
 const RING_META = {
   task: { name: '今日计划', icon: ICONS.list },
@@ -2664,6 +2706,8 @@ function init() {
   Nav.init();
   // 移动端左右滑动手势切换模块
   initSwipeGesture();
+  // 侧栏滑动手势：左边缘右滑打开，侧栏内左滑关闭
+  initSidebarSwipe();
   // 云端实时同步：远端变更到达时重渲染当前视图（输入框聚焦时不打断）
   window.addEventListener('wb:remote', () => {
     const a = document.activeElement;

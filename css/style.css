@@ -130,10 +130,13 @@ body {
   height: 100vh;
   height: 100dvh;
   overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   box-shadow: 4px 0 24px rgba(15,90,130,0.08);
   z-index: 100;
   transform: translateX(-110%);
   transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  isolation: isolate;
 }
 .sidebar.open { transform: translateX(0); }
 .sidebar::after {
@@ -150,9 +153,10 @@ body {
   -webkit-backdrop-filter: blur(2px);
   z-index: 99;
   opacity: 0; visibility: hidden;
+  pointer-events: none;
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
-.sidebar-overlay.show { opacity: 1; visibility: visible; }
+.sidebar-overlay.show { opacity: 1; visibility: visible; pointer-events: auto; }
 
 .sidebar-logo {
   display: flex;
@@ -164,14 +168,17 @@ body {
 .sidebar-close {
   margin-left: auto;
   flex-shrink: 0;
-  width: 34px; height: 34px;
+  width: 44px; height: 44px;
   display: inline-flex; align-items: center; justify-content: center;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid rgba(15,90,130,0.14);
   background: rgba(255,255,255,0.5);
   color: var(--text);
   cursor: pointer;
   transition: var(--transition);
+  position: relative;
+  z-index: 2;
+  -webkit-tap-highlight-color: transparent;
 }
 .sidebar-close:hover { background: rgba(255,255,255,0.85); color: var(--primary); }
 .sidebar-close:active { transform: scale(0.92); }
@@ -1035,7 +1042,7 @@ label.field-label {
 .empty-state-hint { font-size: 12px; margin-top: 4px; opacity: 0.7; }
 
 /* ========== Toast ========== */
-.toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+.toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
 .toast {
   background: var(--bg-card);
   border-radius: var(--radius-xs);
@@ -1054,6 +1061,7 @@ label.field-label {
 .toast.warning { border-left-color: var(--warning); }
 .toast.danger { border-left-color: var(--danger); }
 .toast.removing { animation: slideOut 0.3s ease forwards; }
+.toast { pointer-events: auto; }
 @keyframes slideIn { from { opacity:0; transform:translateX(100px);} to { opacity:1; transform:translateX(0);} }
 @keyframes slideOut { to { opacity:0; transform:translateX(100px);} }
 
@@ -1831,6 +1839,14 @@ input:focus, select:focus, textarea:focus {
     transform: translateX(-110%);
     box-shadow: 4px 0 24px rgba(15,90,130,0.12);
     padding-bottom: env(safe-area-inset-bottom);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  .sidebar .sidebar-nav,
+  .sidebar .sidebar-stats {
+    flex: 0 0 auto;
+    overflow: visible;
   }
   .sidebar.open { transform: translateX(0); }
   :root[data-theme="dark"] .sidebar {
