@@ -492,3 +492,24 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
   .goal-badge { width: calc(50% - 5px); }
   .goal-trend-bars { height: 80px; }
 }
+
+/* 应用加载占位（防止任何情况下的纯白屏） */
+.app-loading {
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--accent, #0EA5E9);
+  font-family: var(--font-body, system-ui, sans-serif);
+}
+.app-loading p { margin: 0; font-size: 15px; opacity: .85; }
+.app-loading-spinner {
+  width: 42px; height: 42px;
+  border: 3px solid rgba(14, 165, 233, .25);
+  border-top-color: #0EA5E9;
+  border-radius: 50%;
+  animation: wb-spin .9s linear infinite;
+}
+@keyframes wb-spin { to { transform: rotate(360deg); } }

@@ -1,5 +1,5 @@
 /* 个人工作台 · Service Worker (App Shell + 智能缓存 + 后台同步) */
-const CACHE = 'workbench-v39';
+const CACHE = 'workbench-v40';
 const PRE_CACHE = [
   '/',
   '/index.html',
@@ -39,10 +39,24 @@ self.addEventListener('fetch', (e) => {
   // 跨域资源不缓存
   if (url.origin !== self.location.origin) return;
 
-  // HTML 导航：网络优先，离线兜底
+  // HTML 导航：网络优先，离线兜底；并校验响应有效性，避免冷启动返回的空/损坏页面导致白屏
   if (req.mode === 'navigate') {
     e.respondWith(
-      fetch(req, { cache: 'no-cache' }).catch(() => caches.match('/index.html'))
+      fetch(req, { cache: 'no-cache' })
+        .then((res) => {
+          // 错误状态码（常见于 Render 冷启动被截断）一律回退到已缓存的 index.html
+          if (!res || !res.ok) {
+            return caches.match('/index.html').then((cached) => cached || res);
+          }
+          // 二次校验：克隆读取内容，过短（疑似损坏）则丢弃网络响应，用预缓存页面
+          return res.clone().text().then((txt) => {
+            if (txt.trim().length < 300) {
+              return caches.match('/index.html').then((cached) => cached || res);
+            }
+            return res;
+          });
+        })
+        .catch(() => caches.match('/index.html'))
     );
     return;
   }
@@ -53,7 +67,11 @@ self.addEventListener('fetch', (e) => {
     caches.open(CACHE).then((cache) =>
       fetch(req).then((res) => {
         if (res && res.status === 200 && res.type === 'basic') {
-          cache.put(req, res.clone());
+          // 不缓存明显损坏的响应（空/过短），防止坏资源污染缓存
+          return res.clone().text().then((txt) => {
+            if (txt.trim().length >= 50) cache.put(req, res.clone());
+            return res;
+          });
         }
         return res;
       }).catch(() => cache.match(req))
