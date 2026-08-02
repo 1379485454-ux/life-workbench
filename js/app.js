@@ -2695,7 +2695,15 @@ function init() {
   if ('serviceWorker' in navigator && (location.hostname === 'localhost' || location.protocol === 'https:')) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js').then((reg) => {
-        // 检测到新版本：安装完成后若有旧 SW 在运行，提示用户刷新以应用更新
+        // 新 Service Worker 接管页面后自动刷新，确保手机端一定拿到最新代码
+        // （根治 iOS PWA 从后台唤起不重载、一直跑旧版的问题）
+        let wbReloading = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (wbReloading) return;
+          wbReloading = true;
+          location.reload();
+        });
+        // 兜底：检测到新版本且旧 SW 仍在运行时，显示可点击的刷新提示条
         reg.addEventListener('updatefound', () => {
           const nw = reg.installing;
           if (!nw) return;
