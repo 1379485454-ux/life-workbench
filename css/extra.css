@@ -149,3 +149,21 @@
 @media (prefers-reduced-motion: reduce) {
   .box-reveal, .box-reveal-box { animation: none; }
 }
+
+/* ===== 百时追踪 ===== */
+.track-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+.track-card { display: flex; gap: 14px; padding: 16px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); border-left: 4px solid var(--tc, #6366f1); }
+.track-ring-wrap { flex: 0 0 120px; width: 120px; height: 120px; }
+.track-ring { width: 120px; height: 120px; display: block; }
+.track-ring-bg { fill: none; stroke: var(--border); stroke-width: 10; }
+.track-ring-fg { fill: none; stroke-width: 10; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 60px 60px; transition: stroke-dashoffset .6s ease; }
+.track-ring-pct { fill: var(--text); font-size: 22px; font-weight: 700; text-anchor: middle; }
+.track-ring-sub { fill: var(--muted); font-size: 12px; text-anchor: middle; }
+.track-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.track-name { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.track-target { font-size: 12px; color: var(--muted); }
+.track-pips { display: flex; flex-wrap: wrap; gap: 4px; margin: 2px 0; }
+.track-pip { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--muted); background: var(--card); }
+.track-pip.on { color: #fff; font-weight: 700; }
+.track-pip.finish.on { background: var(--success); border-color: var(--success); }
+.track-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }

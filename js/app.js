@@ -77,6 +77,7 @@ const ICONS = {
   chevronUp: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></svg>',
   chevronDown: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
   gift: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M5 12v9h14v-9M12 8v13M12 8S9 4 7 5.5 12 8 12 8zM12 8s3-4 5-2.5S12 8 12 8z"/></svg>',
+  track: '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>',
 };
 const ICO = {
   edit: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
@@ -101,14 +102,12 @@ const MENU = [
   { id: 'finance', name: '理财记账', icon: ICONS.finance, group: 'habit' },
   { id: 'review', name: '每日复盘', icon: ICONS.review, group: 'habit' },
   { id: 'media', name: '自媒体计划', icon: ICONS.media, group: 'inspire' },
-  { id: 'video', name: '爆款视频', icon: ICONS.video, group: 'inspire' },
   { id: 'news', name: '灵感记录', icon: ICONS.bulb, group: 'inspire' },
-  { id: 'drama', name: '新剧分享', icon: ICONS.drama, group: 'inspire' },
-  { id: 'knowledge', name: '理财知识', icon: ICONS.knowledge, group: 'inspire' },
   { id: 'pomo', name: '番茄专注', icon: ICONS.pomo, group: 'grow' },
   { id: 'shop', name: '奖励商店', icon: ICONS.shop, group: 'grow' },
   { id: 'achieve', name: '成就墙', icon: ICONS.trophy, group: 'grow' },
   { id: 'box', name: '惊喜盒子', icon: ICONS.gift, group: 'grow' },
+  { id: 'track100', name: '百时追踪', icon: ICONS.track, group: 'grow' },
   { id: 'attributes', name: '个人属性', icon: ICONS.attr, group: 'grow' },
   { id: 'reports', name: '周报月报', icon: ICONS.report, group: 'grow' },
   { id: 'backup', name: '数据备份', icon: ICONS.backup, group: 'sys' },
@@ -397,12 +396,7 @@ const API = {
     return json.data;
   },
   news() { return this._fetch('/api/news', 'news'); },
-  videos() { return this._fetch('/api/videos', 'videos'); },
-  douyin() { return this._fetch('/api/douyin', 'douyin'); },
-  dramas() { return this._fetch('/api/dramas', 'dramas'); },
-  movies() { return this._fetch('/api/movies', 'movies'); },
   books() { return this._fetch('/api/books', 'books'); },
-  finance() { return this._fetch('/api/finance', 'finance'); },
   refresh() { this._cache = {}; return fetch('/api/refresh').then(r => r.json()); },
   wereadShelf() {
     const cookie = Store.get('wb_weread_cookie', '');
@@ -1714,75 +1708,6 @@ function cycleMediaStatus(id) { const plans = Store.get('wb_media', []); const p
 function editMedia(id) { const plans = Store.get('wb_media', []); const p = plans.find(x => x.id === id); if (!p) return; UI.editModal({ title: '编辑内容计划', icon: '📱', fields: [{ key: 'title', label: '内容标题', type: 'text' }, { key: 'platform', label: '平台', type: 'select', options: MEDIA_PLATFORMS.map(p=>({value:p,label:p})) }, { key: 'status', label: '状态', type: 'select', options: MEDIA_STATUSES.map(s=>({value:s.key,label:s.label})) }, { key: 'date', label: '计划日期', type: 'date' }, { key: 'desc', label: '内容描述', type: 'textarea' }], values: p, onSave: (v) => { Object.assign(p, v); Store.set('wb_media', plans); toast('计划已更新', 'success'); Nav.refresh(); }, onDelete: () => { UI.confirm(`确定删除「${p.title}」吗？`, () => { Store.set('wb_media', plans.filter(x => x.id !== id)); Nav.refresh(); }); } }); }
 function confirmDelMedia(id) { const plans = Store.get('wb_media', []); const p = plans.find(x => x.id === id); if (!p) return; UI.confirm(`确定删除「${p.title}」吗？`, () => { Store.set('wb_media', plans.filter(x => x.id !== id)); Nav.refresh(); }); }
 
-// ---------- 爆款视频 (B站/抖音热门 + 灵感库) ----------
-const VIDEO_ELEMENTS = [{ key:'情绪共鸣', tag:'tag-red' }, { key:'反差感', tag:'tag-purple' }, { key:'知识干货', tag:'tag-blue' }, { key:'热点蹭流', tag:'tag-orange' }, { key:'悬念反转', tag:'tag-indigo' }, { key:'治愈暖心', tag:'tag-green' }];
-let videoTab = 'bilibili';
-function switchVideoTab(tab) { videoTab = tab; Nav.refresh(); }
-Modules.video = () => {
-  const ideas = Store.get('wb_videos', []);
-  const isBili = videoTab === 'bilibili';
-  return `
-    <div class="card"><div class="flex-between"><div class="card-title" style="margin:0;">🔥 热门视频</div><button class="btn btn-outline btn-sm" onclick="loadOnlineVideos()">${ICO.refresh} 刷新</button></div>
-      <div class="plan-tabs" style="margin:10px 0;">
-        <button class="plan-tab ${isBili?'active':''}" onclick="switchVideoTab('bilibili')">📺 B站热门</button>
-        <button class="plan-tab ${!isBili?'active':''}" onclick="switchVideoTab('douyin')">🎵 抖音热搜</button>
-      </div>
-      <div id="videoOnline">${isBili ? skelGrid(6) : skelNews(12)}</div>
-    </div>
-    <div class="card"><div class="card-title">🎬 新增视频灵感</div>
-      <div class="form-group"><label class="field-label">视频标题/选题</label><input type="text" id="videoTitle" placeholder="什么样的标题能吸引眼球？"></div>
-      <div class="form-row"><div class="form-group"><label class="field-label">平台</label><select id="videoPlatform"><option>抖音</option><option>小红书</option><option>B站</option><option>视频号</option><option>快手</option><option>YouTube</option></select></div><div class="form-group"><label class="field-label">爆款要素</label><select id="videoElement">${VIDEO_ELEMENTS.map(e=>`<option value="${e.key}">${e.key}</option>`).join('')}</select></div></div>
-      <div class="form-group"><label class="field-label">脚本结构（Hook → 主体 → 引导）</label><textarea id="videoScript" placeholder="🎯 Hook(开头3秒吸引):\n📝 内容主体(核心价值):\n👉 结尾引导(点赞关注转发):" style="min-height:100px;"></textarea></div>
-      <button class="btn btn-primary" onclick="addVideo()">保存灵感</button>
-    </div>
-    <div class="card"><div class="card-title">📚 灵感库 (${ideas.length})</div>${ideas.length ? ideas.slice().reverse().map(v => { const elem = VIDEO_ELEMENTS.find(e=>e.key===v.element) || VIDEO_ELEMENTS[0]; return `<div class="note-item" data-id="${v.id}"><div class="note-item-title">${esc(v.title)} <span class="tag ${elem.tag}" style="float:right;">🔥 ${esc(v.element)}</span></div>${v.script ? `<div class="note-item-body" style="white-space:pre-wrap;">${esc(v.script)}</div>` : ''}<div class="note-item-meta"><span class="tag tag-blue">📍 ${esc(v.platform)}</span><span>📅 ${esc(v.date)}</span></div><div style="margin-top:8px;display:flex;gap:4px;"><button class="btn btn-outline btn-sm" onclick="editVideo('${v.id}')">编辑</button><button class="btn-icon danger" onclick="confirmDelVideo('${v.id}')">${ICO.trash}</button></div></div>`; }).join('') : '<div class="empty-state-v2"><div class="empty-state-v2-icon">🎬</div><div class="empty-state-v2-text">还没有视频灵感</div><div class="empty-state-v2-hint">记录下你的爆款想法吧</div></div>'}</div>
-  `;
-};
-ModuleHooks.video = () => { loadOnlineVideos(); };
-function fallbackBanner() {
-  return `<div class="fallback-banner"><span class="fallback-dot"></span>当前区域暂时无法直连国内数据源，已为你展示示例内容 · 在国内云或本机部署可恢复实时数据</div>`;
-}
-async function loadOnlineVideos() {
-  const container = $('#videoOnline'); if (!container) return;
-  const isBili = videoTab === 'bilibili';
-  container.innerHTML = isBili ? skelGrid(6) : skelNews(12);
-  try {
-    if (isBili) {
-      const r = await API.videos(); const videos = r.items || [];
-      if (!videos.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
-      window._onlineVideos = videos;
-      container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="video-grid">${videos.slice(0, 12).map((v, i) => `<div class="video-card" onclick="window.open('${v.url}')"><div class="video-card-cover" style="background-image:url('${v.cover}')"><div class="video-card-duration">${Math.floor(v.duration/60)}:${String(v.duration%60).padStart(2,'0')}</div></div><div class="video-card-info"><div class="video-card-title">${esc(v.title)}</div><div class="video-card-meta"><span>▶ ${formatNum(v.views)}</span><span>❤ ${formatNum(v.likes)}</span><span>@${esc(v.author)}</span></div></div><button class="btn btn-outline btn-sm video-card-save" onclick="event.stopPropagation();saveVideoFromOnline(${i})">收藏分析</button></div>`).join('')}</div>`;
-    } else {
-      const r = await API.douyin(); const items = r.items || [];
-      if (!items.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
-      window._onlineDouyin = items;
-      const labelMap = { 1:'🆕', 2:'🔥', 3:'💥', 4:'⭐' };
-      container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="news-list">${items.slice(0, 20).map((item, i) => `<div class="news-item" onclick="window.open('${item.url}')"><div class="news-rank rank-${i<3?'top':'normal'}">${i+1}</div><div class="news-content"><div class="news-title">${labelMap[item.label]||''} ${esc(item.title)}</div><div class="news-hot">🔥 ${formatNum(item.hot)}</div></div><button class="btn-icon" onclick="event.stopPropagation();saveDouyinHot(${i})" title="收藏">⭐</button></div>`).join('')}</div>`;
-    }
-  } catch (e) { container.innerHTML = `<div class="loading-state error">${ICONS.warn} 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineVideos()">重试</button></div>`; }
-}
-function saveVideoFromOnline(idx) {
-  const v = window._onlineVideos?.[idx]; if (!v) return;
-  const ideas = Store.get('wb_videos', []);
-  if (ideas.find(i => i.title === v.title)) return toast('已收藏过此视频', 'warning');
-  ideas.push({ id: uid(), title: v.title, platform: 'B站', element: '热点蹭流', script: `UP主: ${v.author}\n播放: ${formatNum(v.views)} | 点赞: ${formatNum(v.likes)}\n分区: ${v.tname}\n链接: ${v.url}`, date: todayKey() });
-  Store.set('wb_videos', ideas);
-  Game.reward(5, 3, 0);
-  toast('已收藏到灵感库 🎬', 'success');
-}
-function saveDouyinHot(idx) {
-  const item = window._onlineDouyin?.[idx]; if (!item) return;
-  const ideas = Store.get('wb_videos', []);
-  if (ideas.find(i => i.title === item.title)) return toast('已收藏过此话题', 'warning');
-  ideas.push({ id: uid(), title: item.title, platform: '抖音', element: '热点蹭流', script: `抖音热搜 #${item.position}\n热度: ${formatNum(item.hot)}\n链接: ${item.url}`, date: todayKey() });
-  Store.set('wb_videos', ideas);
-  Game.reward(5, 3, 0);
-  toast('已收藏到灵感库 🎬', 'success');
-}
-function addVideo() { const title = $('#videoTitle').value.trim(), platform = $('#videoPlatform').value, element = $('#videoElement').value, script = $('#videoScript').value.trim(); if (!title) return toast('请输入视频标题', 'warning'); const ideas = Store.get('wb_videos', []); ideas.push({ id: uid(), title, platform, element, script, date: todayKey() }); Store.set('wb_videos', ideas); toast('灵感已保存', 'success'); Nav.refresh(); }
-function editVideo(id) { const ideas = Store.get('wb_videos', []); const v = ideas.find(x => x.id === id); if (!v) return; UI.editModal({ title: '编辑视频灵感', icon: '🎬', fields: [{ key: 'title', label: '视频标题/选题', type: 'text' }, { key: 'platform', label: '平台', type: 'select', options: ['抖音','小红书','B站','视频号','快手','YouTube'].map(p=>({value:p,label:p})) }, { key: 'element', label: '爆款要素', type: 'select', options: VIDEO_ELEMENTS.map(e=>({value:e.key,label:e.key})) }, { key: 'script', label: '脚本结构', type: 'textarea', minHeight: 100 }], values: v, onSave: (v2) => { Object.assign(v, v2); Store.set('wb_videos', ideas); toast('灵感已更新', 'success'); Nav.refresh(); }, onDelete: () => { UI.confirm(`确定删除「${v.title.slice(0,30)}」吗？`, () => { Store.set('wb_videos', ideas.filter(x => x.id !== id)); Nav.refresh(); }); } }); }
-function confirmDelVideo(id) { const ideas = Store.get('wb_videos', []); const v = ideas.find(x => x.id === id); if (!v) return; UI.confirm(`确定删除「${v.title.slice(0,30)}」吗？`, () => { Store.set('wb_videos', ideas.filter(x => x.id !== id)); Nav.refresh(); }); }
-
 // ---------- 新闻热点 (头条热榜 + 收藏) ----------
 Modules.news = () => {
   const saved = Store.get('wb_news', []);
@@ -1825,87 +1750,6 @@ function editInspiration(id) {
   ], values: n, onSave: (v) => { Object.assign(n, v); Store.set('wb_news', items); toast('灵感已更新', 'success'); Nav.refresh(); }, onDelete: () => { UI.confirm('确定删除这条灵感吗？', () => { Store.set('wb_news', items.filter(x => x.id !== id)); Nav.refresh(); }); } });
 }
 function confirmDelInspiration(id) { UI.confirm('确定删除这条灵感吗？', () => { const items = Store.get('wb_news', []).filter(x => x.id !== id); Store.set('wb_news', items); Nav.refresh(); }); }
-
-// ---------- 新剧分享 (豆瓣热门 + 追剧列表) ----------
-let dramaOnlineTab = 'tv';
-Modules.drama = () => {
-  const dramas = Store.get('wb_dramas', []);
-  const watching = dramas.filter(d=>d.status==='watching').length;
-  const finished = dramas.filter(d=>d.status==='finished').length;
-  const rated = dramas.filter(d=>d.rating>0);
-  const avgRating = rated.length ? (rated.reduce((s,d)=>s+d.rating,0)/rated.length).toFixed(1) : '-';
-  return `
-    <div class="compact-stats"><div class="compact-stat"><div class="compact-stat-num" style="color:var(--success);">${watching}</div><div class="compact-stat-label">📺 在追</div></div><div class="compact-stat"><div class="compact-stat-num" style="color:var(--primary);">${finished}</div><div class="compact-stat-label">✅ 已看完</div></div><div class="compact-stat"><div class="compact-stat-num" style="color:var(--warning);">${avgRating}</div><div class="compact-stat-label">⭐ 平均评分</div></div></div>
-    <div class="card"><div class="flex-between"><div class="card-title" style="margin:0;">🎭 豆瓣热门推荐</div><div class="plan-tabs" style="margin:0;"><div class="plan-tab ${dramaOnlineTab==='tv'?'active':''}" onclick="switchDramaTab('tv')">剧集</div><div class="plan-tab ${dramaOnlineTab==='movie'?'active':''}" onclick="switchDramaTab('movie')">电影</div></div></div><div id="dramaOnline">${skelGrid(6)}</div></div>
-    <div class="card"><div class="card-title">🎬 我的追剧列表 (${dramas.length})</div>${dramas.length ? dramas.slice().reverse().map(d => { const sm = { watching:{t:'tag-green',l:'📺 在追'}, finished:{t:'tag-blue',l:'✅ 看完'}, planned:{t:'tag-orange',l:'📝 想看'}, dropped:{t:'tag-red',l:'❌ 弃剧'} }; const s = sm[d.status] || sm.planned; const epPct = d.ep && d.ep.includes('/') ? Math.min(100, parseInt(d.ep) / parseInt(d.ep.split('/')[1]) * 100) : 0; return `<div class="note-item" data-id="${d.id}"><div class="note-item-title">${esc(d.title)} <span class="tag ${s.t}" style="float:right;">${s.l}</span></div><div class="note-item-meta"><span class="tag tag-purple">${esc(d.type)}</span>${d.rating ? `<span>${starRating(d.rating)} <span class="text-sm font-bold">${d.rating}/10</span></span>` : ''}${d.ep ? `<span>📺 ${esc(d.ep)}</span>` : ''}</div>${epPct > 0 ? `<div class="book-bar" style="margin-top:6px;"><div class="book-bar-fill" style="width:${epPct}%;background:var(--primary);"></div></div>` : ''}${d.note ? `<div class="note-item-body" style="margin-top:6px;">${esc(d.note)}</div>` : ''}<div style="margin-top:8px;display:flex;gap:4px;"><button class="btn btn-outline btn-sm" onclick="editDrama('${d.id}')">编辑</button><button class="btn-icon danger" onclick="confirmDelDrama('${d.id}')">${ICO.trash}</button></div></div>`; }).join('') : '<div class="empty-state-v2"><div class="empty-state-v2-icon">🎭</div><div class="empty-state-v2-text">还没有追剧记录</div><div class="empty-state-v2-hint">从上方豆瓣推荐中添加，或手动添加</div></div>'}</div>
-  `;
-};
-ModuleHooks.drama = () => { loadOnlineDramas(); };
-function switchDramaTab(tab) { dramaOnlineTab = tab; loadOnlineDramas(); }
-async function loadOnlineDramas() {
-  const container = $('#dramaOnline'); if (!container) return;
-  container.innerHTML = skelGrid(6);
-  try {
-    const r = dramaOnlineTab === 'tv' ? await API.dramas() : await API.movies(); const items = r.items || [];
-    if (!items.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
-    window._onlineDramas = items;
-    container.innerHTML = (r.fallback ? fallbackBanner() : '') + `<div class="online-grid">${items.map((d, i) => `<div class="online-card" onclick="window.open('${d.url}')"><div class="online-card-cover" style="background-image:url('${d.cover}');background-size:cover;background-position:center;"></div><div class="online-card-title">${esc(d.title)}</div><div class="online-card-rate">${d.rate && d.rate !== '暂无' ? `⭐ ${d.rate}` : '暂无评分'}</div>${d.episodes ? `<div class="online-card-ep">${esc(d.episodes)}</div>` : ''}<button class="btn btn-outline btn-sm" style="margin-top:6px;width:100%;" onclick="event.stopPropagation();addDramaFromOnline(${i})">加入追剧</button></div>`).join('')}</div>`;
-  } catch (e) { container.innerHTML = `<div class="loading-state error">${ICONS.warn} 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineDramas()">重试</button></div>`; }
-}
-function addDramaFromOnline(idx) {
-  const d = window._onlineDramas?.[idx]; if (!d) return;
-  const dramas = Store.get('wb_dramas', []);
-  if (dramas.find(x => x.title === d.title)) return toast('已在追剧列表中', 'warning');
-  dramas.push({ id: uid(), title: d.title, type: dramaOnlineTab === 'tv' ? '国产剧' : '电影', status: 'planned', rating: parseFloat(d.rate) || 0, ep: '', note: '', date: todayKey() });
-  Store.set('wb_dramas', dramas);
-  toast(`《${d.title}》已加入追剧列表`, 'success');
-}
-function addDrama() { const title = $('#dramaTitle').value.trim(); if (!title) return toast('请输入剧名', 'warning'); const dramas = Store.get('wb_dramas', []); dramas.push({ id: uid(), title, type: $('#dramaType').value, status: $('#dramaStatus').value, rating: parseFloat($('#dramaRating').value) || 0, ep: $('#dramaEp').value.trim(), note: $('#dramaNote').value.trim(), date: todayKey() }); Store.set('wb_dramas', dramas); toast('已添加', 'success'); Nav.refresh(); }
-function editDrama(id) { const dramas = Store.get('wb_dramas', []); const d = dramas.find(x => x.id === id); if (!d) return; UI.editModal({ title: '编辑剧集', icon: '🎭', fields: [{ key: 'title', label: '剧名', type: 'text' }, { key: 'type', label: '类型', type: 'select', options: ['国产剧','美剧','日剧','韩剧','英剧','动漫','综艺','纪录片','电影'].map(t=>({value:t,label:t})) }, { key: 'status', label: '状态', type: 'select', options: [{value:'watching',label:'📺 在追'},{value:'finished',label:'✅ 看完'},{value:'planned',label:'📝 想看'},{value:'dropped',label:'❌ 弃剧'}] }, { key: 'rating', label: '评分（1-10）', type: 'number', min: 1, max: 10, step: 0.1 }, { key: 'ep', label: '当前集数', type: 'text' }, { key: 'note', label: '观后感/推荐理由', type: 'textarea' }], values: d, onSave: (v) => { Object.assign(d, v); d.rating = parseFloat(d.rating) || 0; Store.set('wb_dramas', dramas); toast('剧集信息已更新', 'success'); Nav.refresh(); }, onDelete: () => { UI.confirm(`确定删除「${d.title}」吗？`, () => { Store.set('wb_dramas', dramas.filter(x => x.id !== id)); Nav.refresh(); }); } }); }
-function confirmDelDrama(id) { const dramas = Store.get('wb_dramas', []); const d = dramas.find(x => x.id === id); if (!d) return; UI.confirm(`确定删除「${d.title}」吗？`, () => { Store.set('wb_dramas', dramas.filter(x => x.id !== id)); Nav.refresh(); }); }
-
-// ---------- 理财知识 (每日推荐 + 知识库) ----------
-const FIN_KNOWLEDGE_CATS = ['股票','基金','ETF','债券','可转债','期权','外汇','Crypto','宏观经济','保险','税务','技术分析','其他'];
-const MASTERY_LEVELS = ['了解概念','初步理解','能复述','能应用','精通'];
-Modules.knowledge = () => {
-  const notes = Store.get('wb_finknow', []);
-  return `
-    <div class="card"><div class="flex-between"><div class="card-title" style="margin:0;">${ICONS.chart} 今日理财知识推荐</div><button class="btn btn-outline btn-sm" onclick="loadOnlineFinance()">${ICO.refresh} 换一批</button></div><div id="financeOnline"><div class="loading-state">${ICONS.chart} 正在获取今日理财知识...</div></div></div>
-    <div class="card"><div class="card-title">📚 记录理财知识</div>
-      <div class="form-group"><label class="field-label">知识点标题</label><input type="text" id="fkTitle" placeholder="如：定投策略、PE估值法等"></div>
-      <div class="form-row"><div class="form-group"><label class="field-label">分类</label><select id="fkCat">${FIN_KNOWLEDGE_CATS.map(c=>`<option value="${c}">${c}</option>`).join('')}</select></div><div class="form-group"><label class="field-label">掌握程度</label><select id="fkLevel">${MASTERY_LEVELS.map((l,i)=>`<option value="${i}">${l}</option>`).join('')}</select></div></div>
-      <div class="form-group"><label class="field-label">详细笔记</label><textarea id="fkContent" placeholder="详细记录知识点内容、案例、心得..." style="min-height:100px;"></textarea></div>
-      <button class="btn btn-primary" onclick="addFK()">保存知识</button>
-    </div>
-    <div class="card"><div class="card-title">📚 我的知识库 (${notes.length})</div>${notes.length ? notes.slice().reverse().map(n => `<div class="note-item" data-id="${n.id}"><div class="note-item-title">${esc(n.title)}</div><div class="note-item-meta"><span class="tag tag-blue">${esc(n.cat)}</span><span>📅 ${esc(n.date)}</span></div><div style="margin-top:8px;"><div class="flex-between text-xs text-muted"><span>掌握度</span><span>${MASTERY_LEVELS[n.level]||MASTERY_LEVELS[0]}</span></div><div class="mastery-bar"><div class="mastery-bar-fill l${n.level}" style="width:${(n.level+1)*20}%"></div></div></div>${n.content ? `<div class="note-item-body" style="margin-top:8px;white-space:pre-wrap;">${esc(n.content)}</div>` : ''}<div style="margin-top:8px;display:flex;gap:4px;"><button class="btn btn-outline btn-sm" onclick="editFK('${n.id}')">编辑</button>${n.level < 4 ? `<button class="btn btn-soft btn-sm" onclick="upgradeFK('${n.id}')">提升掌握 →</button>` : ''}<button class="btn-icon danger" onclick="confirmDelFK('${n.id}')">${ICO.trash}</button></div></div>`).join('') : '<div class="empty-state-v2"><div class="empty-state-v2-icon">📊</div><div class="empty-state-v2-text">还没有知识笔记</div><div class="empty-state-v2-hint">从上方推荐中收藏，或手动添加</div></div>'}</div>
-  `;
-};
-ModuleHooks.knowledge = () => { loadOnlineFinance(); };
-async function loadOnlineFinance() {
-  const container = $('#financeOnline'); if (!container) return;
-  container.innerHTML = '<div class="loading-state">${ICONS.chart} 正在获取今日理财知识...</div>';
-  try {
-    API._cache.finance = null; // Force refresh for "换一批"
-    const items = await API.finance();
-    if (!items || !items.length) { container.innerHTML = '<div class="loading-state">暂无数据</div>'; return; }
-    window._onlineFinance = items;
-    const diffIcons = ['入门','进阶','高级'];
-    container.innerHTML = items.map((f, i) => `<div class="finance-card"><div class="finance-card-header"><div class="finance-card-title">${esc(f.title)}</div><div class="finance-card-tags"><span class="tag tag-blue">${esc(f.category)}</span><span class="tag ${f.difficulty===1?'tag-green':f.difficulty===2?'tag-orange':'tag-red'}">${diffIcons[f.difficulty-1]}</span></div></div><div class="finance-card-content">${esc(f.content)}</div><div class="finance-card-tip">💡 ${esc(f.tip)}</div><button class="btn btn-outline btn-sm" style="margin-top:8px;" onclick="saveFKFromOnline(${i})">收藏到知识库</button></div>`).join('');
-  } catch (e) { container.innerHTML = `<div class="loading-state error">${ICONS.warn} 加载失败，点击 <button class="btn btn-outline btn-sm" onclick="loadOnlineFinance()">重试</button></div>`; }
-}
-function saveFKFromOnline(idx) {
-  const f = window._onlineFinance?.[idx]; if (!f) return;
-  const notes = Store.get('wb_finknow', []);
-  if (notes.find(n => n.title === f.title)) return toast('已收藏过此知识点', 'warning');
-  notes.push({ id: uid(), title: f.title, cat: f.category, level: 0, content: f.content + '\n\n💡 ' + f.tip, date: todayKey() });
-  Store.set('wb_finknow', notes);
-  Game.reward(5, 3, 0);
-  toast('已收藏到知识库 📚', 'success');
-}
-function addFK() { const title = $('#fkTitle').value.trim(), cat = $('#fkCat').value, level = parseInt($('#fkLevel').value), content = $('#fkContent').value.trim(); if (!title) return toast('请输入知识点标题', 'warning'); const notes = Store.get('wb_finknow', []); notes.push({ id: uid(), title, cat, level, content, date: todayKey() }); Store.set('wb_finknow', notes); toast('知识已记录 📚', 'success'); Nav.refresh(); }
-function editFK(id) { const notes = Store.get('wb_finknow', []); const n = notes.find(x => x.id === id); if (!n) return; UI.editModal({ title: '编辑知识点', icon: '📚', fields: [{ key: 'title', label: '知识点标题', type: 'text' }, { key: 'cat', label: '分类', type: 'select', options: FIN_KNOWLEDGE_CATS.map(c=>({value:c,label:c})) }, { key: 'level', label: '掌握程度', type: 'select', options: MASTERY_LEVELS.map((l,i)=>({value:i,label:l})) }, { key: 'content', label: '详细笔记', type: 'textarea', minHeight: 100 }], values: { ...n, level: String(n.level) }, onSave: (v) => { Object.assign(n, v); n.level = parseInt(n.level) || 0; Store.set('wb_finknow', notes); toast('知识点已更新', 'success'); Nav.refresh(); }, onDelete: () => { UI.confirm(`确定删除「${n.title.slice(0,30)}」吗？`, () => { Store.set('wb_finknow', notes.filter(x => x.id !== id)); Nav.refresh(); }); } }); }
-function upgradeFK(id) { const notes = Store.get('wb_finknow', []); const n = notes.find(x => x.id === id); if (!n) return; if (n.level < 4) { n.level++; Store.set('wb_finknow', notes); Game.reward(5, 3, 0); toast(`掌握度提升: ${MASTERY_LEVELS[n.level]}`, 'success'); Nav.refresh(); } else toast('已经精通了', 'warning'); }
-function confirmDelFK(id) { const notes = Store.get('wb_finknow', []); const n = notes.find(x => x.id === id); if (!n) return; UI.confirm(`确定删除「${n.title.slice(0,30)}」吗？`, () => { Store.set('wb_finknow', notes.filter(x => x.id !== id)); Nav.refresh(); }); }
 
 // ---------- 每日复盘 ----------
 Modules.review = () => {
@@ -3051,8 +2895,102 @@ function dropBoxChance() {
     const tpl = boxes[Math.floor(Math.random() * boxes.length)];
     const inv = Game.data.boxes || {}; inv[tpl.id] = (inv[tpl.id] || 0) + 1;
     Game.data.boxes = inv; Game.save();
-    toast(`🎁 恭喜！完成任务掉落宝箱「${tpl.name}」`, 'success');
+      toast(`🎁 恭喜！完成任务掉落宝箱「${tpl.name}」`, 'success');
   }
 }
+
+// ---------- 百时追踪 (100小时定律 · 进度可见，借鉴 VibeCoding「100个小时追踪」) ----------
+const TRACK_COLORS = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ef4444', '#14b8a6'];
+const TRACK_MILESTONES = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
+function getChallenges() { return Store.get('wb_100challenges', []); }
+function saveChallenges(list) { Store.set('wb_100challenges', list); }
+function trackAddHours(id, delta) {
+  const list = getChallenges(); const ch = list.find(x => x.id === id); if (!ch) return;
+  const target = ch.target || 100; const old = ch.hours;
+  ch.hours = Math.min(target, +(old + delta).toFixed(2));
+  ch.claimed = ch.claimed || [];
+  for (const t of TRACK_MILESTONES) {
+    if (t === 100) continue;
+    if (old < t && ch.hours >= t && !ch.claimed.includes(t)) {
+      ch.claimed.push(t); Game.reward(5, 10, 0);
+      toast(`🎯 百时追踪里程碑 ${t}h 达成！+10 金币`, 'success');
+    }
+  }
+  if (ch.hours >= target && !ch.done) {
+    ch.done = true; Game.reward(100, 50, 0);
+    toast(`🏆 挑战「${ch.name}」达成 ${target} 小时！+100 经验 +50 金币`, 'success');
+  }
+  saveChallenges(list); Nav.refresh();
+}
+function trackAddFromPomo(id) {
+  const pomo = Store.get(`wb_pomo_${todayKey()}`, { count: 0 });
+  const n = pomo.count || 0;
+  if (!n) return toast('今天还没有完成番茄钟', 'warning');
+  trackAddHours(id, n * 25 / 60);
+}
+function openTrackModal(id) {
+  const list = getChallenges(); const ch = id ? list.find(x => x.id === id) : null;
+  const opts = {
+    title: ch ? '编辑挑战' : '新建百时挑战',
+    icon: '🎯',
+    fields: [
+      { key: 'name', label: '挑战名称', type: 'text', placeholder: '如：VibeCoding 100小时' },
+      { key: 'target', label: '目标时长（小时）', type: 'number', min: 1, step: 1 },
+      { key: 'color', label: '主题色', type: 'select', options: TRACK_COLORS.map(c => ({ value: c, label: c })) }
+    ],
+    values: ch ? { name: ch.name, target: String(ch.target), color: ch.color } : { name: '', target: '100', color: TRACK_COLORS[0] },
+    onSave: (v) => {
+      const name = (v.name || '').trim(); if (!name) return toast('请输入挑战名称', 'warning');
+      const target = Math.max(1, parseInt(v.target) || 100);
+      if (ch) { ch.name = name; ch.target = target; ch.color = v.color; }
+      else list.push({ id: uid(), name, target, hours: 0, color: v.color, created: todayKey(), claimed: [], done: false });
+      saveChallenges(list); toast(ch ? '已更新' : '挑战已创建 🎯', 'success'); Nav.refresh();
+    }
+  };
+  if (ch) opts.onDelete = () => { UI.confirm(`确定删除「${ch.name}」吗？`, () => { saveChallenges(list.filter(x => x.id !== id)); Nav.refresh(); }); };
+  UI.editModal(opts);
+}
+function trackCustomHours(id) {
+  UI.editModal({ title: '记录时长', icon: '⏱️', fields: [{ key: 'h', label: '本次投入（小时，可小数）', type: 'number', min: 0, step: 0.5 }], values: { h: '1' }, onSave: (v) => { const h = parseFloat(v.h) || 0; if (h <= 0) return toast('请输入大于 0 的时长', 'warning'); trackAddHours(id, h); } });
+}
+function trackDel(id) {
+  const list = getChallenges(); const ch = list.find(x => x.id === id); if (!ch) return;
+  UI.confirm(`确定删除「${ch.name}」吗？`, () => { saveChallenges(list.filter(x => x.id !== id)); Nav.refresh(); });
+}
+Modules.track100 = () => {
+  const list = getChallenges();
+  const totalHours = list.reduce((s, c) => s + c.hours, 0);
+  const totalTarget = list.reduce((s, c) => s + (c.target || 100), 0);
+  const overall = totalTarget ? Math.min(100, Math.round(totalHours / totalTarget * 100)) : 0;
+  const ring = (ch) => {
+    const target = ch.target || 100; const pct = Math.min(100, Math.round(ch.hours / target * 100));
+    const r = 52, c = 2 * Math.PI * r, off = c * (1 - pct / 100);
+    return `<svg class="track-ring" viewBox="0 0 120 120"><circle class="track-ring-bg" cx="60" cy="60" r="${r}"/><circle class="track-ring-fg" cx="60" cy="60" r="${r}" style="stroke:${ch.color};stroke-dasharray:${c.toFixed(1)};stroke-dashoffset:${off.toFixed(1)};"/><text class="track-ring-pct" x="60" y="56">${pct}%</text><text class="track-ring-sub" x="60" y="78">${ch.hours.toFixed(1)}h</text></svg>`;
+  };
+  const pips = (ch) => `<div class="track-pips">${TRACK_MILESTONES.map(t => `<span class="track-pip ${ch.hours >= t ? 'on' : ''} ${t === 100 ? 'finish' : ''}" style="${ch.hours >= t ? `background:${ch.color};border-color:${ch.color};` : ''}" title="${t}h">${t === 100 ? '✓' : t}</span>`).join('')}</div>`;
+  const card = (ch) => `
+    <div class="track-card" style="--tc:${ch.color};">
+      <div class="track-ring-wrap">${ring(ch)}</div>
+      <div class="track-info">
+        <div class="track-name">${esc(ch.name)} ${ch.done ? '<span class="tag tag-green">已达成</span>' : ''}</div>
+        <div class="track-target">目标 ${ch.target}h · 还差 <b>${Math.max(0, (ch.target - ch.hours)).toFixed(1)}</b>h</div>
+        ${pips(ch)}
+        <div class="track-actions">
+          <button class="btn btn-soft btn-sm" onclick="trackAddHours('${ch.id}',0.5)">+0.5h</button>
+          <button class="btn btn-soft btn-sm" onclick="trackAddHours('${ch.id}',1)">+1h</button>
+          <button class="btn btn-outline btn-sm" onclick="trackCustomHours('${ch.id}')">自定义</button>
+          <button class="btn btn-outline btn-sm" onclick="trackAddFromPomo('${ch.id}')">今日番茄+</button>
+          <button class="btn btn-outline btn-sm" onclick="openTrackModal('${ch.id}')">编辑</button>
+          <button class="btn-icon danger" onclick="trackDel('${ch.id}')">${ICO.trash}</button>
+        </div>
+      </div>
+    </div>`;
+  return `
+    <div class="reading-streak-banner" style="background:linear-gradient(135deg,#eef2ff,#faf5ff);"><div class="reading-streak-flame">🎯</div><div class="reading-streak-info"><div class="reading-streak-num" style="color:var(--primary);">累计 ${totalHours.toFixed(1)} / ${totalTarget} 小时 · 总进度 ${overall}%</div><div class="reading-streak-text">百时定律：投入 100 小时刻意练习，你就能超越大多数人</div></div></div>
+    <div class="flex-between" style="margin:12px 0;"><div class="card-title" style="margin:0;">🎯 我的百时挑战 (${list.length})</div><button class="btn btn-primary btn-sm" onclick="openTrackModal()">+ 新建挑战</button></div>
+    ${list.length ? `<div class="track-grid">${list.slice().reverse().map(card).join('')}</div>` : `<div class="empty-state-v2"><div class="empty-state-v2-icon">🎯</div><div class="empty-state-v2-text">还没有百时挑战</div><div class="empty-state-v2-hint">新建一个「100 小时」目标，每天记录投入，见证进度可见</div></div>`}
+  `;
+};
+ModuleHooks.track100 = () => {};
 
 init();
