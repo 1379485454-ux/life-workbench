@@ -412,9 +412,7 @@ label.field-label {
   border-radius: var(--radius);
   padding: 28px 32px;
   color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  display: block;
   margin-bottom: 18px;
   box-shadow: 0 8px 32px rgba(14,165,233,0.25);
   position: relative;

@@ -278,6 +278,8 @@ body { background:
 /* Hero 区域更有视觉冲击力 — 真玻璃 + 顶部高光 */
 .dash-hero {
   position: relative;
+  display: flex;
+  flex-direction: column;
   background: linear-gradient(135deg, rgba(255,255,255,0.78) 0%, rgba(186, 230, 253, 0.55) 100%);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
@@ -286,8 +288,8 @@ body { background:
   border-radius: 26px;
   overflow: hidden;
 }
-.dash-hero-greet { font-weight: 800; letter-spacing: -0.02em; color: #0F172A; font-size: 24px; }
-.dash-hero-tagline { color: var(--text-light); font-weight: 600; font-size: 13.5px; }
+.dash-hero-greet { font-weight: 800; letter-spacing: -0.02em; color: #0F172A; font-size: 24px; line-height: 1.35; }
+.dash-hero-tagline { color: var(--text-light); font-weight: 600; font-size: 13.5px; margin-top: 4px; }
 
 /* 仪表盘小卡 — 玻璃质感 + 图标更清晰 */
 .dash-mini-stat {
@@ -412,6 +414,22 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 .ai-import-hint { font-size: 11px; color: var(--text-light); margin-top: 6px; opacity: .85; }
 
 @media (max-width: 640px) {
+  .content { padding-bottom: calc(92px + env(safe-area-inset-bottom)) !important; }
+  /* Hero 移动端垂直堆叠 */
+  .dash-hero { padding: 18px 16px; border-radius: 20px; }
+  .dash-hero-greet { font-size: 20px; }
+  .dash-hero-tagline { font-size: 12.5px; margin-bottom: 14px; }
+  .dash-hero-main { flex-direction: column; align-items: stretch; gap: 12px; }
+  .dash-hero-left { width: 100%; }
+  .dash-clock-time { font-size: 34px; }
+  .dash-clock-date { font-size: 12px; }
+  .dash-checkin-btn { width: 100%; flex-direction: row; justify-content: center; gap: 8px; padding: 12px 16px; font-size: 14px; }
+  .dash-checkin-sub { font-size: 11px; }
+  /* 悬浮按钮更克制：上移、变小，不压内容 */
+  .ai-fab { left: 16px; right: auto; bottom: 22px; width: 46px; height: 46px; }
+  .ai-fab svg { width: 22px; height: 22px; }
   .ai-panel { left: 12px; right: auto; bottom: 76px; width: calc(100vw - 24px); max-height: calc(100vh - 100px); border-radius: 18px; }
-  .ai-fab { left: 14px; right: auto; bottom: 14px; width: 50px; height: 50px; }
+  .quick-fab { right: 16px; bottom: calc(22px + env(safe-area-inset-bottom)); width: 46px; height: 46px; }
+  .quick-fab svg { width: 22px; height: 22px; }
+  .fab-sheet { right: 16px; bottom: calc(74px + env(safe-area-inset-bottom)); }
 }
