@@ -102,13 +102,14 @@ body {
   font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
-  overflow: hidden;
-  height: 100vh;
-  height: 100dvh;
+  overflow-x: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
   touch-action: manipulation;
+  -webkit-overflow-scrolling: touch;
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -117,7 +118,7 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--primary-lighter); }
 
 /* ========== 布局 ========== */
-.app { display: flex; height: 100vh; height: 100dvh; }
+.app { display: flex; min-height: 100vh; min-height: 100dvh; }
 
 /* ========== 侧边栏 ========== */
 .sidebar {
@@ -246,7 +247,7 @@ body {
 .sidebar-stats::-webkit-scrollbar-thumb { background: rgba(15,90,130,0.12); border-radius: 2px; }
 
 /* ========== 主内容区 ========== */
-.main { flex: 1; display: flex; flex-direction: column; }
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 
 .main-header {
   display: flex;
@@ -259,6 +260,7 @@ body {
   position: -webkit-sticky;
   position: sticky;
   top: 0;
+  flex-shrink: 0;
   z-index: 50;
   min-height: 60px;
 }
@@ -298,10 +300,6 @@ body {
 }
 
 .content {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   padding: 24px 28px 48px;
   animation: fadeInUp 0.4s ease;
 }
@@ -1854,7 +1852,7 @@ input:focus, select:focus, textarea:focus {
 ::-webkit-scrollbar-thumb:hover { background: rgba(14,165,233,0.5); }
 
 @media (max-width: 768px) {
-  .app { flex-direction: column; height: 100vh; height: 100dvh; }
+  .app { flex-direction: column; min-height: 100vh; min-height: 100dvh; }
   .sidebar {
     width: 82vw; max-width: 300px;
     transform: translateX(-110%);
