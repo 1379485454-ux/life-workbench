@@ -480,6 +480,14 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
   .hero-action { justify-content: center; }
   .dash-hero-status { font-size: 12.5px; }
   /* 目标详情移动端 */
+  .goal-detail-main { flex-direction: column; align-items: stretch; gap: 16px; padding: 18px; text-align: center; }
+  .goal-ring-lg-wrap { flex: 0 0 auto; width: 140px; height: 140px; margin: 0 auto; }
+  .goal-detail-info { align-items: center; }
+  .goal-detail-stat { font-size: 13px; }
+  .goal-detail-actions { justify-content: center; }
+  .goal-card-top { flex-direction: column; align-items: center; text-align: center; }
+  .goal-ring-wrap { flex: 0 0 auto; width: 120px; height: 120px; }
+  .goal-milestones { justify-content: center; }
   .goal-badge-row { gap: 10px; }
   .goal-badge { width: calc(50% - 5px); }
   .goal-trend-bars { height: 80px; }

@@ -33,3 +33,6 @@ move_workbuddy_data.ps1
 _mobile_test_shots/
 _wb_mobile_test*.js
 .cwd.json
+
+# generated assets (AI cover images etc.)
+generated-images/
