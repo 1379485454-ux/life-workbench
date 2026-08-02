@@ -454,9 +454,9 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 .gt-bar-day { font-size: 9px; color: var(--text-light); margin-top: 4px; white-space: nowrap; }
 
 @media (max-width: 640px) {
-  .content { padding-bottom: calc(92px + env(safe-area-inset-bottom)) !important; }
+  .content { padding-top: calc(8px + env(safe-area-inset-top)); padding-bottom: calc(92px + env(safe-area-inset-bottom)) !important; }
   /* Hero 移动端垂直堆叠 */
-  .dash-hero { padding: 18px 16px; border-radius: 20px; }
+  .dash-hero { padding: calc(18px + env(safe-area-inset-top)) 16px 18px; border-radius: 20px; }
   .dash-hero-greet { font-size: 20px; }
   .dash-hero-tagline { font-size: 12.5px; margin-bottom: 14px; }
   .dash-hero-main { flex-direction: column; align-items: stretch; gap: 12px; }
