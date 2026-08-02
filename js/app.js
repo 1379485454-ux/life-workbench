@@ -29,10 +29,7 @@ const ICONS = {
   food: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><path d="M3 2v7a3 3 0 003 3v10M6 2v7M9 2v7M16 2c-2 0-3 3-3 6s1 4 3 4v10"/></svg>',
   finance: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/></svg>',
   media: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><path d="M3 11l18-7v16L3 13M11 11v6"/></svg>',
-  video: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M16 10l6-3v10l-6-3"/></svg>',
   news: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><path d="M4 4h16v16H4zM8 8h8M8 12h8M8 16h5"/></svg>',
-  drama: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>',
-  knowledge: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><path d="M3 18V8l9-5 9 5v10M9 18v-6h6v6"/></svg>',
   review: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><path d="M21 12a9 9 0 11-3-6.7M21 4v5h-5"/></svg>',
   shop: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><path d="M3 9l1-5h16l1 5M5 9v11h14V9M9 14h6"/></svg>',
   trophy: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 01-10 0V4zM7 4H4v3a3 3 0 003 3M17 4h3v3a3 3 0 01-3 3"/></svg>',
@@ -301,8 +298,8 @@ const Game = {
     if (d.level >= 5) tryUnlock('lv5', '小有所成', '等级达到 5 级', '⭐');
     if (d.level >= 10) tryUnlock('lv10', '渐入佳境', '等级达到 10 级', '🌟');
     if (d.level >= 20) tryUnlock('lv20', '大师之路', '等级达到 20 级', '👑');
-    if (d.coins >= 500) tryUnlock('rich_500', '小富翁', '累计获得 500 金币', '💰');
-    if (d.coins >= 2000) tryUnlock('rich_2000', '财大气粗', '累计获得 2000 金币', '💎');
+    if ((d.coinsEarned || 0) >= 500) tryUnlock('rich_500', '小富翁', '累计获得 500 金币', '💰');
+    if ((d.coinsEarned || 0) >= 2000) tryUnlock('rich_2000', '财大气粗', '累计获得 2000 金币', '💎');
     if (d.pomodoros >= 1) tryUnlock('first_pomo', '番茄新手', '完成第一个番茄钟', '🍅');
     if (d.pomodoros >= 25) tryUnlock('pomo_25', '番茄大师', '完成 25 个番茄钟', '🥇');
     // Check attribute levels
@@ -2913,7 +2910,7 @@ function trackAddHours(id, delta) {
     if (t === 100) continue;
     if (old < t && ch.hours >= t && !ch.claimed.includes(t)) {
       ch.claimed.push(t); Game.reward(5, 10, 0);
-      toast(`🎯 百时追踪里程碑 ${t}h 达成！+10 金币`, 'success');
+      toast(`🎯 百时追踪里程碑 ${t}h 达成！+5 经验 +10 金币`, 'success');
     }
   }
   if (ch.hours >= target && !ch.done) {
@@ -2923,10 +2920,11 @@ function trackAddHours(id, delta) {
   saveChallenges(list); Nav.refresh();
 }
 function trackAddFromPomo(id) {
-  const pomo = Store.get(`wb_pomo_${todayKey()}`, { count: 0 });
-  const n = pomo.count || 0;
-  if (!n) return toast('今天还没有完成番茄钟', 'warning');
-  trackAddHours(id, n * 25 / 60);
+  const pomo = Store.get(`wb_pomo_${todayKey()}`, { count: 0, sessions: [] });
+  const focusMin = (pomo.sessions || []).filter(s => s.mode === 'focus').reduce((s, x) => s + (x.minutes || 0), 0);
+  const min = focusMin || (pomo.count || 0) * 25;
+  if (!min) return toast('今天还没有完成番茄钟', 'warning');
+  trackAddHours(id, +(min / 60).toFixed(2));
 }
 function openTrackModal(id) {
   const list = getChallenges(); const ch = id ? list.find(x => x.id === id) : null;

@@ -167,3 +167,12 @@
 .track-pip.on { color: #fff; font-weight: 700; }
 .track-pip.finish.on { background: var(--success); border-color: var(--success); }
 .track-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.box-reward-row { flex-wrap: wrap; }
+@media (max-width: 480px) {
+  .track-card { flex-direction: column; align-items: center; text-align: center; }
+  .track-ring-wrap { flex: 0 0 100px; width: 100px; height: 100px; }
+  .track-ring { width: 100px; height: 100px; }
+  .track-info { align-items: center; }
+  .track-name { justify-content: center; }
+  .box-reward-row select { flex: 1 1 100%; }
+}
