@@ -32,7 +32,6 @@
   var pullRetryCount = 0;
   var pullRetryTimer = null;
   var MAX_PULL_RETRIES = 8;
-  var badge = null;
 
   function shouldSync(k) {
     return typeof k === 'string' && k.charAt(0) === 'w' && k.charAt(1) === 'b' && k.charAt(2) === '_' && !EXCLUDE[k];
@@ -41,25 +40,20 @@
   function setMetaTs(k, ts) { var m = getMeta(); m[k] = ts; try { localStorage.setItem(META_KEY, JSON.stringify(m)); } catch (e) {} }
   function getMetaMaxTs() { var m = getMeta(); var mx = 0; for (var k in m) if (m[k] > mx) mx = m[k]; return mx; }
 
-  /* ---------- 状态徽标 ---------- */
-  function ensureBadge() {
-    if (badge) return badge;
-    badge = document.createElement('div');
-    badge.id = 'wbSyncBadge';
-    badge.title = '云端同步状态';
-    badge.innerHTML = '<span class="dot"></span><span class="txt">同步</span>';
-    document.body.appendChild(badge);
-    return badge;
-  }
+  /* ---------- 同步状态（合并进 AI 按钮的状态点，避免独立徽标重叠） ---------- */
+  var statusState = 'connecting';
+  var statusText = '同步';
   function setStatus(state, text) {
-    if (!badge) return;
     state = (state && String(state)) || 'connecting';
     text = (text === 0 ? '0' : (text && String(text))) || '同步';
-    badge.className = 'wb-sync-' + state;
-    var t = badge.querySelector('.txt');
-    if (t) t.textContent = text;
-    badge.title = '云端同步：' + text;
+    statusState = state;
+    statusText = text;
+    // 若 AI 按钮已渲染，把状态同步到其状态点；否则仅缓存，待按钮渲染时读取
+    if (typeof window.wbSyncRenderStatus === 'function') {
+      try { window.wbSyncRenderStatus(state, text); } catch (e) {}
+    }
   }
+  function getStatus() { return { state: statusState, text: statusText }; }
 
   /* ---------- 推送（防抖批量 upsert，带本地时间戳） ---------- */
   function queuePush(key, value) {
@@ -189,7 +183,6 @@
 
   /* ---------- 初始化 ---------- */
   function init() {
-    ensureBadge();
     setStatus('connecting', '连接中');
     // 探测同源同步后端是否可用（纯静态部署无此 API 时降级为本地模式）
     fetch(API + '?since=0', { method: 'GET' })
@@ -228,7 +221,8 @@
     get retryCount() { return pullRetryCount; },
     init: init,
     pushAll: pushAll,
-    status: function () { return badge ? badge.className : ''; }
+    status: function () { return statusState; },
+    getStatus: getStatus
   };
 
   /* ---------- 代理 localStorage（必须在 app.js 之前执行） ---------- */

@@ -833,7 +833,16 @@ Modules.home = () => {
     </div>
     <div class="dash-overview" id="secOverview">
       <div class="card"><div class="card-title">${ICONS.list} 今日计划进度 <span class="card-subtitle">${doneTasks}/${todayTasks.length} 已完成</span></div>${todayTasks.length ? (doneTasks === todayTasks.length ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:100%"></div></div><div class="all-done-state"><div class="all-done-icon">${ICONS.star}</div><div class="all-done-text">今日任务全部完成！</div><div class="all-done-sub">太棒了，给自己一点奖励吧</div></div>` : `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${taskPct}%"></div></div><div style="margin-top:12px;">${todayTasks.slice(0,5).map(t => `<div class="task-item-v2 ${t.done?'done':''}" style="margin-bottom:6px;padding:9px 12px;" title="点击完成/取消"><div class="task-checkbox ${t.done?'checked':''}" onclick="toggleTaskFromHome('${t.id}')"></div><span class="task-text">${esc(t.text)}</span></div>`).join('')}${todayTasks.length > 5 ? `<div class="text-muted text-sm" style="padding:8px 4px;">还有 ${todayTasks.length-5} 项待办...</div>` : ''}</div>`) : '<div class="empty-state"><div class="empty-state-icon">'+ICONS.notebook+'</div><div class="empty-state-text">还没有添加今日计划</div><a class="empty-state-action" onclick="Nav.switchTo(\'plan\')">去制定计划 →</a></div>'}<button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="Nav.switchTo('plan')">前往计划 →</button></div>
-      <div class="card"><div class="card-title">${ICONS.chart} 今日数据概览</div><div class="grid-2 dash-stats-grid" style="gap:12px;">${[{icon:ICONS.water,label:'杯水',val:todayWater.water||0,color:'var(--primary)',link:'food'},{icon:ICONS.run,label:'运动分钟',val:exMin,color:'var(--warning)',link:'exercise'},{icon:ICONS.book,label:'阅读页数',val:todayRead.pages||0,color:'var(--success)',link:'read'},{icon:ICONS.clock,label:'阅读分钟',val:todayRead.minutes||0,color:'var(--purple)',link:'read'}].map(s=>`<div class="dash-mini-stat" onclick="Nav.switchTo('${s.link}')" title="查看${s.label}"><div class="dash-mini-stat-num" style="color:${s.color}">${s.val}</div><div class="dash-mini-stat-label">${s.icon} ${s.label}</div></div>`).join('')}</div></div>
+      <div class="card"><div class="card-title">${ICONS.chart} 今日数据概览 <span class="card-subtitle">${focusMinToday} 分钟专注 · 连续 ${d.streak} 天</span></div><div class="grid-2 dash-ov-grid" style="gap:10px;">${[
+        {icon:ICONS.coin, label:'金币', val:d.coins||0, color:'var(--warning)', link:'achieve'},
+        {icon:ICONS.star, label:'等级', val:d.level||1, color:'var(--purple)', link:'achieve'},
+        {icon:ICONS.flame, label:'连续打卡', val:d.streak||0, color:'var(--danger)', link:'home'},
+        {icon:ICONS.tomato, label:'专注会话', val:todayPomoD.count||0, color:'var(--success)', link:'pomo'},
+        {icon:ICONS.water, label:'杯水', val:todayWater.water||0, color:'var(--primary)', link:'food'},
+        {icon:ICONS.run, label:'运动分钟', val:exMin, color:'var(--warning)', link:'exercise'},
+        {icon:ICONS.book, label:'阅读页数', val:todayRead.pages||0, color:'var(--success)', link:'read'},
+        {icon:ICONS.check, label:'任务完成', val:doneTasks+'/'+todayTasks.length, color:'var(--accent)', link:'plan'}
+      ].map(s=>`<div class="dash-mini-stat" onclick="Nav.switchTo('${s.link}')" title="查看${s.label}"><div class="dash-mini-stat-num" style="color:${s.color}">${s.val}</div><div class="dash-mini-stat-label">${s.icon} ${s.label}</div></div>`).join('')}</div></div>
     </div>
     ${progressCardHtml}
     <div class="card" id="secStreak"><div class="card-title">${ICONS.calendar} 最近 7 天打卡</div><div class="streak-calendar">${calHtml}</div></div>
@@ -2401,9 +2410,9 @@ function updateSyncStatusUI() {
   var elCount = $('#syncItemCount');
   if (!el) return;
   try {
-    var badge = document.getElementById('wbSyncBadge');
-    var status = badge ? badge.className : '';
-    var txt = badge && badge.querySelector('.txt') ? badge.querySelector('.txt').textContent : '未检测到';
+    var st = (window.wbSync && window.wbSync.getStatus) ? window.wbSync.getStatus() : null;
+    var status = st ? st.state : '';
+    var txt = st ? (st.text || '未检测到') : '未检测到';
     el.textContent = '📡 状态：' + txt;
     if (status.indexOf('ok') >= 0) el.style.color = '#10b981';
     else if (status.indexOf('error') >= 0) el.style.color = '#ef4444';
@@ -3256,9 +3265,19 @@ function renderAIFab() {
   const fab = document.createElement('button');
   fab.className = 'ai-fab'; fab.id = 'aiFab';
   fab.setAttribute('aria-label', 'AI 助手');
-  fab.innerHTML = aiIcon;
+  fab.innerHTML = aiIcon + '<span class="ai-fab-status" id="aiFabStatus"></span>';
   fab.onclick = toggleAI;
   document.body.appendChild(fab);
+  // 把云端同步状态合并进 AI 按钮（单一元素，杜绝与独立徽标重叠）
+  window.wbSyncRenderStatus = function (state, text) {
+    const dot = document.getElementById('aiFabStatus');
+    if (dot) dot.className = 'ai-fab-status sync-' + (state || 'connecting');
+    fab.title = 'AI 助手 · 云端同步：' + (text || '');
+  };
+  if (window.wbSync && window.wbSync.getStatus) {
+    const _s = window.wbSync.getStatus();
+    window.wbSyncRenderStatus(_s.state, _s.text);
+  }
   const panel = document.createElement('div');
   panel.className = 'ai-panel'; panel.id = 'aiPanel'; panel.style.display = 'none';
   panel.innerHTML = `
@@ -3297,27 +3316,38 @@ async function aiSend() {
     const data = await res.json(); if (!data.ok) throw new Error(data.error || '请求失败');
     const choice = data.data?.choices?.[0]; if (!choice) throw new Error('AI 返回为空');
     const content = choice.message?.content || '';
-    aiAppend('assistant', content);
-    aiTryShowImport(content);
+    const json = aiExtractJSON(content);
+    let display = content;
+    if (json) {
+      const reply = (json.reply && String(json.reply).trim()) ? json.reply : '';
+      // 有结构化数据时只展示自然语言回复，结构部分用于自动载入
+      display = reply || content.replace(/```(?:json)?[\s\S]*?```/g, '').replace(/\{[\s\S]*\}\s*$/, '').trim();
+    }
+    aiAppend('assistant', display);
+    aiAutoImport(content);
   } catch (e) {
     aiAppend('error', '请求失败：' + e.message);
   } finally {
     aiLoading = false; if (btn) { btn.disabled = false; btn.textContent = '发送'; }
   }
 }
-function aiTryShowImport(content) {
+function aiAutoImport(content) {
   const json = aiExtractJSON(content); if (!json) return;
-  const parts = [];
-  if (json.goals && json.goals.length) parts.push(`${json.goals.length} 个目标`);
-  if (json.tasks && json.tasks.length) parts.push(`${json.tasks.length} 个任务`);
-  if (json.achievements && json.achievements.length) parts.push(`${json.achievements.length} 个成就`);
-  if (!parts.length) return;
+  const hasGoals = json.goals && json.goals.length;
+  const hasTasks = json.tasks && json.tasks.length;
+  const hasAch = json.achievements && json.achievements.length;
+  if (!hasGoals && !hasTasks && !hasAch) return;
+  let count = 0;
+  if (hasGoals) { json.goals.forEach(g => aiCreateGoal(g)); count += json.goals.length; }
+  if (hasTasks) { json.tasks.forEach(t => aiCreateTask(t)); count += json.tasks.length; }
+  if (hasAch) { json.achievements.forEach(a => aiCreateAchievement(a)); count += json.achievements.length; }
+  toast(`已自动载入 ${count} 项内容`, 'success');
+  Nav.refresh();
   const body = document.getElementById('aiBody'); if (!body) return;
-  const box = document.createElement('div'); box.className = 'ai-import-box';
-  box.innerHTML = `<div class="ai-import-title">检测到可导入内容：${parts.join('、')}</div>
+  const box = document.createElement('div'); box.className = 'ai-import-box ai-import-auto';
+  box.innerHTML = `<div class="ai-import-title">${ICONS.check} 已自动载入 ${count} 项</div>
     <div class="ai-import-list">${aiImportListHtml(json)}</div>
-    <div style="display:flex;gap:8px;margin-top:10px;"><button class="btn btn-primary btn-sm" onclick="aiImport(this)">${ICONS.check} 一键导入</button><button class="btn btn-outline btn-sm" onclick="this.closest('.ai-import-box').remove()">取消</button></div>
-    <pre style="display:none">${esc(JSON.stringify(json))}</pre>`;
+    <div class="ai-import-hint">已直接写入网页，无需手动操作</div>`;
   body.appendChild(box); body.scrollTop = body.scrollHeight;
 }
 function aiImportListHtml(json) {

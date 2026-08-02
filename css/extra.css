@@ -340,6 +340,25 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 }
 .ai-fab:hover { transform: scale(1.06) translateY(-2px); box-shadow: 0 10px 28px rgba(2, 132, 199, 0.42); }
 .ai-fab svg { width: 26px; height: 26px; }
+/* 云端同步状态点（合并进 AI 按钮右下角，取代独立徽标） */
+.ai-fab-status {
+  position: absolute; right: 1px; bottom: 1px;
+  width: 13px; height: 13px; border-radius: 50%;
+  background: #64748b; border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(2,132,199,.35);
+  pointer-events: none; transition: background .2s ease, box-shadow .2s ease;
+  z-index: 2;
+}
+.ai-fab-status.sync-ok { background: #22c55e; box-shadow: 0 0 0 1px #fff, 0 0 6px rgba(34,197,94,.6); }
+.ai-fab-status.sync-syncing, .ai-fab-status.sync-connecting { background: #0EA5E9; animation: syncPulse 1.2s infinite; }
+.ai-fab-status.sync-error { background: #ef4444; box-shadow: 0 0 0 1px #fff, 0 0 6px rgba(239,68,68,.6); }
+.ai-fab-status.sync-local { background: #64748b; }
+@keyframes syncPulse {
+  0% { box-shadow: 0 0 0 0 currentColor, 0 0 0 1px #fff; }
+  70% { box-shadow: 0 0 0 5px rgba(0,0,0,0), 0 0 0 1px #fff; }
+  100% { box-shadow: 0 0 0 0 rgba(0,0,0,0), 0 0 0 1px #fff; }
+}
+@media (prefers-reduced-motion: reduce) { .ai-fab-status { animation: none !important; } }
 .ai-panel {
   position: fixed; right: 22px; bottom: 86px; z-index: 91;
   width: min(420px, calc(100vw - 44px)); max-height: min(640px, calc(100vh - 120px));
@@ -370,6 +389,11 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 }
 .ai-import-title { font-weight: 700; font-size: 13px; margin-bottom: 8px; color: var(--text); }
 .ai-import-list { font-size: 12px; color: var(--text-light); line-height: 1.7; }
+.ai-import-auto {
+  background: var(--accent-lightest, #ECFDF5); border: 1.5px solid var(--success, #10B981); border-radius: 14px; padding: 12px; margin-top: 8px;
+}
+.ai-import-auto .ai-import-title { color: #047857; }
+.ai-import-hint { font-size: 11px; color: var(--text-light); margin-top: 6px; opacity: .85; }
 
 @media (max-width: 640px) {
   .ai-panel { right: 12px; bottom: 76px; width: calc(100vw - 24px); max-height: calc(100vh - 100px); border-radius: 18px; }
