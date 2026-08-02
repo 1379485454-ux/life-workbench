@@ -331,7 +331,7 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 
 /* AI 助手按钮（后续模块用） */
 .ai-fab {
-  position: fixed; right: 22px; bottom: 22px; z-index: 90;
+  position: fixed; right: 84px; bottom: 20px; z-index: 90;
   width: 54px; height: 54px; border-radius: 50%;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
   color: #fff; border: none; box-shadow: 0 6px 20px rgba(2, 132, 199, 0.35);
@@ -360,7 +360,7 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 }
 @media (prefers-reduced-motion: reduce) { .ai-fab-status { animation: none !important; } }
 .ai-panel {
-  position: fixed; right: 22px; bottom: 86px; z-index: 91;
+  position: fixed; right: 84px; bottom: 84px; z-index: 91;
   width: min(420px, calc(100vw - 44px)); max-height: min(640px, calc(100vh - 120px));
   background: rgba(255,255,255,0.96); border: 1px solid var(--border);
   border-radius: 22px; box-shadow: var(--shadow-xl);
@@ -396,6 +396,6 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 .ai-import-hint { font-size: 11px; color: var(--text-light); margin-top: 6px; opacity: .85; }
 
 @media (max-width: 640px) {
-  .ai-panel { right: 12px; bottom: 76px; width: calc(100vw - 24px); max-height: calc(100vh - 100px); border-radius: 18px; }
-  .ai-fab { right: 14px; bottom: 14px; width: 50px; height: 50px; }
+  .ai-panel { left: 12px; right: auto; bottom: 76px; width: calc(100vw - 24px); max-height: calc(100vh - 100px); border-radius: 18px; }
+  .ai-fab { left: 14px; right: auto; bottom: 14px; width: 50px; height: 50px; }
 }
