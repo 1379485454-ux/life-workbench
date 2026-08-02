@@ -432,6 +432,36 @@ const handlers = {
     return { ok: true, msg: '缓存已清除' };
   },
 
+  // ===== AI 助手代理（兼容 OpenAI 格式，隐藏 Key 不直接暴露给浏览器）=====
+  '/api/ai': async (req, res, url) => {
+    const body = await readBody(req);
+    const { baseURL, model, apiKey, messages, temperature = 0.7 } = body;
+    if (!apiKey) throw new Error('请先在设置中配置 AI API Key');
+    const endpoint = (baseURL || 'https://api.openai.com/v1').replace(/\/+$/, '') + '/chat/completions';
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 60000);
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+          'User-Agent': UA,
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({ model: model || 'gpt-3.5-turbo', messages, temperature, stream: false }),
+        signal: controller.signal,
+      });
+      const text = await response.text();
+      if (!response.ok) {
+        let err = text;
+        try { const j = JSON.parse(text); err = j.error?.message || j.error?.code || text; } catch {}
+        throw new Error(`AI API 错误: ${err}`);
+      }
+      return JSON.parse(text);
+    } finally { clearTimeout(timeout); }
+  },
+
   // ===== 自建同步后端 =====
   '/api/sync': async (req, res, url) => {
     const userId = url.searchParams.get('user_id') || SYNC_USER_ID;

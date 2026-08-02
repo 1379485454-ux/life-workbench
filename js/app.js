@@ -87,6 +87,7 @@ const ICO = {
   pause: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M8 5v14M16 5v14"/></svg>',
   save: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M5 3h11l3 3v15H5zM8 3v6h7V3M8 21v-6h8v6"/></svg>',
   download: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>',
+  ai: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2 5.6L20 9l-4.8 3.8L16.5 20 12 16.5 7.5 20l1.3-7.2L4 9l6-1.4L12 2z"/><circle cx="12" cy="11" r="2" fill="currentColor" stroke="none"/></svg>',
 };
 
 // ===== 菜单配置 =====
@@ -104,7 +105,7 @@ const MENU = [
   { id: 'shop', name: '奖励商店', icon: ICONS.shop, group: 'grow' },
   { id: 'achieve', name: '成就墙', icon: ICONS.trophy, group: 'grow' },
   { id: 'box', name: '惊喜盒子', icon: ICONS.gift, group: 'grow' },
-  { id: 'track100', name: '百时追踪', icon: ICONS.track, group: 'grow' },
+  { id: 'track100', name: '目标追踪', icon: ICONS.track, group: 'grow' },
   { id: 'attributes', name: '个人属性', icon: ICONS.attr, group: 'grow' },
   { id: 'reports', name: '周报月报', icon: ICONS.report, group: 'grow' },
   { id: 'backup', name: '数据备份', icon: ICONS.backup, group: 'sys' },
@@ -791,7 +792,7 @@ Modules.home = () => {
       <div class="grid-3" style="gap:12px;">
         <div class="dash-mini-stat" onclick="Nav.switchTo('pomo')" title="前往番茄钟"><div class="dash-mini-stat-num" style="color:var(--danger)">${focusMinToday}</div><div class="dash-mini-stat-label">${ICONS.tomato} 今日专注(分)</div></div>
         ${nearAch ? `<div class="dash-mini-stat" onclick="Nav.switchTo('achieve')" title="查看成就"><div class="dash-mini-stat-num" style="color:var(--purple)">${Math.round(nearPct*100)}%</div><div class="dash-mini-stat-label">${ICONS.medal} ${esc(nearAch.name)}</div><div class="dash-mini-stat-sub" style="font-size:11px;color:var(--muted);margin-top:2px;">${achCondText(nearAch.cond)} ${Math.round(achConditionValue(nearAch.cond))}/${nearAch.cond.target||1}</div></div>` : `<div class="dash-mini-stat" onclick="Nav.switchTo('achieve')" title="设置自定义成就"><div class="dash-mini-stat-num" style="color:var(--purple)">—</div><div class="dash-mini-stat-label">${ICONS.medal} 暂无进行中成就</div></div>`}
-        ${activeCh ? `<div class="dash-mini-stat" onclick="Nav.switchTo('track100')" title="查看百时挑战"><div class="dash-mini-stat-num" style="color:var(--primary)">${Math.round((activeCh.hours||0)/(activeCh.target||100)*100)}%</div><div class="dash-mini-stat-label">${ICONS.target} ${esc(activeCh.name)}</div><div class="dash-mini-stat-sub" style="font-size:11px;color:var(--muted);margin-top:2px;">${(activeCh.hours||0).toFixed(1)}/${(activeCh.target||100)}h</div></div>` : `<div class="dash-mini-stat" onclick="Nav.switchTo('track100')" title="新建百时挑战"><div class="dash-mini-stat-num" style="color:var(--primary)">—</div><div class="dash-mini-stat-label">${ICONS.target} 暂无百时挑战</div></div>`}
+        ${activeCh ? `<div class="dash-mini-stat" onclick="Nav.switchTo('track100')" title="查看目标"><div class="dash-mini-stat-num" style="color:var(--primary)">${Math.round(((activeCh.value||0)/(activeCh.target||100))*100)}%</div><div class="dash-mini-stat-label">${ICONS.target} ${esc(activeCh.name)}</div><div class="dash-mini-stat-sub" style="font-size:11px;color:var(--muted);margin-top:2px;">${(activeCh.value||0).toFixed(activeCh.unit==='hour'?1:0)}/${(activeCh.target||100)}${goalUnitLabel(activeCh)}</div></div>` : `<div class="dash-mini-stat" onclick="Nav.switchTo('track100')" title="新建目标"><div class="dash-mini-stat-num" style="color:var(--primary)">—</div><div class="dash-mini-stat-label">${ICONS.target} 暂无目标</div></div>`}
       </div>
     </div>`;
 
@@ -2314,9 +2315,58 @@ Modules.settings = () => {
         <button class="btn btn-primary" onclick="saveUserProfile()">${ICONS.archive} 保存设置</button>
       </div>
       <div class="backup-tip">修改后会立即生效，并随数据备份一起保存。</div>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">${ICONS.ai} AI 助手设置</div>
+      <div class="card-subtitle">配置兼容 OpenAI 格式的 API，即可在右下角召唤 AI 帮你制定计划、拆解目标。</div>
+      <div class="form-row" style="margin-top:12px;">
+        <div class="form-group">
+          <label class="form-label">API Base URL（留空使用 OpenAI 官方）</label>
+          <input type="text" id="aiBaseURL" class="form-input" value="${esc(getAIConfig().baseURL || '')}" placeholder="https://api.openai.com/v1">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">模型名称</label>
+          <input type="text" id="aiModel" class="form-input" value="${esc(getAIConfig().model || '')}" placeholder="gpt-3.5-turbo / gpt-4 / deepseek-chat">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">API Key</label>
+          <input type="password" id="aiApiKey" class="form-input" value="${esc(getAIConfig().apiKey || '')}" placeholder="sk-...">
+          <div class="backup-tip">Key 仅存储在本地，并通过本机代理服务器转发，不会直接暴露到公网。</div>
+        </div>
+      </div>
+      <div class="backup-actions" style="margin-top:14px;">
+        <button class="btn btn-primary" onclick="saveAISettings()">${ICONS.save} 保存 AI 配置</button>
+        <button class="btn btn-outline" onclick="testAIConnection()">${ICONS.bolt} 测试连接</button>
+      </div>
     </div>`;
 };
 ModuleHooks.settings = () => {};
+window.saveAISettings = function() {
+  saveAIConfig({
+    baseURL: ($('#aiBaseURL').value || '').trim(),
+    model: ($('#aiModel').value || '').trim(),
+    apiKey: ($('#aiApiKey').value || '').trim()
+  });
+  toast('AI 配置已保存', 'success');
+};
+window.testAIConnection = async function() {
+  const btn = document.activeElement; if (btn) btn.disabled = true;
+  try {
+    const cfg = getAIConfig(); if (!cfg.apiKey) { toast('请先填写 API Key', 'warning'); return; }
+    const res = await fetch('/api/ai', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ baseURL: cfg.baseURL, model: cfg.model, apiKey: cfg.apiKey, messages: [{ role: 'user', content: 'hi' }], temperature: 0.7 })
+    });
+    const data = await res.json();
+    if (data.ok) toast('连接成功：' + (data.data.model || '模型已响应'), 'success');
+    else throw new Error(data.error || '未知错误');
+  } catch (e) { toast('连接失败：' + e.message, 'error'); }
+  finally { if (btn) btn.disabled = false; }
+};
 window.selectAccent = function(k) {
   document.getElementById('settingAccent').value = k;
   document.querySelectorAll('.accent-chip').forEach(c => c.classList.toggle('active', c.dataset.accent === k));
@@ -2623,6 +2673,7 @@ function init() {
   Game.renderSidebar();
   Clock.start();
   initQuickFab();
+  renderAIFab();
   Nav.switchTo('home');
   // 初始化后推本地数据上云（延迟执行，等 sync.js 就绪）
   setTimeout(() => {
@@ -2921,99 +2972,401 @@ function dropBoxChance() {
   }
 }
 
-// ---------- 百时追踪 (100小时定律 · 进度可见，借鉴 VibeCoding「100个小时追踪」) ----------
+// ---------- 通用目标追踪（Goal Tracker · 借鉴 VibeCoding「100个小时追踪」） ----------
 const TRACK_COLORS = ['#6366f1', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ef4444', '#14b8a6'];
-const TRACK_MILESTONES = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
-function getChallenges() { return Store.get('wb_100challenges', []); }
+const GOAL_UNITS = [
+  { value: 'hour', label: '小时', short: 'h', step: 0.5 },
+  { value: 'count', label: '次数', short: '次', step: 1 },
+  { value: 'page', label: '页数', short: '页', step: 5 },
+  { value: 'day', label: '天数', short: '天', step: 1 },
+  { value: 'custom', label: '自定义', short: '', step: 1 }
+];
+let goalDetailId = null;
+
+function migrateGoals() {
+  const list = Store.get('wb_100challenges', []);
+  let changed = false;
+  list.forEach(g => {
+    if (typeof g.hours === 'number' && typeof g.value !== 'number') { g.value = g.hours; changed = true; }
+    if (!g.unit) { g.unit = 'hour'; changed = true; }
+    if (!Array.isArray(g.logs)) { g.logs = []; changed = true; }
+    if (!g.startDate) { g.startDate = g.created || todayKey(); changed = true; }
+    if (g.endDate === undefined) { g.endDate = ''; changed = true; }
+    if (!g.customUnit) { g.customUnit = ''; changed = true; }
+  });
+  if (changed) Store.set('wb_100challenges', list);
+  return list;
+}
+function getChallenges() { migrateGoals(); return Store.get('wb_100challenges', []); }
 function saveChallenges(list) { Store.set('wb_100challenges', list); }
-function trackAddHours(id, delta) {
-  const list = getChallenges(); const ch = list.find(x => x.id === id); if (!ch) return;
-  const target = ch.target || 100; const old = ch.hours;
-  ch.hours = Math.min(target, +(old + delta).toFixed(2));
-  ch.claimed = ch.claimed || [];
-  for (const t of TRACK_MILESTONES) {
-    if (t === 100) continue;
-    if (old < t && ch.hours >= t && !ch.claimed.includes(t)) {
-      ch.claimed.push(t); Game.reward(5, 10, 0);
-      toast(`🎯 百时追踪里程碑 ${t}h 达成！+5 经验 +10 金币`, 'success');
+
+function goalUnit(g) { return GOAL_UNITS.find(u => u.value === (g && g.unit)) || GOAL_UNITS[0]; }
+function goalUnitLabel(g) { return g && g.unit === 'custom' ? (g.customUnit || '单位') : goalUnit(g).short; }
+function goalPct(g) { const t = (g && g.target) || 1; return Math.min(100, Math.round(((g && g.value) || 0) / t * 100)); }
+function goalRemaining(g) { return Math.max(0, ((g && g.target) || 0) - ((g && g.value) || 0)); }
+function isOverdue(g) { return g && g.endDate && g.endDate < todayKey() && !g.done; }
+function goalMilestones(g) {
+  const t = (g && g.target) || 100;
+  if (t <= 5) return [t];
+  if (t <= 20) return [Math.round(t * 0.25), Math.round(t * 0.5), Math.round(t * 0.75), t];
+  if (t <= 100) return [Math.round(t * 0.1), Math.round(t * 0.25), Math.round(t * 0.5), Math.round(t * 0.75), Math.round(t * 0.9), t];
+  return [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1].map(s => Math.round(s * t));
+}
+function goalQuickSteps(g) {
+  if (!g) return [1, 5, 10];
+  if (g.unit === 'hour') return [0.5, 1, 2];
+  if (g.unit === 'page') return [5, 10, 20];
+  if (g.unit === 'count') return [1, 5, 10];
+  if (g.unit === 'day') return [1, 7, 30];
+  return [1, 5, 10];
+}
+function goalValueDecimals(g) { return g && g.unit === 'hour' ? 1 : 0; }
+
+function goalAddValue(id, delta, note) {
+  const list = getChallenges(); const g = list.find(x => x.id === id); if (!g) return;
+  const target = g.target || 1; const old = g.value || 0;
+  g.value = Math.min(target, +(old + delta).toFixed(2));
+  g.logs = g.logs || [];
+  g.logs.unshift({ date: todayKey(), time: nowTime(), amount: delta, note: note || '' });
+  g.claimed = g.claimed || [];
+  const ms = goalMilestones(g);
+  for (const m of ms) {
+    if (m >= target) continue;
+    if (old < m && g.value >= m && !g.claimed.includes(m)) {
+      g.claimed.push(m); Game.reward(5, 10, 0);
+      toast(`${ICONS.target} 目标「${g.name}」达成 ${m}${goalUnitLabel(g)} 里程碑！+5 经验 +10 金币`, 'success');
     }
   }
-  if (ch.hours >= target && !ch.done) {
-    ch.done = true; Game.reward(100, 50, 0);
-    toast(`🏆 挑战「${ch.name}」达成 ${target} 小时！+100 经验 +50 金币`, 'success');
+  if (g.value >= target && !g.done) {
+    g.done = true; Game.reward(100, 50, 0);
+    toast(`${ICONS.trophy} 目标「${g.name}」完成！+100 经验 +50 金币`, 'success');
   }
   saveChallenges(list); Nav.refresh();
 }
-function trackAddFromPomo(id) {
+function goalAddFromPomo(id) {
   const pomo = Store.get(`wb_pomo_${todayKey()}`, { count: 0, sessions: [] });
   const focusMin = (pomo.sessions || []).filter(s => s.mode === 'focus').reduce((s, x) => s + (x.minutes || 0), 0);
   const min = focusMin || (pomo.count || 0) * 25;
   if (!min) return toast('今天还没有完成番茄钟', 'warning');
-  trackAddHours(id, +(min / 60).toFixed(2));
+  goalAddValue(id, +(min / 60).toFixed(2), '来自今日番茄钟');
 }
-function openTrackModal(id) {
-  const list = getChallenges(); const ch = id ? list.find(x => x.id === id) : null;
+
+function openGoalModal(id) {
+  const list = getChallenges(); const g = id ? list.find(x => x.id === id) : null;
+  const unitOptions = GOAL_UNITS.map(u => ({ value: u.value, label: u.label }));
   const opts = {
-    title: ch ? '编辑挑战' : '新建百时挑战',
-    icon: '🎯',
+    title: g ? '编辑目标' : '新建目标', icon: ICONS.target,
     fields: [
-      { key: 'name', label: '挑战名称', type: 'text', placeholder: '如：VibeCoding 100小时' },
-      { key: 'target', label: '目标时长（小时）', type: 'number', min: 1, step: 1 },
+      { key: 'name', label: '目标名称', type: 'text', placeholder: '如：读完《认知觉醒》' },
+      { key: 'unit', label: '计量单位', type: 'select', options: unitOptions },
+      { key: 'customUnit', label: '自定义单位名称（仅自定义单位时有效）', type: 'text', placeholder: '如：公里、章节、道题' },
+      { key: 'target', label: '目标数量', type: 'number', min: 1, step: 1 },
+      { key: 'startDate', label: '开始日期', type: 'text', placeholder: 'YYYY-MM-DD' },
+      { key: 'endDate', label: '截止日期（可选）', type: 'text', placeholder: 'YYYY-MM-DD' },
       { key: 'color', label: '主题色', type: 'select', options: TRACK_COLORS.map(c => ({ value: c, label: c })) }
     ],
-    values: ch ? { name: ch.name, target: String(ch.target), color: ch.color } : { name: '', target: '100', color: TRACK_COLORS[0] },
+    values: g ? {
+      name: g.name, unit: g.unit, customUnit: g.customUnit || '', target: String(g.target),
+      startDate: g.startDate || '', endDate: g.endDate || '', color: g.color
+    } : { name: '', unit: 'hour', customUnit: '', target: '100', startDate: todayKey(), endDate: '', color: TRACK_COLORS[0] },
     onSave: (v) => {
-      const name = (v.name || '').trim(); if (!name) return toast('请输入挑战名称', 'warning');
-      const target = Math.max(1, parseInt(v.target) || 100);
-      if (ch) { ch.name = name; ch.target = target; ch.color = v.color; }
-      else list.push({ id: uid(), name, target, hours: 0, color: v.color, created: todayKey(), claimed: [], done: false });
-      saveChallenges(list); toast(ch ? '已更新' : '挑战已创建 🎯', 'success'); Nav.refresh();
+      const name = (v.name || '').trim(); if (!name) return toast('请输入目标名称', 'warning');
+      const target = Math.max(1, parseFloat(v.target) || 1);
+      const unit = v.unit || 'hour';
+      const customUnit = unit === 'custom' ? (v.customUnit || '').trim() : '';
+      if (unit === 'custom' && !customUnit) return toast('请输入自定义单位名称', 'warning');
+      const startDate = (v.startDate || todayKey()).trim();
+      const endDate = (v.endDate || '').trim();
+      const color = v.color || TRACK_COLORS[0];
+      if (g) {
+        g.name = name; g.unit = unit; g.customUnit = customUnit; g.target = target;
+        g.startDate = startDate; g.endDate = endDate; g.color = color;
+      } else {
+        list.push({ id: uid(), name, unit, customUnit, target, value: 0, color, created: todayKey(), startDate, endDate, claimed: [], done: false, logs: [] });
+      }
+      saveChallenges(list); toast(g ? '已更新' : '目标已创建', 'success'); Nav.refresh();
     }
   };
-  if (ch) opts.onDelete = () => { UI.confirm(`确定删除「${ch.name}」吗？`, () => { saveChallenges(list.filter(x => x.id !== id)); Nav.refresh(); }); };
+  if (g) opts.onDelete = () => { UI.confirm(`确定删除「${g.name}」吗？`, () => { saveChallenges(list.filter(x => x.id !== id)); if (goalDetailId === id) goalDetailId = null; Nav.refresh(); }); };
   UI.editModal(opts);
 }
-function trackCustomHours(id) {
-  UI.editModal({ title: '记录时长', icon: '⏱️', fields: [{ key: 'h', label: '本次投入（小时，可小数）', type: 'number', min: 0, step: 0.5 }], values: { h: '1' }, onSave: (v) => { const h = parseFloat(v.h) || 0; if (h <= 0) return toast('请输入大于 0 的时长', 'warning'); trackAddHours(id, h); } });
+function openGoalCheckIn(id) {
+  const list = getChallenges(); const g = list.find(x => x.id === id); if (!g) return;
+  const ul = goalUnitLabel(g);
+  UI.editModal({
+    title: `打卡：${g.name}`, icon: ICONS.check,
+    fields: [
+      { key: 'amount', label: `本次完成数量（${ul}）`, type: 'number', min: 0.01, step: goalUnit(g).step },
+      { key: 'note', label: '备注（可选）', type: 'textarea', placeholder: '记录一下这次做了什么...' }
+    ],
+    values: { amount: String(goalUnit(g).step), note: '' },
+    onSave: (v) => { const amount = parseFloat(v.amount) || 0; if (amount <= 0) return toast('请输入大于 0 的数量', 'warning'); goalAddValue(id, amount, v.note); }
+  });
 }
-function trackDel(id) {
-  const list = getChallenges(); const ch = list.find(x => x.id === id); if (!ch) return;
-  UI.confirm(`确定删除「${ch.name}」吗？`, () => { saveChallenges(list.filter(x => x.id !== id)); Nav.refresh(); });
+function goalDel(id) {
+  const list = getChallenges(); const g = list.find(x => x.id === id); if (!g) return;
+  UI.confirm(`确定删除「${g.name}」吗？`, () => { saveChallenges(list.filter(x => x.id !== id)); if (goalDetailId === id) goalDetailId = null; Nav.refresh(); });
 }
-Modules.track100 = () => {
-  const list = getChallenges();
-  const totalHours = list.reduce((s, c) => s + c.hours, 0);
-  const totalTarget = list.reduce((s, c) => s + (c.target || 100), 0);
-  const overall = totalTarget ? Math.min(100, Math.round(totalHours / totalTarget * 100)) : 0;
-  const ring = (ch) => {
-    const target = ch.target || 100; const pct = Math.min(100, Math.round(ch.hours / target * 100));
-    const r = 52, c = 2 * Math.PI * r, off = c * (1 - pct / 100);
-    return `<svg class="track-ring" viewBox="0 0 120 120"><circle class="track-ring-bg" cx="60" cy="60" r="${r}"/><circle class="track-ring-fg" cx="60" cy="60" r="${r}" style="stroke:${ch.color || TRACK_COLORS[0]};stroke-dasharray:${c.toFixed(1)};stroke-dashoffset:${off.toFixed(1)};"/><text class="track-ring-pct" x="60" y="56">${pct}%</text><text class="track-ring-sub" x="60" y="78">${ch.hours.toFixed(1)}h</text></svg>`;
-  };
-  const pips = (ch) => `<div class="track-pips">${TRACK_MILESTONES.map(t => `<span class="track-pip ${ch.hours >= t ? 'on' : ''} ${t === 100 ? 'finish' : ''}" style="${ch.hours >= t ? `background:${ch.color || TRACK_COLORS[0]};border-color:${ch.color || TRACK_COLORS[0]};` : ''}" title="${t}h">${t === 100 ? '✓' : t}</span>`).join('')}</div>`;
-  const card = (ch) => `
-    <div class="track-card" style="--tc:${ch.color || TRACK_COLORS[0]};">
-      <div class="track-ring-wrap">${ring(ch)}</div>
-      <div class="track-info">
-        <div class="track-name">${esc(ch.name)} ${ch.done ? '<span class="tag tag-green">已达成</span>' : ''}</div>
-        <div class="track-target">目标 ${ch.target}h · 还差 <b>${Math.max(0, (ch.target - ch.hours)).toFixed(1)}</b>h</div>
-        ${pips(ch)}
-        <div class="track-actions">
-          <button class="btn btn-soft btn-sm" onclick="trackAddHours('${ch.id}',0.5)">+0.5h</button>
-          <button class="btn btn-soft btn-sm" onclick="trackAddHours('${ch.id}',1)">+1h</button>
-          <button class="btn btn-outline btn-sm" onclick="trackCustomHours('${ch.id}')">自定义</button>
-          <button class="btn btn-outline btn-sm" onclick="trackAddFromPomo('${ch.id}')">今日番茄+</button>
-          <button class="btn btn-outline btn-sm" onclick="openTrackModal('${ch.id}')">编辑</button>
-          <button class="btn-icon danger" onclick="trackDel('${ch.id}')">${ICO.trash}</button>
+
+function goalRing(g) {
+  const pct = goalPct(g); const color = g.color || TRACK_COLORS[0];
+  const r = 52, c = 2 * Math.PI * r, off = c * (1 - pct / 100);
+  return `<svg class="track-ring" viewBox="0 0 120 120"><circle class="track-ring-bg" cx="60" cy="60" r="${r}"/><circle class="track-ring-fg" cx="60" cy="60" r="${r}" style="stroke:${color};stroke-dasharray:${c.toFixed(1)};stroke-dashoffset:${off.toFixed(1)};"/><text class="track-ring-pct" x="60" y="56">${pct}%</text><text class="track-ring-sub" x="60" y="78">${(g.value || 0).toFixed(goalValueDecimals(g))}${goalUnitLabel(g)}</text></svg>`;
+}
+function goalPips(g) {
+  const ms = goalMilestones(g); const color = g.color || TRACK_COLORS[0]; const val = g.value || 0;
+  const max = g.target || 1;
+  return `<div class="goal-milestones">${ms.map(m => {
+    const on = val >= m; const pct = Math.min(100, Math.round(m / max * 100));
+    return `<div class="goal-milestone ${on ? 'on' : ''}" title="${m}${goalUnitLabel(g)} (${pct}%)"><div class="goal-ms-dot" style="${on ? `background:${color};border-color:${color};` : ''}">${on ? ICONS.check : pct + '%'}</div><div class="goal-ms-label">${m}</div></div>`;
+  }).join('')}</div>`;
+}
+function goalHistory(g) {
+  const logs = (g.logs || []).slice(0, 30);
+  if (!logs.length) return `<div class="empty-state-v2" style="padding:18px 0;"><div class="empty-state-v2-text">暂无打卡记录</div><div class="empty-state-v2-hint">每次投入后都会在这里留下足迹</div></div>`;
+  return `<div class="goal-history"><div class="goal-history-title">最近打卡</div>${logs.map(l => `<div class="goal-history-item"><div class="goal-history-dot" style="background:${g.color || TRACK_COLORS[0]}"></div><div class="goal-history-info"><div class="goal-history-amount">+${l.amount} ${goalUnitLabel(g)}</div><div class="goal-history-meta">${l.date}${l.time ? ' ' + l.time : ''}${l.note ? ' · ' + esc(l.note) : ''}</div></div></div>`).join('')}</div>`;
+}
+function goalStats(g) {
+  const logs = g.logs || [];
+  const totalDays = new Set(logs.map(l => l.date)).size;
+  const totalAmount = logs.reduce((s, l) => s + (parseFloat(l.amount) || 0), 0);
+  const avg = logs.length ? (totalAmount / logs.length).toFixed(1) : 0;
+  const remaining = goalRemaining(g);
+  return `<div class="grid-4 goal-stats"><div class="goal-stat"><div class="goal-stat-num">${logs.length}</div><div class="goal-stat-label">打卡次数</div></div><div class="goal-stat"><div class="goal-stat-num">${totalDays}</div><div class="goal-stat-label">坚持天数</div></div><div class="goal-stat"><div class="goal-stat-num">${avg}</div><div class="goal-stat-label">平均每次</div></div><div class="goal-stat"><div class="goal-stat-num">${remaining.toFixed(goalValueDecimals(g))}</div><div class="goal-stat-label">还差${goalUnitLabel(g)}</div></div></div>`;
+}
+function goalCard(g) {
+  const steps = goalQuickSteps(g);
+  return `<div class="goal-card ${g.done ? 'done' : ''}" style="--gc:${g.color || TRACK_COLORS[0]};">
+    <div class="goal-card-top" onclick="goalDetailId='${g.id}';Nav.refresh();">
+      <div class="goal-ring-wrap">${goalRing(g)}</div>
+      <div class="goal-card-info">
+        <div class="goal-card-name">${esc(g.name)} ${g.done ? '<span class="tag tag-green">已完成</span>' : isOverdue(g) ? '<span class="tag tag-red">已逾期</span>' : ''}</div>
+        <div class="goal-card-meta">目标 ${(g.target || 0).toFixed(0)} ${goalUnitLabel(g)} · 还差 ${goalRemaining(g).toFixed(goalValueDecimals(g))} ${goalUnitLabel(g)}</div>
+        ${g.endDate ? `<div class="goal-card-due ${isOverdue(g) ? 'overdue' : ''}">截止 ${g.endDate}</div>` : ''}
+        ${goalPips(g)}
+      </div>
+    </div>
+    <div class="goal-card-actions">
+      ${steps.map(s => `<button class="btn btn-soft btn-sm" onclick="event.stopPropagation();goalAddValue('${g.id}', ${s})">+${s}${goalUnitLabel(g)}</button>`).join('')}
+      <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openGoalCheckIn('${g.id}')">打卡</button>
+      <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openGoalModal('${g.id}')">编辑</button>
+      <button class="btn-icon danger" onclick="event.stopPropagation();goalDel('${g.id}')">${ICO.trash}</button>
+    </div>
+  </div>`;
+}
+function goalDetailView(g) {
+  const steps = goalQuickSteps(g);
+  return `
+    <div class="goal-detail">
+      <div class="goal-detail-head">
+        <button class="btn btn-ghost btn-sm" onclick="goalDetailId=null;Nav.refresh();"><span style="margin-right:4px;">←</span>返回列表</button>
+        <div class="goal-detail-title">${esc(g.name)} ${g.done ? '<span class="tag tag-green">已完成</span>' : isOverdue(g) ? '<span class="tag tag-red">已逾期</span>' : ''}</div>
+      </div>
+      <div class="goal-detail-main">
+        <div class="goal-ring-lg-wrap">${goalRing(g)}</div>
+        <div class="goal-detail-info">
+          <div class="goal-detail-stat">目标 <b>${g.target}</b> ${goalUnitLabel(g)} · 当前 <b>${(g.value || 0).toFixed(goalValueDecimals(g))}</b> ${goalUnitLabel(g)} · 完成度 <b>${goalPct(g)}%</b></div>
+          <div class="goal-detail-dates">${ICONS.calendar} ${g.startDate || '未设置'} ${g.endDate ? '→ ' + g.endDate : ''}</div>
+          ${goalPips(g)}
+          <div class="goal-detail-actions">
+            ${steps.map(s => `<button class="btn btn-soft" onclick="goalAddValue('${g.id}', ${s})">+${s}${goalUnitLabel(g)}</button>`).join('')}
+            <button class="btn btn-primary" onclick="openGoalCheckIn('${g.id}')">${ICONS.check} 打卡</button>
+            <button class="btn btn-outline" onclick="goalAddFromPomo('${g.id}')">${ICONS.tomato} 番茄+</button>
+            <button class="btn btn-outline" onclick="openGoalModal('${g.id}')">${ICONS.edit} 编辑</button>
+          </div>
         </div>
       </div>
+      ${goalStats(g)}
+      ${goalHistory(g)}
     </div>`;
+}
+
+Modules.track100 = () => {
+  const list = getChallenges();
+  if (goalDetailId) {
+    const g = list.find(x => x.id === goalDetailId);
+    if (g) return goalDetailView(g);
+    goalDetailId = null;
+  }
+  const active = list.filter(g => !g.done);
+  const done = list.filter(g => g.done);
+  const totalValue = list.reduce((s, g) => s + (g.value || 0), 0);
+  const totalTarget = list.reduce((s, g) => s + (g.target || 0), 0);
+  const overall = totalTarget ? Math.min(100, Math.round(totalValue / totalTarget * 100)) : 0;
+  const firstUnit = list.length ? goalUnitLabel(list[0]) : '';
   return `
-    <div class="reading-streak-banner" style="background:linear-gradient(135deg,#eef2ff,#faf5ff);"><div class="reading-streak-flame">🎯</div><div class="reading-streak-info"><div class="reading-streak-num" style="color:var(--primary);">累计 ${totalHours.toFixed(1)} / ${totalTarget} 小时 · 总进度 ${overall}%</div><div class="reading-streak-text">百时定律：投入 100 小时刻意练习，你就能超越大多数人</div></div></div>
-    <div class="flex-between" style="margin:12px 0;"><div class="card-title" style="margin:0;">🎯 我的百时挑战 (${list.length})</div><button class="btn btn-primary btn-sm" onclick="openTrackModal()">+ 新建挑战</button></div>
-    ${list.length ? `<div class="track-grid">${list.slice().reverse().map(card).join('')}</div>` : `<div class="empty-state-v2"><div class="empty-state-v2-icon">🎯</div><div class="empty-state-v2-text">还没有百时挑战</div><div class="empty-state-v2-hint">新建一个「100 小时」目标，每天记录投入，见证进度可见</div></div>`}
+    <div class="reading-streak-banner goal-banner">
+      <div class="reading-streak-flame">${ICONS.target}</div>
+      <div class="reading-streak-info">
+        <div class="reading-streak-num" style="color:var(--primary);">总进度 ${overall}% · 累计 ${totalValue.toFixed(1)} / ${totalTarget.toFixed(0)} ${firstUnit}</div>
+        <div class="reading-streak-text">把大目标拆成可量化的小步，每一步都算数</div>
+      </div>
+    </div>
+    <div class="flex-between" style="margin:14px 0 10px;">
+      <div class="card-title" style="margin:0;">${ICONS.target} 我的目标 <span class="badge">${active.length}</span></div>
+      <button class="btn btn-primary btn-sm" onclick="openGoalModal()">+ 新建目标</button>
+    </div>
+    ${active.length ? `<div class="goal-grid">${active.slice().reverse().map(goalCard).join('')}</div>` : `<div class="empty-state-v2"><div class="empty-state-v2-icon">${ICONS.target}</div><div class="empty-state-v2-text">还没有目标</div><div class="empty-state-v2-hint">新建一个可量化的目标，每天记录进度，见证量变到质变</div></div>`}
+    ${done.length ? `<div class="flex-between" style="margin:22px 0 10px;"><div class="card-title" style="margin:0;">${ICONS.trophy} 已完成</div></div><div class="goal-grid done">${done.slice().reverse().map(goalCard).join('')}</div>` : ''}
   `;
 };
 ModuleHooks.track100 = () => {};
+
+// ---------- AI 助手 ----------
+const AI_CONFIG_KEY = 'wb_ai_config';
+const AI_CHAT_KEY = 'wb_ai_chat';
+let aiOpen = false;
+let aiLoading = false;
+let aiMessages = [];
+
+function getAIConfig() { return Store.get(AI_CONFIG_KEY, { provider: 'openai', baseURL: '', model: '', apiKey: '' }); }
+function saveAIConfig(cfg) { Store.set(AI_CONFIG_KEY, { ...getAIConfig(), ...cfg }); }
+
+function aiSystemPrompt() {
+  return `你是「个人工作台」的 AI 助手。当前日期：${todayKey()}。
+
+应用包含以下模块：
+- 计划：每日待办任务，可带子任务、可重复。
+- 番茄钟：专注计时，focus 会话会记录专注分钟。
+- 目标追踪：可量化目标，单位可选 hour（小时）、count（次数）、page（页）、day（天）、custom（自定义）。目标有 startDate、endDate、target、value、logs。
+- 成就：内置 + 自定义，自定义条件类型有 level、checkin、streak、pomodoro、task_total、coins_earned、reading_pages、attr_level。
+- 商店：用金币兑换奖励。
+- 其他：记账、阅读、运动、喝水。
+
+当用户请你制定计划/目标/任务/成就时，请用自然语言回复，并在回复末尾附加一段可被解析的 JSON（格式如下）。如果用户只是闲聊或问问题，JSON 各数组为空即可。
+
+JSON 格式：
+{
+  "goals": [{"name": "目标名称", "unit": "hour", "target": 100, "startDate": "YYYY-MM-DD", "endDate": "YYYY-MM-DD", "color": "#6366f1", "customUnit": ""}],
+  "tasks": [{"text": "任务内容", "category": "学习/生活/健康/工作/其他", "attr": "intelligence/strength/charisma/creativity/discipline/health", "subtasks": []}],
+  "achievements": [{"name": "成就名", "condType": "task_total", "target": 30, "attr": "intelligence", "icon": "🎯"}],
+  "reply": "给用户的自然语言回复（必须存在）"
+}
+
+注意：
+- unit 只能是 hour、count、page、day、custom 之一；custom 时必须带 customUnit。
+- target 必须是正数。
+- startDate 默认值 today，endDate 可空。
+- 不要输出 markdown 代码块标记，直接把 JSON 放在最后一段即可。`;
+}
+
+function renderAIFab() {
+  if (document.getElementById('aiFab')) return;
+  const fab = document.createElement('button');
+  fab.className = 'ai-fab'; fab.id = 'aiFab';
+  fab.setAttribute('aria-label', 'AI 助手');
+  fab.innerHTML = ICONS.ai;
+  fab.onclick = toggleAI;
+  document.body.appendChild(fab);
+  const panel = document.createElement('div');
+  panel.className = 'ai-panel'; panel.id = 'aiPanel'; panel.style.display = 'none';
+  panel.innerHTML = `
+    <div class="ai-panel-head"><div class="ai-panel-title">${ICONS.ai} AI 助手</div><button class="btn-icon" onclick="toggleAI()">${ICONS.close}</button></div>
+    <div class="ai-panel-body" id="aiBody"></div>
+    <div class="ai-panel-input"><textarea id="aiInput" placeholder="说点什么，比如：帮我制定一个 30 天学英语计划…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}"></textarea><button class="btn btn-primary" id="aiSendBtn" onclick="aiSend()">发送</button></div>
+  `;
+  document.body.appendChild(panel);
+  aiMessages = Store.get(AI_CHAT_KEY, []);
+  if (!aiMessages.length) aiAppend('assistant', '你好！我是你的 AI 助手。你可以让我帮你制定计划、拆解目标、创建任务或成就。\n\n例如：\n• 帮我制定一个 100 小时学 React 的目标\n• 给我列本周学习计划\n• 设计 30 天健身挑战', false);
+  else aiMessages.forEach(m => aiAppend(m.role, m.content, false));
+}
+function toggleAI() {
+  aiOpen = !aiOpen;
+  const panel = document.getElementById('aiPanel');
+  if (panel) panel.style.display = aiOpen ? 'flex' : 'none';
+  if (aiOpen) setTimeout(() => document.getElementById('aiInput')?.focus(), 50);
+}
+function aiAppend(role, text, save = true) {
+  const body = document.getElementById('aiBody'); if (!body) return;
+  const div = document.createElement('div'); div.className = `ai-msg ${role}`; div.textContent = text;
+  body.appendChild(div); body.scrollTop = body.scrollHeight;
+  if (save) { aiMessages.push({ role, content: text, time: Date.now() }); if (aiMessages.length > 50) aiMessages = aiMessages.slice(-50); Store.set(AI_CHAT_KEY, aiMessages); }
+}
+async function aiSend() {
+  const input = document.getElementById('aiInput'); const btn = document.getElementById('aiSendBtn'); if (!input || aiLoading) return;
+  const text = input.value.trim(); if (!text) return;
+  const cfg = getAIConfig(); if (!cfg.apiKey) { aiAppend('error', '请先在「设置」中配置 AI API Key。'); return; }
+  input.value = ''; aiAppend('user', text); aiLoading = true; if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  try {
+    const messages = [{ role: 'system', content: aiSystemPrompt() }, ...aiMessages.slice(-12).map(m => ({ role: m.role, content: m.content }))];
+    const res = await fetch('/api/ai', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ baseURL: cfg.baseURL, model: cfg.model, apiKey: cfg.apiKey, messages, temperature: 0.7 })
+    });
+    const data = await res.json(); if (!data.ok) throw new Error(data.error || '请求失败');
+    const choice = data.data?.choices?.[0]; if (!choice) throw new Error('AI 返回为空');
+    const content = choice.message?.content || '';
+    aiAppend('assistant', content);
+    aiTryShowImport(content);
+  } catch (e) {
+    aiAppend('error', '请求失败：' + e.message);
+  } finally {
+    aiLoading = false; if (btn) { btn.disabled = false; btn.textContent = '发送'; }
+  }
+}
+function aiTryShowImport(content) {
+  const json = aiExtractJSON(content); if (!json) return;
+  const parts = [];
+  if (json.goals && json.goals.length) parts.push(`${json.goals.length} 个目标`);
+  if (json.tasks && json.tasks.length) parts.push(`${json.tasks.length} 个任务`);
+  if (json.achievements && json.achievements.length) parts.push(`${json.achievements.length} 个成就`);
+  if (!parts.length) return;
+  const body = document.getElementById('aiBody'); if (!body) return;
+  const box = document.createElement('div'); box.className = 'ai-import-box';
+  box.innerHTML = `<div class="ai-import-title">检测到可导入内容：${parts.join('、')}</div>
+    <div class="ai-import-list">${aiImportListHtml(json)}</div>
+    <div style="display:flex;gap:8px;margin-top:10px;"><button class="btn btn-primary btn-sm" onclick="aiImport(this)">${ICONS.check} 一键导入</button><button class="btn btn-outline btn-sm" onclick="this.closest('.ai-import-box').remove()">取消</button></div>
+    <pre style="display:none">${esc(JSON.stringify(json))}</pre>`;
+  body.appendChild(box); body.scrollTop = body.scrollHeight;
+}
+function aiImportListHtml(json) {
+  const lines = [];
+  (json.goals || []).forEach(g => lines.push(`• 目标「${esc(g.name)}」${g.target}${g.customUnit || (g.unit === 'hour' ? '小时' : g.unit === 'count' ? '次' : g.unit === 'page' ? '页' : g.unit === 'day' ? '天' : g.unit || '')}`));
+  (json.tasks || []).forEach(t => lines.push(`• 任务「${esc(t.text)}」`));
+  (json.achievements || []).forEach(a => lines.push(`• 成就「${esc(a.name)}」`));
+  return lines.join('<br>');
+}
+function aiExtractJSON(text) {
+  const m = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (m) try { return JSON.parse(m[1].trim()); } catch {}
+  const idx = text.lastIndexOf('{'); if (idx < 0) return null;
+  for (let i = text.length; i > idx; i--) { try { return JSON.parse(text.slice(idx, i)); } catch {} }
+  return null;
+}
+function aiImport(node) {
+  const pre = node.closest('.ai-import-box')?.querySelector('pre'); if (!pre) return;
+  let json; try { json = JSON.parse(pre.textContent); } catch { toast('导入数据解析失败', 'error'); return; }
+  let count = 0;
+  if (json.goals && json.goals.length) { json.goals.forEach(g => aiCreateGoal(g)); count += json.goals.length; }
+  if (json.tasks && json.tasks.length) { json.tasks.forEach(t => aiCreateTask(t)); count += json.tasks.length; }
+  if (json.achievements && json.achievements.length) { json.achievements.forEach(a => aiCreateAchievement(a)); count += json.achievements.length; }
+  toast(`已导入 ${count} 项内容`, 'success');
+  node.closest('.ai-import-box').remove();
+  Nav.refresh();
+}
+function aiCreateGoal(g) {
+  const list = getChallenges();
+  const unit = (g.unit || 'hour').toLowerCase();
+  const customUnit = unit === 'custom' ? (g.customUnit || '单位').trim() : '';
+  const target = Math.max(1, parseFloat(g.target) || 100);
+  const color = TRACK_COLORS.includes(g.color) ? g.color : TRACK_COLORS[Math.floor(Math.random() * TRACK_COLORS.length)];
+  list.push({ id: uid(), name: (g.name || '未命名目标').trim(), unit, customUnit, target, value: 0, color, created: todayKey(), startDate: g.startDate || todayKey(), endDate: g.endDate || '', claimed: [], done: false, logs: [] });
+  saveChallenges(list);
+}
+function aiCreateTask(t) {
+  const tasks = Store.getDaily('plan', []);
+  const cat = (t.category || '其他').trim();
+  const attrMap = { 学习: 'intelligence', 生活: 'discipline', 健康: 'health', 工作: 'discipline', 其他: 'creativity' };
+  tasks.push({ id: uid(), text: (t.text || '未命名任务').trim(), done: false, category: cat, attr: attrMap[cat] || 'creativity', subtasks: [], created: Date.now() });
+  Store.setDaily('plan', tasks);
+}
+function aiCreateAchievement(a) {
+  const list = Store.get('wb_custom_achievements', []);
+  list.push({ id: uid(), name: (a.name || '未命名成就').trim(), icon: (a.icon || '🎯').trim(), desc: '', cond: { type: a.condType || 'task_total', target: Math.max(1, parseInt(a.target) || 1), attr: a.attr || 'strength' }, unlocked: false });
+  Store.set('wb_custom_achievements', list);
+}
+window.toggleAI = toggleAI;
+window.aiSend = aiSend;
+window.aiImport = aiImport;
 
 init();
