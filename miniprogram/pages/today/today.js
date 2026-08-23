@@ -31,6 +31,11 @@ Page({
 
   load() {
     getLifeCenter().then(lc => {
+      // ===== 临时调试日志（定位同步问题用）=====
+      console.log('[DEBUG] getLifeCenter 返回 lc 类型:', typeof lc);
+      console.log('[DEBUG] lc 原始:', JSON.stringify(lc).slice(0, 500));
+      console.log('[DEBUG] lc.today 是否存在:', !!(lc && lc.today), ' 长度:', (lc && lc.today ? lc.today.length : -1));
+      // ===== 调试结束 =====
       const tk = todayKey();
       const raw = (lc && lc.today) || [];
       const tasks = raw.filter(t => t.date === tk).map(t => ({
