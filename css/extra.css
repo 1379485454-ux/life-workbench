@@ -546,3 +546,31 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
   .lc-edit-row, .lc-remind-row { flex-wrap: wrap; }
   .lc-remind-row .lc-remind-time { flex: 0 0 100%; }
 }
+
+/* ===== 目标辐射图 / 今日任务篮 / 想看清单 (v42) ===== */
+.goal-map { display: flex; flex-direction: column; gap: 16px; }
+.gm-core { padding: 18px; }
+.gm-core-text { font-size: 17px; font-weight: 700; line-height: 1.5; margin: 6px 0 12px; color: var(--text); }
+.gm-core-empty { color: var(--muted); margin: 6px 0 12px; font-size: 14px; }
+.gm-branches { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.gm-branch { padding: 16px; border-top: 3px solid var(--accent, #0EA5E9); }
+.gm-branch-生活 { border-top-color: #34c759; }
+.gm-branch-学习 { border-top-color: #2f88ff; }
+.gm-branch-工作 { border-top-color: #ff9f0a; }
+.gm-branch-偶发 { border-top-color: #af52de; }
+.gm-act-list { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.gm-act { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.gm-act-text { flex: 1; }
+.gm-act-text.line-through { text-decoration: line-through; color: var(--muted); }
+.gm-act-pts { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.gm-act-tag { font-size: 11px; background: rgba(14,165,233,.16); color: var(--accent); padding: 1px 6px; border-radius: 6px; white-space: nowrap; }
+.gm-act-empty { font-size: 13px; color: var(--muted); padding: 4px 0; }
+.gm-act-add { display: flex; gap: 8px; margin-top: 8px; }
+.gm-act-add input { flex: 1; min-width: 0; }
+.gm-watch { padding: 16px; }
+.lc-edit-num { width: 56px; }
+.br-act-text { flex: 1; min-width: 0; }
+.modal-tip { font-size: 12px; color: var(--muted); background: rgba(14,165,233,.1); padding: 8px 10px; border-radius: 8px; margin-top: 6px; line-height: 1.5; }
+@media (max-width: 640px) {
+  .gm-branches { grid-template-columns: 1fr; }
+}

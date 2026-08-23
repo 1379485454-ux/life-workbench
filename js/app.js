@@ -93,6 +93,7 @@ const ICO = {
 // ===== 菜单配置 =====
 const MENU = [
   { id: 'home', name: '工作台首页', icon: ICONS.home, group: 'main' },
+  { id: 'goal', name: '我的目标', icon: ICONS.target, group: 'goal' },
   { id: 'plan', name: '计划管理', icon: ICONS.plan, group: 'habit' },
   { id: 'read', name: '每日阅读', icon: ICONS.read, group: 'habit' },
   { id: 'exercise', name: '锻炼身体', icon: ICONS.exercise, group: 'habit' },
@@ -111,7 +112,7 @@ const MENU = [
   { id: 'backup', name: '数据备份', icon: ICONS.backup, group: 'sys' },
   { id: 'settings', name: '设置', icon: ICONS.settings, group: 'sys' },
 ];
-const GROUP_NAMES = { habit: '每日习惯', inspire: '灵感资讯', grow: '成长系统', sys: '数据与系统' };
+const GROUP_NAMES = { habit: '每日习惯', inspire: '灵感资讯', grow: '成长系统', goal: '我的目标', sys: '数据与系统' };
 
 // ===== 存储层 =====
 const Store = {
@@ -2760,44 +2761,86 @@ function init() {
 
 // ===================== 我的重心（个人目标圆心 + 今日焦点 + 时段通知） =====================
 function getLifeCenter() {
-  return Store.get('wb_lifecenter', { core: '', driving: [], blocks: [], focus: [], reminders: [] });
+  const d = Store.get('wb_lifecenter', null);
+  const def = { core: '', branches: [], today: [], watch: [], reminders: [], _v: 2 };
+  if (!d) return def;
+  if (!d.branches) d.branches = [];
+  if (!d.today) d.today = (d.focus || []).map(f => ({ id: f.id, branchId: '', actionId: '', text: f.text, done: !!f.done, date: f.date }));
+  if (!d.watch) d.watch = [];
+  if (!d.reminders) d.reminders = [];
+  return d;
 }
-function saveLifeCenter(obj) { Store.set('wb_lifecenter', obj); }
+function saveLifeCenter(obj) { obj._v = 2; Store.set('wb_lifecenter', obj); }
+const BRANCH_TYPES = ['生活', '学习', '工作', '偶发'];
+function ensureBranches() {
+  const lc = getLifeCenter();
+  if (!lc.branches || !lc.branches.length) {
+    lc.branches = BRANCH_TYPES.map(t => ({ id: uid(), name: t, type: t, driving: [], blocks: [], actions: [] }));
+    saveLifeCenter(lc);
+  }
+  return lc;
+}
+function ensureTodayBasket() {
+  const lc = getLifeCenter(); const tk = todayKey();
+  lc.today = (lc.today || []).filter(t => t.date === tk);
+  (lc.branches || []).forEach(b => {
+    const acts = (b.actions || []).filter(a => a.daily || !(a.doneDates || []).includes(tk));
+    acts.slice(0, 2).forEach(a => {
+      if (!lc.today.some(t => t.actionId === a.id)) {
+        lc.today.push({ id: uid(), branchId: b.id, actionId: a.id, text: a.text, done: false, date: tk, auto: true });
+      }
+    });
+  });
+  saveLifeCenter(lc); return lc;
+}
 
 function renderLifeCenter() {
+  ensureBranches();
+  ensureTodayBasket();
   const lc = getLifeCenter();
-  const today = todayKey();
-  const focusToday = (lc.focus || []).filter(f => f.date === today);
-  const focusHtml = focusToday.length ? focusToday.map(f => `
-    <div class="lc-focus-item ${f.done ? 'done' : ''}">
-      <div class="task-checkbox ${f.done ? 'checked' : ''}" onclick="toggleFocus('${f.id}')"></div>
-      <span class="lc-focus-text">${esc(f.text)}</span>
-      <button class="lc-focus-del" onclick="delFocus('${f.id}')" title="删除">${ICONS.close}</button>
-    </div>`).join('') : `<div class="lc-empty">今天还没有焦点，加一件最该做的事 👇</div>`;
+  const tk = todayKey();
+  const today = (lc.today || []).filter(t => t.date === tk);
+  const doneCount = today.filter(t => t.done).length;
   const coreHtml = lc.core
     ? `<div class="lc-core">${ICONS.target} ${esc(lc.core)}</div>`
-    : `<div class="lc-core lc-core-empty">还没设定核心目标，点右上角 ✎ 写下一句话</div>`;
-  const driving = (lc.driving || []).filter(Boolean);
-  const blocks = (lc.blocks || []).filter(Boolean);
-  const motivHtml = (driving.length || blocks.length) ? `
-    <div class="lc-motiv">
-      ${driving.length ? `<div class="lc-motiv-col"><div class="lc-motiv-h lc-driving-h">🟢 动力</div>${driving.map(d => `<div class="lc-motiv-item">${esc(d)}</div>`).join('')}</div>` : ''}
-      ${blocks.length ? `<div class="lc-motiv-col"><div class="lc-motiv-h lc-block-h">🔴 阻碍</div>${blocks.map(b => `<div class="lc-motiv-item">${esc(b)}</div>`).join('')}</div>` : ''}
-    </div>` : '';
+    : `<div class="lc-core lc-core-empty">还没设定总目标，打开「我的目标」写下一句话 👇</div>`;
+  const basketHtml = today.length ? today.map(t => `
+    <div class="lc-focus-item ${t.done ? 'done' : ''}">
+      <div class="task-checkbox ${t.done ? 'checked' : ''}" onclick="toggleToday('${t.id}')"></div>
+      <span class="lc-focus-text">${esc(t.text)}</span>
+      <button class="lc-focus-del" onclick="delToday('${t.id}')" title="删除">${ICONS.close}</button>
+    </div>`).join('') : `<div class="lc-empty">今天还没有任务，去「我的目标」添加，或手动加一件 👇</div>`;
   return `
     <div class="card sec-life-center glass" id="secLifeCenter">
-      <div class="card-title">我的重心 <span class="card-subtitle">每天围绕它活</span>
-        <button class="lc-edit-btn" onclick="editLifeCenter()" title="编辑核心目标 / 动力 / 阻碍 / 提醒">${ICO.edit} 编辑</button>
+      <div class="card-title">今日任务篮 <span class="card-subtitle">${doneCount}/${today.length} 已完成</span>
+        <button class="lc-edit-btn" onclick="Nav.switchTo('goal')" title="打开我的目标辐射图">${ICONS.target} 我的目标</button>
       </div>
       ${coreHtml}
       <div class="lc-focus-add">
-        <input type="text" id="lcFocusInput" placeholder="今天最该做的 1 件事…（回车添加）" maxlength="60" onkeydown="if(event.key==='Enter')addFocus()">
-        <button class="btn btn-primary btn-sm" onclick="addFocus()">${ICO.plus} 添加</button>
+        <input type="text" id="lcFocusInput" placeholder="手动加一件今天要做的…（回车添加）" maxlength="60" onkeydown="if(event.key==='Enter')addTodayCustom()">
+        <button class="btn btn-primary btn-sm" onclick="addTodayCustom()">${ICO.plus} 加</button>
       </div>
-      <div class="lc-focus-list">${focusHtml}</div>
-      ${motivHtml}
+      <div class="lc-focus-list">${basketHtml}</div>
     </div>`;
 }
+function addTodayCustom() {
+  const inp = document.getElementById('lcFocusInput'); if (!inp) return;
+  const text = inp.value.trim(); if (!text) return;
+  const lc = getLifeCenter(); lc.today = lc.today || [];
+  lc.today.push({ id: uid(), branchId: '', actionId: '', text, done: false, date: todayKey(), auto: false });
+  saveLifeCenter(lc); Nav.refresh();
+}
+function toggleToday(id) {
+  const lc = getLifeCenter(); const t = (lc.today || []).find(x => x.id === id); if (!t) return;
+  t.done = !t.done;
+  if (t.done && t.actionId) {
+    const b = (lc.branches || []).find(x => x.id === t.branchId);
+    const a = b && (b.actions || []).find(x => x.id === t.actionId);
+    if (a) { a.doneDates = a.doneDates || []; if (!a.doneDates.includes(todayKey())) a.doneDates.push(todayKey()); if (typeof Game !== 'undefined' && Game.reward) Game.reward(a.points || 5, 3, 1, '自律'); }
+  }
+  saveLifeCenter(lc); Nav.refresh();
+}
+function delToday(id) { const lc = getLifeCenter(); lc.today = (lc.today || []).filter(x => x.id !== id); saveLifeCenter(lc); Nav.refresh(); }
 
 function addFocus() {
   const inp = document.getElementById('lcFocusInput');
@@ -2825,28 +2868,167 @@ function delFocus(id) {
   Nav.refresh();
 }
 
+function renderGoalMap() {
+  ensureBranches();
+  ensureTodayBasket();
+  const lc = getLifeCenter();
+  const tk = todayKey();
+  const branches = lc.branches || [];
+  const goalCard = `
+    <div class="card glass gm-core">
+      <div class="card-title">🎯 总目标（我的人生圆心）</div>
+      ${lc.core ? `<div class="gm-core-text">${esc(lc.core)}</div>` : `<div class="gm-core-empty">还没写总目标。点「编辑总目标」写下一句话，所有事都围绕它转。</div>`}
+      <button class="btn btn-outline btn-sm" onclick="editLifeCenter()">${ICO.edit} 编辑总目标 / 提醒</button>
+    </div>`;
+  const branchCards = branches.map(b => {
+    const acts = b.actions || [];
+    const actHtml = acts.length ? acts.map(a => `
+      <div class="gm-act ${a.daily ? 'gm-act-daily' : ''}">
+        <div class="task-checkbox ${a.doneDates && a.doneDates.includes(tk) ? 'checked' : ''}" onclick="toggleBranchAction('${b.id}','${a.id}')"></div>
+        <span class="gm-act-text ${a.doneDates && a.doneDates.includes(tk) ? 'line-through' : ''}">${esc(a.text)}</span>
+        <span class="gm-act-pts">${a.points || 5}分</span>
+        ${a.daily ? '<span class="gm-act-tag">每日</span>' : ''}
+        <button class="lc-edit-del" onclick="delBranchAction('${b.id}','${a.id}')">${ICONS.close}</button>
+      </div>`).join('') : `<div class="gm-act-empty">还没有动作，加一件具体的事 👇</div>`;
+    const motiv = (b.driving && b.driving.length) || (b.blocks && b.blocks.length) ? `
+      <div class="lc-motiv">
+        ${(b.driving || []).length ? `<div class="lc-motiv-col"><div class="lc-motiv-h lc-driving-h">🟢 动力</div>${(b.driving || []).map(d => `<div class="lc-motiv-item">${esc(d)}</div>`).join('')}</div>` : ''}
+        ${(b.blocks || []).length ? `<div class="lc-motiv-col"><div class="lc-motiv-h lc-block-h">🔴 阻碍</div>${(b.blocks || []).map(x => `<div class="lc-motiv-item">${esc(x)}</div>`).join('')}</div>` : ''}
+      </div>` : '';
+    return `
+      <div class="card glass gm-branch gm-branch-${b.type}">
+        <div class="card-title">${b.type} <span class="card-subtitle">${acts.length} 个动作</span>
+          <button class="lc-edit-btn" onclick="editBranch('${b.id}')">${ICO.edit} 管理</button>
+        </div>
+        ${motiv}
+        <div class="gm-act-list">${actHtml}</div>
+        <div class="gm-act-add">
+          <input type="text" id="gmAct_${b.id}" placeholder="加一个具体动作…（回车）" maxlength="50" onkeydown="if(event.key==='Enter')addBranchAction('${b.id}')">
+          <button class="btn btn-primary btn-sm" onclick="addBranchAction('${b.id}')">${ICO.plus} 加</button>
+        </div>
+      </div>`;
+  }).join('');
+  return `
+    <div class="goal-map">
+      ${goalCard}
+      <div class="gm-branches">${branchCards}</div>
+      ${renderWatchlist()}
+    </div>`;
+}
+function renderWatchlist() {
+  const lc = getLifeCenter();
+  const watch = lc.watch || [];
+  const wHtml = watch.length ? watch.map(w => `
+    <div class="lc-focus-item ${w.done ? 'done' : ''}">
+      <div class="task-checkbox ${w.done ? 'checked' : ''}" onclick="toggleWatch('${w.id}')"></div>
+      <span class="lc-focus-text">${esc(w.text)}</span>
+      <button class="lc-focus-del" onclick="delWatch('${w.id}')" title="删除">${ICONS.close}</button>
+    </div>`).join('') : `<div class="lc-empty">想看清单空空，加部剧/综艺/电影/游戏 📺</div>`;
+  return `
+    <div class="card glass gm-watch">
+      <div class="card-title">📺 想看清单 <span class="card-subtitle">看完划掉，防遗忘</span></div>
+      <div class="lc-focus-add">
+        <input type="text" id="gmWatchInput" placeholder="想看的剧/综/影/游…（回车添加）" maxlength="50" onkeydown="if(event.key==='Enter')addWatch()">
+        <button class="btn btn-primary btn-sm" onclick="addWatch()">${ICO.plus} 加</button>
+      </div>
+      <div class="lc-focus-list">${wHtml}</div>
+    </div>`;
+}
+function addWatch() {
+  const inp = document.getElementById('gmWatchInput'); if (!inp) return;
+  const text = inp.value.trim(); if (!text) return;
+  const lc = getLifeCenter(); lc.watch = lc.watch || [];
+  lc.watch.push({ id: uid(), text, done: false }); saveLifeCenter(lc); Nav.refresh();
+}
+function toggleWatch(id) { const lc = getLifeCenter(); const w = (lc.watch || []).find(x => x.id === id); if (!w) return; w.done = !w.done; saveLifeCenter(lc); Nav.refresh(); }
+function delWatch(id) { const lc = getLifeCenter(); lc.watch = (lc.watch || []).filter(x => x.id !== id); saveLifeCenter(lc); Nav.refresh(); }
+function addBranchAction(bid) {
+  const inp = document.getElementById('gmAct_' + bid); if (!inp) return;
+  const text = inp.value.trim(); if (!text) return;
+  const lc = getLifeCenter(); const b = (lc.branches || []).find(x => x.id === bid); if (!b) return;
+  b.actions = b.actions || []; b.actions.push({ id: uid(), text, points: 5, daily: false, doneDates: [] });
+  saveLifeCenter(lc); Nav.refresh();
+}
+function toggleBranchAction(bid, aid) {
+  const lc = getLifeCenter(); const b = (lc.branches || []).find(x => x.id === bid); if (!b) return;
+  const a = (b.actions || []).find(x => x.id === aid); if (!a) return;
+  a.doneDates = a.doneDates || []; const tk = todayKey();
+  if (a.doneDates.includes(tk)) { a.doneDates = a.doneDates.filter(d => d !== tk); }
+  else { a.doneDates.push(tk); if (typeof Game !== 'undefined' && Game.reward) Game.reward(a.points || 5, 3, 1, b.type === '工作' ? '自律' : b.type === '学习' ? '智力' : '体力'); }
+  saveLifeCenter(lc); Nav.refresh();
+}
+function delBranchAction(bid, aid) { const lc = getLifeCenter(); const b = (lc.branches || []).find(x => x.id === bid); if (!b) return; b.actions = (b.actions || []).filter(x => x.id !== aid); saveLifeCenter(lc); Nav.refresh(); }
+function editBranch(bid) {
+  UI.closeModal();
+  const lc = getLifeCenter(); const b = (lc.branches || []).find(x => x.id === bid); if (!b) return;
+  const overlay = document.createElement('div'); overlay.className = 'modal-overlay';
+  overlay.addEventListener('click', e => { if (e.target === overlay) UI.closeModal(); });
+  overlay.innerHTML = `
+    <div class="modal lc-modal">
+      <div class="modal-header"><div class="modal-title">${b.type} · 分支管理</div><button class="modal-close" onclick="UI.closeModal()">✕</button></div>
+      <div class="modal-body">
+        <div class="modal-field"><label>🟢 动力（为什么做这个方向）</label><div id="brDriving"></div><button class="btn btn-outline btn-sm" onclick="brAddItem('${bid}','driving')">${ICO.plus} 加一条动力</button></div>
+        <div class="modal-field"><label>🔴 阻碍（卡在哪）</label><div id="brBlocks"></div><button class="btn btn-outline btn-sm" onclick="brAddItem('${bid}','blocks')">${ICO.plus} 加一条阻碍</button></div>
+        <div class="modal-field"><label>具体动作（勾选「每日」= 自动进今日任务篮）</label><div id="brActions"></div><button class="btn btn-outline btn-sm" onclick="brAddAction('${bid}')">${ICO.plus} 加一个动作</button></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline btn-sm" onclick="UI.closeModal()">取消</button><button class="btn btn-primary btn-sm" onclick="saveBranchModal('${bid}')">保存</button></div>
+    </div>`;
+  document.body.appendChild(overlay); UI.modalEl = overlay;
+  (b.driving || []).forEach(t => brRenderItem('driving', t));
+  (b.blocks || []).forEach(t => brRenderItem('blocks', t));
+  (b.actions || []).forEach(a => brRenderAction(a));
+}
+function brAddItem(bid, kind, val) { brRenderItem(kind, val || ''); }
+function brRenderItem(kind, val) {
+  const box = document.getElementById(kind === 'driving' ? 'brDriving' : 'brBlocks'); if (!box) return;
+  const row = document.createElement('div'); row.className = 'lc-edit-row';
+  row.innerHTML = `<input type="text" class="lc-edit-input" value="${esc(val)}" placeholder="${kind === 'driving' ? '一件事吸引你…' : '一个常被卡住的点…'}"><button class="lc-edit-del" onclick="this.parentNode.remove()">${ICONS.close}</button>`;
+  box.appendChild(row);
+}
+function brAddAction(bid, val) { brRenderAction({ text: val || '', points: 5, daily: false }); }
+function brRenderAction(a) {
+  const box = document.getElementById('brActions'); if (!box) return;
+  const row = document.createElement('div'); row.className = 'lc-edit-row';
+  row.innerHTML = `<input type="text" class="lc-edit-input br-act-text" value="${esc(a.text || '')}" placeholder="具体动作…"><input type="number" class="lc-edit-num" value="${a.points || 5}" min="1" max="99" title="积分"><label class="lc-remind-on"><input type="checkbox" class="br-act-daily" ${a.daily ? 'checked' : ''}>每日</label><button class="lc-edit-del" onclick="this.parentNode.remove()">${ICONS.close}</button>`;
+  box.appendChild(row);
+}
+function saveBranchModal(bid) {
+  const lc = getLifeCenter(); const b = (lc.branches || []).find(x => x.id === bid); if (!b) return;
+  b.driving = Array.from(document.querySelectorAll('#brDriving .lc-edit-input')).map(i => i.value.trim()).filter(Boolean);
+  b.blocks = Array.from(document.querySelectorAll('#brBlocks .lc-edit-input')).map(i => i.value.trim()).filter(Boolean);
+  b.actions = Array.from(document.querySelectorAll('#brActions .lc-edit-row')).map(row => {
+    const text = row.querySelector('.br-act-text').value.trim(); if (!text) return null;
+    const existing = (b.actions || []).find(x => x.text === text);
+    return { id: existing ? existing.id : uid(), text, points: parseInt(row.querySelector('.lc-edit-num').value || '5', 10) || 5, daily: row.querySelector('.br-act-daily').checked, doneDates: existing ? existing.doneDates : [] };
+  }).filter(Boolean);
+  saveLifeCenter(lc); UI.closeModal(); Nav.refresh();
+}
+Modules.goal = () => renderGoalMap();
+
 function editLifeCenter() {
   UI.closeModal();
   const lc = getLifeCenter();
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay';
   overlay.addEventListener('click', e => { if (e.target === overlay) UI.closeModal(); });
+  const defRems = (lc.reminders && lc.reminders.length) ? lc.reminders : [
+    { time: '07:30', label: '晨间微习惯时间到', enabled: true },
+    { time: '19:30', label: '晚间重点：做今日任务篮', enabled: true },
+    { time: '21:00', label: '复盘一下今天', enabled: true }
+  ];
   overlay.innerHTML = `
     <div class="modal lc-modal">
-      <div class="modal-header"><div class="modal-title">${ICONS.target} 设定我的重心</div><button class="modal-close" onclick="UI.closeModal()">✕</button></div>
+      <div class="modal-header"><div class="modal-title">${ICONS.target} 编辑总目标 / 提醒</div><button class="modal-close" onclick="UI.closeModal()">✕</button></div>
       <div class="modal-body">
-        <div class="modal-field"><label>核心目标（一句话）</label><textarea id="lcCore" placeholder="比如：成为一个能靠手艺独立生活的人" style="min-height:54px">${esc(lc.core || '')}</textarea></div>
-        <div class="modal-field"><label>🟢 动力（为什么做）</label><div id="lcDriving"></div><button class="btn btn-outline btn-sm" onclick="lcAddItem('driving')">${ICO.plus} 加一条动力</button></div>
-        <div class="modal-field"><label>🔴 阻碍（卡在哪）</label><div id="lcBlocks"></div><button class="btn btn-outline btn-sm" onclick="lcAddItem('blocks')">${ICO.plus} 加一条阻碍</button></div>
-        <div class="modal-field"><label>🔔 时段提醒（手机通知）</label><div id="lcReminders"></div><button class="btn btn-outline btn-sm" onclick="lcAddReminder()">${ICO.plus} 加一个时间段</button></div>
+        <div class="modal-field"><label>总目标（一句话，我的人生圆心）</label><textarea id="lcCore" placeholder="比如：成为能靠手艺独立生活的人" style="min-height:54px">${esc(lc.core || '')}</textarea></div>
+        <div class="modal-field"><label>🔔 时段提醒（你 9:00–18:00 在上班，提醒放在早晚）</label><div id="lcReminders"></div><button class="btn btn-outline btn-sm" onclick="lcAddReminder()">${ICO.plus} 加一个时间段</button></div>
+        <div class="modal-tip">💡 上班时段（9:00–18:00）不推送个人任务，自动避开。提醒在你打开工作台时生效。</div>
       </div>
-      <div class="modal-footer"><button class="btn btn-outline btn-sm" onclick="UI.closeModal()">取消</button><button class="btn btn-primary btn-sm" onclick="saveLifeCenterModal()">保存</button></div>
+      <div class="modal-footer"><button class="btn btn-outline btn-sm" onclick="UI.closeModal()">取消</button><button class="btn btn-primary btn-sm" onclick="saveGoalModal()">保存</button></div>
     </div>`;
   document.body.appendChild(overlay);
   UI.modalEl = overlay;
-  (lc.driving || []).forEach(t => lcRenderItem('driving', t));
-  (lc.blocks || []).forEach(t => lcRenderItem('blocks', t));
-  (lc.reminders || []).forEach(r => lcRenderReminder(r));
+  defRems.forEach(r => lcRenderReminder(r));
 }
 function lcAddItem(kind, val) { lcRenderItem(kind, val || ''); }
 function lcRenderItem(kind, val) {
@@ -2870,15 +3052,13 @@ function lcRenderReminder(r) {
     <button class="lc-edit-del" onclick="this.parentNode.remove()">${ICONS.close}</button>`;
   box.appendChild(row);
 }
-function saveLifeCenterModal() {
+function saveGoalModal() {
   const lc = getLifeCenter();
   lc.core = (document.getElementById('lcCore').value || '').trim();
-  lc.driving = Array.from(document.querySelectorAll('#lcDriving .lc-edit-input')).map(i => i.value.trim()).filter(Boolean);
-  lc.blocks = Array.from(document.querySelectorAll('#lcBlocks .lc-edit-input')).map(i => i.value.trim()).filter(Boolean);
   lc.reminders = Array.from(document.querySelectorAll('#lcReminders .lc-remind-row')).map(row => ({
     id: uid(),
     time: row.querySelector('.lc-remind-time').value || '09:00',
-    label: (row.querySelector('.lc-remind-label').value || '该做今日焦点啦').trim(),
+    label: (row.querySelector('.lc-remind-label').value || '该做任务啦').trim(),
     enabled: row.querySelector('.lc-remind-enabled').checked
   })).filter(r => r.time);
   saveLifeCenter(lc);
@@ -2897,20 +3077,22 @@ function initLifeReminders() {
 function checkLifeReminders() {
   if (!('Notification' in window)) return;
   if (Notification.permission !== 'granted') return;
+  const now = new Date();
+  const hr = now.getHours();
+  if (hr >= 9 && hr < 18) return; // 上班时段（9:00-18:00）不推个人任务
   const lc = getLifeCenter();
   const rems = (lc.reminders || []).filter(r => r.enabled);
   if (!rems.length) return;
-  const now = new Date();
-  const hhmm = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+  const hhmm = String(hr).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
   const tk = todayKey();
   rems.forEach(r => {
     if (r.time === hhmm) {
       const key = tk + '|' + r.time;
       if (lcLastNotified[key]) return;
       lcLastNotified[key] = true;
-      const focus = (lc.focus || []).filter(f => f.date === tk && !f.done);
-      const body = focus.length ? ('今日焦点：' + focus.map(f => f.text).join('、')) : (r.label || '该做今日焦点啦');
-      try { new Notification('⏰ 重心提醒', { body }); } catch (e) {}
+      const pend = (lc.today || []).filter(t => t.date === tk && !t.done);
+      const body = pend.length ? ('今日待办：' + pend.map(t => t.text).join('、')) : (r.label || '该做任务啦');
+      try { new Notification('⏰ 目标提醒', { body }); } catch (e) {}
     }
   });
 }
