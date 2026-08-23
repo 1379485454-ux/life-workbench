@@ -3098,6 +3098,8 @@ function skipAutoAction(date, actionId) {
   saveLifeCenter(lc);
 }
 
+let lcItemOpen = {};
+let lcGroupMode = 'flat'; // flat | time
 function renderLifeCenter() {
   ensureBranches();
   ensureTodayBasket();
@@ -3105,38 +3107,39 @@ function renderLifeCenter() {
   const tk = todayKey();
   const today = (lc.today || []).filter(t => t.date === tk);
   const doneCount = today.filter(t => t.done).length;
-  // 分支维度小结（融合体现：每条任务都归属一个目标分支）
-  const branchBar = BRANCH_TYPES.map(bt => {
-    const rows = today.filter(t => catMeta(catOfTask(t)).branch === bt);
-    const dn = rows.filter(t => t.done).length;
-    const pct = rows.length ? Math.round(dn / rows.length * 100) : 0;
-    return `<div class="lc-bsum pb-${BRANCH_TO_CAT[bt]} ${rows.length ? '' : 'empty'}" onclick="Nav.switchTo('goal')" title="${bt}分支：${dn}/${rows.length}">
-      <div class="lc-bsum-name">${bt}</div>
-      <div class="lc-bsum-num">${dn}<small>/${rows.length}</small></div>
-      <div class="lc-bsum-bar"><i style="width:${pct}%"></i></div>
-    </div>`;
-  }).join('');
+  const total = today.length;
+  const pct = total ? Math.round(doneCount / total * 100) : 0;
   const remind = getLifeReminderHint();
 
-  // 日期标签：让用户明确看到「今天」是哪天
   const dateObj = new Date(tk + 'T00:00:00');
   const dateLabel = `${dateObj.getMonth() + 1}月${dateObj.getDate()}日 周${WEEK_DAYS[dateObj.getDay()]}`;
+  const totalDur = today.reduce((s, t) => s + (Number(t.duration) || 0), 0);
 
-  // 按时段分组任务
-  const groups = [];
-  TIME_OF_DAY_OPTIONS.forEach(opt => {
-    const rows = today.filter(t => (t.timeOfDay || 'anytime') === opt.value);
-    if (rows.length) groups.push({ key: opt.value, label: opt.label, rows });
-  });
+  // 默认扁平清单；点「时段」按钮切换为按时段分组
+  let listHtml;
+  if (lcGroupMode === 'time' && total) {
+    const groups = [];
+    TIME_OF_DAY_OPTIONS.forEach(opt => {
+      const rows = today.filter(t => (t.timeOfDay || 'anytime') === opt.value);
+      if (rows.length) groups.push({ key: opt.value, label: opt.label, rows });
+    });
+    listHtml = groups.map(g => `
+      <div class="lc-time-group">
+        <div class="lc-time-h"><span class="lc-time-tag lc-time-${g.key}">${g.label}</span><span class="lc-time-count">${g.rows.filter(t => t.done).length}/${g.rows.length}</span></div>
+        <div class="lc-time-list">${g.rows.map(t => lcHomeItemHtml(t)).join('')}</div>
+      </div>`).join('');
+  } else {
+    listHtml = total ? today.map(t => lcHomeItemHtml(t)).join('') : `
+      <div class="lc-empty-state">
+        <div class="lc-empty-title">今天还没有任务，直接加一件 👇</div>
+        <div class="lc-empty-actions">
+          <button class="btn btn-primary btn-sm" onclick="focusTodayInput()">${ICO.plus} 手动添加</button>
+          <button class="btn btn-outline btn-sm" onclick="aiQuick('帮我安排今天的一天，按生活、学习、工作、偶发四个分支分配，给出具体时间段')">${ICONS.sparkles} AI 安排</button>
+          <button class="btn btn-outline btn-sm" onclick="Nav.switchTo('goal')">${ICONS.target} 管理目标</button>
+        </div>
+      </div>`;
+  }
 
-  const todayBasketHtml = groups.map(g => `
-    <div class="lc-time-group">
-      <div class="lc-time-h"><span class="lc-time-tag lc-time-${g.key}">${g.label}</span><span class="lc-time-count">${g.rows.filter(t => t.done).length}/${g.rows.length}</span></div>
-      <div class="lc-time-list">${g.rows.map(t => todayTaskItemHtml(t)).join('')}</div>
-    </div>
-  `).join('');
-
-  // 建议：把「手动（不重复）」的目标分支动作也列出来，一键加入今天
   const suggestions = getTodaySuggestions(lc, tk);
   const suggestHtml = suggestions.length ? `
     <div class="lc-suggest-group">
@@ -3144,33 +3147,90 @@ function renderLifeCenter() {
       <div class="lc-suggest-list">${suggestions.map(a => todaySuggestionHtml(a)).join('')}</div>
     </div>` : '';
 
-  const emptyHtml = !today.length ? `
-    <div class="lc-empty-state">
-      <div class="lc-empty-title">今天还没有任务，选一个方式开始 👇</div>
-      <div class="lc-empty-actions">
-        <button class="btn btn-primary btn-sm" onclick="aiQuick('帮我安排今天的一天，按生活、学习、工作、偶发四个分支分配，给出具体时间段')">${ICONS.sparkles} AI 安排</button>
-        <button class="btn btn-outline btn-sm" onclick="focusTodayInput()">${ICO.plus} 手动添加</button>
-        <button class="btn btn-outline btn-sm" onclick="Nav.switchTo('goal')">${ICONS.target} 管理目标</button>
-      </div>
-    </div>` : '';
-
   return `
     <div class="card sec-life-center glass" id="secLifeCenter">
-      <div class="card-title"><span class="lc-card-date">${dateLabel}</span> 今日任务 <span class="card-subtitle">${doneCount}/${today.length} 已完成</span>
-        <button class="lc-edit-btn" onclick="Nav.switchTo('plan')" title="打开日程视图，可看其它日期">${ICONS.calendar} 日程</button>
-        <button class="lc-edit-btn" onclick="Nav.switchTo('goal')" title="打开我的目标辐射图">${ICONS.target} 我的目标</button>
+      ${installHintHtml()}
+      <div class="card-title"><span class="lc-card-date">${dateLabel}</span> 今日任务
+        <button class="lc-edit-btn" onclick="Nav.switchTo('plan')" title="日程视图">${ICONS.calendar} 日程</button>
+        <button class="lc-edit-btn" onclick="Nav.switchTo('goal')" title="我的目标">${ICONS.target} 目标</button>
+        <button class="lc-edit-btn" onclick="lcGroupMode=lcGroupMode==='time'?'flat':'time';Nav.refresh()" title="按时间段分组">${lcGroupMode==='time'?'清单':'时段'}</button>
       </div>
-      ${remind.html}
-      <div class="lc-bsum-row">${branchBar}</div>
+      <div class="lc-hero">
+        <div class="lc-hero-num">${total ? doneCount+'<small>/'+total+'</small>' : '0'}</div>
+        <div class="lc-hero-body">
+          <div class="lc-hero-label">今日完成度 <b>${pct}%</b></div>
+          <div class="lc-hero-bar"><i style="width:${pct}%"></i></div>
+          ${totalDur ? `<div class="lc-hero-meta">预计总耗时 ${formatDuration(totalDur)}</div>` : ''}
+        </div>
+      </div>
       <div class="lc-focus-add">
         <input type="text" id="lcFocusInput" placeholder="加任务（可写 30m / 1h / 上午 / 晚上）…" maxlength="80" onkeydown="if(event.key==='Enter')addTodayCustom()">
         <select id="lcFocusBranch" title="归属目标分支">${catOptions().map(o => `<option value="${o.value}">${o.label}</option>`).join('')}</select>
         <button class="btn btn-primary btn-sm" onclick="addTodayCustom()">${ICO.plus} 加</button>
       </div>
-      <div class="lc-focus-list">${todayBasketHtml}${suggestHtml}${emptyHtml}</div>
-      ${today.length ? `<div class="lc-day-meta">预计总耗时 ${formatDuration(today.reduce((s, t) => s + (Number(t.duration) || 0), 0))}</div>` : ''}
+      <div class="lc-focus-list">${listHtml}${suggestHtml}</div>
+      ${remind.html}
     </div>`;
 }
+// 首页今日任务项：扁平行，点整行展开 2 级详情
+function lcHomeItemHtml(t) {
+  const cat = catMeta(catOfTask(t));
+  const dur = formatDuration(Number(t.duration) || 0);
+  const tod = timeOfDayLabel(t.timeOfDay);
+  const open = !!lcItemOpen[t.id];
+  return `
+    <div class="lc-item ${t.done ? 'done' : ''} ${open ? 'open' : ''}" data-id="${t.id}">
+      <div class="lc-item-row" onclick="toggleLcItem('${t.id}')">
+        <div class="task-checkbox ${t.done ? 'checked' : ''}" onclick="event.stopPropagation();toggleToday('${t.id}')"></div>
+        <div class="task-cat-dot ${cat.dotClass}" title="${cat.name}分支"></div>
+        <span class="lc-item-text">${esc(t.text)}</span>
+        <span class="lc-item-tags">
+          ${dur ? `<span class="lc-meta-dur">⏱ ${dur}</span>` : ''}
+          ${tod && tod !== '随时' ? `<span class="lc-meta-tod">${tod}</span>` : ''}
+          ${t.priority === 'high' ? '<span class="lc-meta-pri pri-high">高</span>' : t.priority === 'low' ? '<span class="lc-meta-pri pri-low">低</span>' : ''}
+          ${t.auto ? `<span class="lc-auto-tag" title="来自目标分支周期动作">${ICO.refresh}</span>` : ''}
+        </span>
+        <button class="lc-item-del" title="删除" onclick="event.stopPropagation();delToday('${t.id}')">${ICONS.close}</button>
+      </div>
+      ${open ? lcItemDetailHtml(t) : ''}
+    </div>`;
+}
+// 2 级详情：时段 / 耗时 / 分支 / 优先级 / 子任务（随手改，立即保存）
+function lcItemDetailHtml(t) {
+  const priOpts = [{ v: 'high', l: '高' }, { v: 'mid', l: '中' }, { v: 'low', l: '低' }];
+  return `
+    <div class="lc-item-detail">
+      <div class="lc-detail-grid">
+        <label>时段<select onchange="updateTodayField('${t.id}','timeOfDay',this.value)">${TIME_OF_DAY_OPTIONS.map(o => `<option value="${o.value}" ${(t.timeOfDay || 'anytime') === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}</select></label>
+        <label>耗时(分)<input type="number" min="0" step="5" value="${Number(t.duration) || 0}" onchange="updateTodayField('${t.id}','duration',this.value)"></label>
+        <label>分支<select onchange="updateTodayField('${t.id}','cat',this.value)">${catOptions().map(o => `<option value="${o.value}" ${catOfTask(t) === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}</select></label>
+        <label>优先级<select onchange="updateTodayField('${t.id}','priority',this.value)">${priOpts.map(o => `<option value="${o.v}" ${(t.priority || 'mid') === o.v ? 'selected' : ''}>${o.l}</option>`).join('')}</select></label>
+      </div>
+      ${subtaskPanelHtml(t)}
+    </div>`;
+}
+function toggleLcItem(id) { lcItemOpen[id] = !lcItemOpen[id]; Nav.refresh(); }
+function updateTodayField(id, field, value) {
+  const lc = getLifeCenter(); const t = (lc.today || []).find(x => x.id === id); if (!t) return;
+  if (field === 'duration') value = Math.max(0, parseInt(value, 10) || 0);
+  if (field === 'cat') { t.cat = value; t.branchId = branchIdByType(catMeta(value).branch); }
+  else t[field] = value;
+  saveLifeCenter(lc); Nav.refresh();
+}
+function installHintHtml() {
+  if (Store.get('wb_install_hint')) return '';
+  const isIOS = /iP(ad|hone|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const steps = isIOS
+    ? '点底部「共享」图标 →「添加到主屏幕」→ 名称默认即可 →「添加」'
+    : '点浏览器菜单（⋮ / ⋯）→「安装应用」或「添加到主屏幕」→ 确认';
+  return `
+    <div class="lc-install-hint">
+      <div class="lc-install-ico">📲</div>
+      <div class="lc-install-txt"><b>把它变成手机上的 App</b>：${steps}</div>
+      <button class="lc-install-x" title="知道了" onclick="dismissInstallHint()">${ICONS.close}</button>
+    </div>`;
+}
+function dismissInstallHint() { Store.set('wb_install_hint', '1'); Nav.refresh(); }
 // 单个今日任务项（首页 & 计划页共用）
 function todayTaskItemHtml(t, opts = {}) {
   const cat = catMeta(catOfTask(t));

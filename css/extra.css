@@ -676,6 +676,48 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 .lc-meta-pri.pri-low { background: rgba(34,197,94,.12); color: #15803d; }
 .lc-day-meta { text-align: right; font-size: 12px; color: var(--text-light); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
 
+/* ===== v50.5：今日任务改为扁平清单 + 展开详情 + 完成度 + 安装引导 ===== */
+/* 顶部安装引导（可关闭） */
+.lc-install-hint { display: flex; align-items: center; gap: 10px; background: linear-gradient(90deg, rgba(14,165,233,.14), rgba(139,92,246,.12)); border: 1px solid rgba(14,165,233,.3); border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; }
+.lc-install-ico { font-size: 20px; line-height: 1; }
+.lc-install-txt { flex: 1; font-size: 12.5px; color: var(--text); line-height: 1.45; }
+.lc-install-txt b { color: var(--primary); }
+.lc-install-x { background: transparent; border: none; color: var(--text-light); cursor: pointer; font-size: 16px; padding: 2px 4px; border-radius: 6px; }
+.lc-install-x:hover { background: rgba(148,163,184,.2); }
+/* 今日完成度 hero */
+.lc-hero { display: flex; align-items: center; gap: 12px; padding: 10px 12px; margin: 2px 0 10px; background: rgba(148,163,184,.08); border: 1px solid var(--border, rgba(15,23,42,.1)); border-radius: 12px; }
+.lc-hero-num { font-size: 26px; font-weight: 800; color: var(--primary); line-height: 1; min-width: 52px; text-align: center; }
+.lc-hero-num small { font-size: 13px; font-weight: 600; color: var(--muted); }
+.lc-hero-body { flex: 1; min-width: 0; }
+.lc-hero-label { font-size: 12.5px; color: var(--text-light); margin-bottom: 5px; }
+.lc-hero-label b { color: var(--text); font-size: 14px; }
+.lc-hero-bar { height: 8px; border-radius: 999px; background: rgba(148,163,184,.28); overflow: hidden; }
+.lc-hero-bar i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #34c759, #2f88ff); transition: width .3s; }
+.lc-hero-meta { font-size: 11.5px; color: var(--text-light); margin-top: 5px; }
+/* 扁平任务行 */
+.lc-item { border: 1px solid var(--border, rgba(15,23,42,.1)); border-radius: 12px; background: var(--card, #fff); overflow: hidden; transition: border-color .15s; }
+.lc-item.done { opacity: .62; }
+.lc-item.open { border-color: var(--primary); }
+.lc-item-row { display: flex; align-items: center; gap: 9px; padding: 11px 12px; cursor: pointer; }
+.lc-item-row:hover { background: rgba(148,163,184,.06); }
+.lc-item-text { flex: 1; min-width: 0; font-size: 14.5px; line-height: 1.35; word-break: break-word; }
+.lc-item.done .lc-item-text { text-decoration: line-through; color: var(--muted); }
+.lc-item-tags { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.lc-item-del { background: transparent; border: none; color: var(--text-light); cursor: pointer; font-size: 15px; padding: 2px 5px; border-radius: 6px; flex: 0 0 auto; }
+.lc-item-del:hover { background: rgba(239,68,68,.14); color: #dc2626; }
+/* 2 级详情 */
+.lc-item-detail { padding: 4px 12px 12px; border-top: 1px dashed var(--border); background: rgba(148,163,184,.045); }
+.lc-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+.lc-detail-grid label { display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; color: var(--text-light); font-weight: 600; }
+.lc-detail-grid select, .lc-detail-grid input { font-size: 13px; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg, #fff); color: var(--text); }
+.lc-time-tag.lc-time-anytime { background: rgba(100,116,139,.12); color: var(--text-light); }
+.lc-meta-tod.lc-meta-tod-anytime { background: rgba(100,116,139,.12); color: var(--text-light); }
+@media (max-width: 640px) {
+  .lc-detail-grid { grid-template-columns: 1fr 1fr; gap: 7px; }
+  .lc-item-text { font-size: 14px; }
+  .lc-hero-num { font-size: 22px; min-width: 46px; }
+}
+
 .lc-time-group { display: flex; flex-direction: column; gap: 6px; }
 .lc-time-h { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
 .lc-time-tag { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
