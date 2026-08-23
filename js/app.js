@@ -748,7 +748,8 @@ Modules.home = () => {
   const q = getTodayQuote();
   const checkedIn = Game.hasCheckedInToday();
   const d = Game.data;
-  const todayTasks = Store.getDaily('plan', []);
+  const lcHome = getLifeCenter();
+  const todayTasks = (lcHome.today || []).filter(t => t.date === todayKey());
   const doneTasks = todayTasks.filter(t => t.done).length;
   const taskPct = todayTasks.length ? (doneTasks / todayTasks.length * 100) : 0;
   const todayExercise = Store.getDaily('exercise', { medMinutes: 0, workouts: [] });
@@ -768,12 +769,12 @@ Modules.home = () => {
 
   const layout = HomeLayout.get();
   const RING_DEFS = {
-    task:     { pct: taskPct, opt: { size: 96, stroke: 8, color: '#3b82f6', label: `${doneTasks}`, sub: `/${todayTasks.length} 任务` }, label: `${ICONS.list} 今日计划` },
+    task:     { pct: taskPct, opt: { size: 96, stroke: 8, color: '#3b82f6', label: `${doneTasks}`, sub: `/${todayTasks.length} 任务` }, label: `${ICONS.list} 今日任务` },
     water:    { pct: waterPct, opt: { size: 96, stroke: 8, color: '#06b6d4', label: `${todayWater.water||0}`, sub: `/8 杯水` }, label: `${ICONS.water} 好好喝水` },
     exercise: { pct: Math.min(100, exMin / 30 * 100), opt: { size: 96, stroke: 8, color: '#f59e0b', label: `${exMin}`, sub: `分钟运动` }, label: `${ICONS.run} 锻炼身体` },
     read:     { pct: readPct, opt: { size: 96, stroke: 8, color: '#8b5cf6', label: `${todayRead.pages||0}`, sub: `阅读页` }, label: `${ICONS.book} 每日阅读` },
   };
-  const RING_LINKS = { task: 'plan', water: 'food', exercise: 'exercise', read: 'read' };
+  const RING_LINKS = { task: 'goal', water: 'food', exercise: 'exercise', read: 'read' };
   const ringsHtml = layout.rings.filter(k => !layout.hiddenRings.includes(k)).map(k => {
     const r = RING_DEFS[k]; if (!r) return '';
     const link = RING_LINKS[k];
@@ -814,7 +815,7 @@ Modules.home = () => {
       </div>
       <div class="hero-cockpit">
         <div class="hero-metrics">
-          <div class="hero-metric" onclick="Nav.switchTo('plan')" title="前往计划">
+          <div class="hero-metric" onclick="Nav.switchTo('goal')" title="前往我的目标">
             <div class="hero-metric-num" style="color:var(--primary)">${doneTasks}<small>/${todayTasks.length}</small></div>
             <div class="hero-metric-label">${ICONS.list} 待办</div>
           </div>
@@ -856,7 +857,7 @@ Modules.home = () => {
       </div>
     </div>
     <div class="dash-overview" id="secOverview">
-      <div class="card"><div class="card-title">${ICONS.list} 今日计划进度 <span class="card-subtitle">${doneTasks}/${todayTasks.length} 已完成</span></div>${todayTasks.length ? (doneTasks === todayTasks.length ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:100%"></div></div><div class="all-done-state"><div class="all-done-icon">${ICONS.star}</div><div class="all-done-text">今日任务全部完成！</div><div class="all-done-sub">太棒了，给自己一点奖励吧</div></div>` : `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${taskPct}%"></div></div><div style="margin-top:12px;">${todayTasks.slice(0,5).map(t => `<div class="task-item-v2 ${t.done?'done':''}" style="margin-bottom:6px;padding:9px 12px;" title="点击完成/取消"><div class="task-checkbox ${t.done?'checked':''}" onclick="toggleTaskFromHome('${t.id}')"></div><span class="task-text">${esc(t.text)}</span></div>`).join('')}${todayTasks.length > 5 ? `<div class="text-muted text-sm" style="padding:8px 4px;">还有 ${todayTasks.length-5} 项待办...</div>` : ''}</div>`) : '<div class="empty-state"><div class="empty-state-icon">'+ICONS.notebook+'</div><div class="empty-state-text">还没有添加今日计划</div><a class="empty-state-action" onclick="Nav.switchTo(\'plan\')">去制定计划 →</a></div>'}<button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="Nav.switchTo('plan')">前往计划 →</button></div>
+      <div class="card" style="display:none"><div class="card-title">${ICONS.list} 今日计划进度 <span class="card-subtitle">${doneTasks}/${todayTasks.length} 已完成</span></div>${todayTasks.length ? (doneTasks === todayTasks.length ? `<div class="task-progress-bar"><div class="task-progress-fill" style="width:100%"></div></div><div class="all-done-state"><div class="all-done-icon">${ICONS.star}</div><div class="all-done-text">今日任务全部完成！</div><div class="all-done-sub">太棒了，给自己一点奖励吧</div></div>` : `<div class="task-progress-bar"><div class="task-progress-fill" style="width:${taskPct}%"></div></div><div style="margin-top:12px;">${todayTasks.slice(0,5).map(t => `<div class="task-item-v2 ${t.done?'done':''}" style="margin-bottom:6px;padding:9px 12px;" title="点击完成/取消"><div class="task-checkbox ${t.done?'checked':''}" onclick="toggleTaskFromHome('${t.id}')"></div><span class="task-text">${esc(t.text)}</span></div>`).join('')}${todayTasks.length > 5 ? `<div class="text-muted text-sm" style="padding:8px 4px;">还有 ${todayTasks.length-5} 项待办...</div>` : ''}</div>`) : '<div class="empty-state"><div class="empty-state-icon">'+ICONS.notebook+'</div><div class="empty-state-text">还没有添加今日计划</div><a class="empty-state-action" onclick="Nav.switchTo(\'plan\')">去制定计划 →</a></div>'}<button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="Nav.switchTo('plan')">前往计划 →</button></div>
       <div class="card"><div class="card-title">${ICONS.chart} 今日数据概览 <span class="card-subtitle">${focusMinToday} 分钟专注 · 连续 ${d.streak} 天</span></div><div class="grid-2 dash-ov-grid" style="gap:10px;">${[
         {icon:ICONS.coin, label:'金币', val:d.coins||0, color:'var(--warning)', link:'achieve'},
         {icon:ICONS.star, label:'等级', val:d.level||1, color:'var(--purple)', link:'achieve'},
@@ -865,7 +866,7 @@ Modules.home = () => {
         {icon:ICONS.water, label:'杯水', val:todayWater.water||0, color:'var(--primary)', link:'food'},
         {icon:ICONS.run, label:'运动分钟', val:exMin, color:'var(--warning)', link:'exercise'},
         {icon:ICONS.book, label:'阅读页数', val:todayRead.pages||0, color:'var(--success)', link:'read'},
-        {icon:ICONS.check, label:'任务完成', val:doneTasks+'/'+todayTasks.length, color:'var(--accent)', link:'plan'}
+        {icon:ICONS.check, label:'任务完成', val:doneTasks+'/'+todayTasks.length, color:'var(--accent)', link:'goal'}
       ].map(s=>`<div class="dash-mini-stat" onclick="Nav.switchTo('${s.link}')" title="查看${s.label}"><div class="dash-mini-stat-num" style="color:${s.color}">${s.val}</div><div class="dash-mini-stat-label">${s.icon} ${s.label}</div></div>`).join('')}</div></div>
     </div>
     ${progressCardHtml}
@@ -3804,26 +3805,39 @@ async function aiSend() {
   const text = input.value.trim(); if (!text) return;
   const cfg = getAIConfig(); if (!cfg.apiKey) { aiAppend('error', '请先在「设置」中配置 AI API Key。'); return; }
   input.value = ''; aiAppend('user', text); aiLoading = true; if (btn) { btn.disabled = true; btn.textContent = '...'; }
+  let timeoutId = null;
+  const timeoutPromise = new Promise(function (_, reject) { timeoutId = setTimeout(function () { reject(new Error('请求超时，请检查网络或 AI 服务状态')); }, 45000); });
   try {
     const validRoles = { system: true, user: true, assistant: true };
-    const messages = [{ role: 'system', content: aiSystemPrompt() }, ...aiMessages.slice(-12).filter(m => validRoles[m.role]).map(m => ({ role: m.role, content: m.content }))];
-    const res = await fetch('/api/ai', {
+    const messages = [{ role: 'system', content: aiSystemPrompt() }, ...aiMessages.slice(-12).filter(function (m) { return validRoles[m.role]; }).map(function (m) { return { role: m.role, content: m.content }; })];
+    const fetchPromise = fetch('/api/ai', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ baseURL: cfg.baseURL, model: cfg.model, apiKey: cfg.apiKey, messages, temperature: 0.7 })
+      body: JSON.stringify({ baseURL: cfg.baseURL, model: cfg.model, apiKey: cfg.apiKey, messages: messages, temperature: 0.7 })
     });
+    const res = await Promise.race([fetchPromise, timeoutPromise]);
+    clearTimeout(timeoutId); timeoutId = null;
     const data = await res.json(); if (!data.ok) throw new Error(data.error || '请求失败');
-    const choice = data.data?.choices?.[0]; if (!choice) throw new Error('AI 返回为空');
-    const content = choice.message?.content || '';
+    const choice = data.data && data.data.choices && data.data.choices[0]; if (!choice) throw new Error('AI 返回为空');
+    const content = (choice.message && choice.message.content) || '';
+    if (!content.trim()) throw new Error('AI 返回内容为空');
     const json = aiExtractJSON(content);
     let display = content;
     if (json) {
       const reply = (json.reply && String(json.reply).trim()) ? json.reply : '';
       // 有结构化数据时只展示自然语言回复，结构部分用于自动载入
       display = reply || content.replace(/```(?:json)?[\s\S]*?```/g, '').replace(/\{[\s\S]*\}\s*$/, '').trim();
+      if (!display.trim()) {
+        // 结构化数据但 reply 为空：给出执行摘要
+        const acts = Array.isArray(json.actions) ? json.actions : [];
+        const legacyCount = (json.goals || []).length + (json.tasks || []).length + (json.achievements || []).length;
+        if (acts.length || legacyCount) display = '已根据你的需求完成安排，相关操作已直接写入网页。';
+        else display = '收到，我会持续为你服务。';
+      }
     }
     aiAppend('assistant', display);
     aiExecute(content);
   } catch (e) {
+    if (timeoutId) { clearTimeout(timeoutId); timeoutId = null; }
     aiAppend('error', '请求失败：' + e.message);
   } finally {
     aiLoading = false; if (btn) { btn.disabled = false; btn.textContent = '发送'; }
