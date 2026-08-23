@@ -1,5 +1,5 @@
 /* 个人工作台 · Service Worker (App Shell + 智能缓存 + 后台同步) */
-const CACHE = 'workbench-v40';
+const CACHE = 'workbench-v41';
 const PRE_CACHE = [
   '/',
   '/index.html',
@@ -90,4 +90,16 @@ self.addEventListener('sync', (e) => {
       })
     );
   }
+});
+
+// 点击系统通知：聚焦已有窗口，否则打开工作台
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({ type: 'window' }).then((clients) => {
+      const c = clients.find((x) => 'focus' in x) || clients[0];
+      if (c) return c.focus();
+      return self.clients.openWindow('/');
+    })
+  );
 });
