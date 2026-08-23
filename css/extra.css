@@ -558,6 +558,11 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 .gm-branch-学习 { border-top-color: #2f88ff; }
 .gm-branch-工作 { border-top-color: #ff9f0a; }
 .gm-branch-偶发 { border-top-color: #af52de; }
+.gm-radar { background: var(--card, #fff); border: 0.5px solid var(--border, rgba(15,23,42,0.12)); border-radius: 16px; padding: 10px 8px; margin-bottom: 2px; }
+.gm-radar svg { display: block; width: 100%; height: auto; max-width: 520px; margin: 0 auto; }
+.gm-node { cursor: pointer; }
+.gm-node:hover { opacity: 0.82; }
+.gm-node text { user-select: none; }
 .gm-act-list { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
 .gm-act { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .gm-act-text { flex: 1; }

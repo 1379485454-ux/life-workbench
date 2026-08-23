@@ -2868,6 +2868,45 @@ function delFocus(id) {
   Nav.refresh();
 }
 
+function goalMapSVG() {
+  const lc = getLifeCenter();
+  const branches = lc.branches || [];
+  const cx = 340, cy = 240, cr = 70, br = 48;
+  const POS = { '学习': [340, 70], '工作': [570, 240], '生活': [340, 410], '偶发': [110, 240] };
+  const COL = {
+    '生活': { fill: '#e8f7ec', stroke: '#34c759', text: '#1f7a3a' },
+    '学习': { fill: '#e8f1ff', stroke: '#2f88ff', text: '#1c5fc2' },
+    '工作': { fill: '#fff3e0', stroke: '#ff9f0a', text: '#b9740a' },
+    '偶发': { fill: '#f6ecff', stroke: '#af52de', text: '#7b32a8' }
+  };
+  const fallbacks = [[340, 70], [570, 240], [340, 410], [110, 240]];
+  const lines = [];
+  const nodes = [];
+  branches.forEach((b, i) => {
+    const p = POS[b.type] || fallbacks[i % 4];
+    const c = COL[b.type] || { fill: '#eef0f3', stroke: '#888', text: '#333' };
+    const bx = p[0], by = p[1];
+    const dx = bx - cx, dy = by - cy, dist = Math.hypot(dx, dy) || 1;
+    const ux = dx / dist, uy = dy / dist;
+    const sx = cx + ux * cr, sy = cy + uy * cr;
+    const ex = bx - ux * br, ey = by - uy * br;
+    lines.push(`<path d="M${sx.toFixed(0)} ${sy.toFixed(0)} Q${((sx + ex) / 2).toFixed(0)} ${((sy + ey) / 2).toFixed(0)} ${ex.toFixed(0)} ${ey.toFixed(0)}" fill="none" stroke="${c.stroke}" stroke-width="2" stroke-linecap="round" stroke-dasharray="6 5" opacity="0.75"/>`);
+    const actN = (b.actions || []).length;
+    nodes.push(`<g class="gm-node" onclick="editBranch('${b.id}')">
+      <circle cx="${bx}" cy="${by}" r="${br}" fill="${c.fill}" stroke="${c.stroke}" stroke-width="1.5"/>
+      <text x="${bx}" y="${by - 5}" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="${c.text}">${esc(b.type)}</text>
+      <text x="${bx}" y="${by + 15}" text-anchor="middle" dominant-baseline="central" font-size="10" fill="${c.stroke}">${actN} 个动作</text>
+    </g>`);
+  });
+  const coreText = esc((lc.core || '').slice(0, 9)) || '总目标';
+  const center = `<g class="gm-node" onclick="editLifeCenter()">
+    <circle cx="${cx}" cy="${cy}" r="${cr}" fill="#e6f1fb" stroke="#185FA5" stroke-width="2"/>
+    <text x="${cx}" y="${cy - 6}" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="500" fill="#0C447C">${coreText}</text>
+    <text x="${cx}" y="${cy + 16}" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#378ADD">${lc.core ? '点击编辑' : '点我设定'}</text>
+  </g>`;
+  return `<div class="gm-radar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 480" width="100%" role="img"><title>目标辐射图</title>${lines.join('')}${center}${nodes.join('')}</svg></div>`;
+}
+
 function renderGoalMap() {
   ensureBranches();
   ensureTodayBasket();
@@ -2910,6 +2949,7 @@ function renderGoalMap() {
   }).join('');
   return `
     <div class="goal-map">
+      ${goalMapSVG()}
       ${goalCard}
       <div class="gm-branches">${branchCards}</div>
       ${renderWatchlist()}
