@@ -2810,12 +2810,14 @@ function renderLifeCenter() {
       <span class="lc-focus-text">${esc(t.text)}</span>
       <button class="lc-focus-del" onclick="delToday('${t.id}')" title="删除">${ICONS.close}</button>
     </div>`).join('') : `<div class="lc-empty">今天还没有任务，去「我的目标」添加，或手动加一件 👇</div>`;
+  const remind = getLifeReminderHint();
   return `
     <div class="card sec-life-center glass" id="secLifeCenter">
       <div class="card-title">今日任务篮 <span class="card-subtitle">${doneCount}/${today.length} 已完成</span>
         <button class="lc-edit-btn" onclick="Nav.switchTo('goal')" title="打开我的目标辐射图">${ICONS.target} 我的目标</button>
       </div>
       ${coreHtml}
+      ${remind.html}
       <div class="lc-focus-add">
         <input type="text" id="lcFocusInput" placeholder="手动加一件今天要做的…（回车添加）" maxlength="60" onkeydown="if(event.key==='Enter')addTodayCustom()">
         <button class="btn btn-primary btn-sm" onclick="addTodayCustom()">${ICO.plus} 加</button>
@@ -2913,10 +2915,12 @@ function renderGoalMap() {
   const lc = getLifeCenter();
   const tk = todayKey();
   const branches = lc.branches || [];
+  const remind = getLifeReminderHint();
   const goalCard = `
     <div class="card glass gm-core">
       <div class="card-title">🎯 总目标（我的人生圆心）</div>
       ${lc.core ? `<div class="gm-core-text">${esc(lc.core)}</div>` : `<div class="gm-core-empty">还没写总目标。点「编辑总目标」写下一句话，所有事都围绕它转。</div>`}
+      ${remind.html}
       <button class="btn btn-outline btn-sm" onclick="editLifeCenter()">${ICO.edit} 编辑总目标 / 提醒</button>
     </div>`;
   const branchCards = branches.map(b => {
@@ -3135,6 +3139,22 @@ function checkLifeReminders() {
       try { new Notification('⏰ 目标提醒', { body }); } catch (e) {}
     }
   });
+}
+function getLifeReminderHint() {
+  const lc = getLifeCenter();
+  const rems = (lc.reminders || []).filter(r => r.enabled).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+  const canNotify = typeof Notification !== 'undefined';
+  const perm = canNotify ? Notification.permission : 'default';
+  if (!rems.length) {
+    return { html: `<div class="lc-remind-hint" onclick="editLifeCenter()"><span class="lc-rh-icon">🔔</span><span class="lc-rh-text">还没有提醒，点我设一个</span></div>`, hasEnabled: false, perm };
+  }
+  const next = rems[0];
+  let notifyBtn = '';
+  if (perm !== 'granted' && canNotify) {
+    notifyBtn = `<button class="lc-rh-notify" onclick="event.stopPropagation();ensureNotifyPermission()">开启通知</button>`;
+  }
+  const text = rems.length === 1 ? `今天 ${next.time} · ${esc(next.label || '提醒')}` : `今天 ${rems.map(r => r.time).join('/')}，下一条 ${next.time}`;
+  return { html: `<div class="lc-remind-hint" onclick="editLifeCenter()">${notifyBtn ? '' : '<span class="lc-rh-icon">🔔</span>'}${notifyBtn}<span class="lc-rh-text">${text}</span></div>`, hasEnabled: true, perm };
 }
 function ensureNotifyPermission() {
   if (!('Notification' in window)) { toast('当前浏览器不支持通知', 'warning'); return; }
@@ -3933,5 +3953,6 @@ window.aiSend = aiSend;
 window.aiImport = aiImport;
 window.aiQuick = aiQuick;
 window.aiUndoImport = aiUndoImport;
+window.ensureNotifyPermission = ensureNotifyPermission;
 
 init();

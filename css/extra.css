@@ -538,6 +538,12 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 .lc-focus-del { background: none; border: none; color: var(--muted); cursor: pointer; padding: 2px; display: flex; }
 .lc-focus-del:hover { color: var(--danger); }
 .lc-empty { font-size: 13px; color: var(--muted); padding: 8px 2px; }
+.lc-remind-hint { display: flex; align-items: center; gap: 8px; margin: 4px 0 10px; padding: 8px 10px; background: rgba(14,165,233,.08); border: 1px solid rgba(14,165,233,.16); border-radius: 10px; cursor: pointer; transition: background .15s; }
+.lc-remind-hint:hover { background: rgba(14,165,233,.14); }
+.lc-rh-icon { font-size: 14px; }
+.lc-rh-text { flex: 1; font-size: 13px; color: var(--text-light); }
+.lc-rh-notify { margin-left: auto; background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 4px 10px; font-size: 12px; cursor: pointer; }
+.lc-rh-notify:hover { filter: brightness(1.08); }
 .lc-motiv { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border, rgba(255,255,255,.1)); }
 .lc-motiv-h { font-size: 12.5px; font-weight: 700; margin-bottom: 6px; }
 .lc-driving-h { color: #22c55e; }
