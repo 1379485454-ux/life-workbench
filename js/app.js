@@ -2801,22 +2801,26 @@ function renderLifeCenter() {
   const tk = todayKey();
   const today = (lc.today || []).filter(t => t.date === tk);
   const doneCount = today.filter(t => t.done).length;
-  const coreHtml = lc.core
-    ? `<div class="lc-core">${ICONS.target} ${esc(lc.core)}</div>`
-    : `<div class="lc-core lc-core-empty">还没设定总目标，打开「我的目标」写下一句话 👇</div>`;
   const basketHtml = today.length ? today.map(t => `
     <div class="lc-focus-item ${t.done ? 'done' : ''}">
       <div class="task-checkbox ${t.done ? 'checked' : ''}" onclick="toggleToday('${t.id}')"></div>
       <span class="lc-focus-text">${esc(t.text)}</span>
       <button class="lc-focus-del" onclick="delToday('${t.id}')" title="删除">${ICONS.close}</button>
-    </div>`).join('') : `<div class="lc-empty">今天还没有任务，去「我的目标」添加，或手动加一件 👇</div>`;
+    </div>`).join('') : `
+    <div class="lc-empty-state">
+      <div class="lc-empty-title">今天还没有任务</div>
+      <div class="lc-empty-actions">
+        <button class="btn btn-primary btn-sm" onclick="aiQuick('帮我安排今天的一天，按生活、学习、工作、偶发四个分支分配，给出具体时间段')">${ICONS.sparkles} AI 安排</button>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('lcFocusInput').focus()">${ICO.plus} 手动添加</button>
+        <button class="btn btn-outline btn-sm" onclick="Nav.switchTo('goal')">${ICONS.target} 去我的目标</button>
+      </div>
+    </div>`;
   const remind = getLifeReminderHint();
   return `
     <div class="card sec-life-center glass" id="secLifeCenter">
-      <div class="card-title">今日任务篮 <span class="card-subtitle">${doneCount}/${today.length} 已完成</span>
+      <div class="card-title">今日任务 <span class="card-subtitle">${doneCount}/${today.length} 已完成</span>
         <button class="lc-edit-btn" onclick="Nav.switchTo('goal')" title="打开我的目标辐射图">${ICONS.target} 我的目标</button>
       </div>
-      ${coreHtml}
       ${remind.html}
       <div class="lc-focus-add">
         <input type="text" id="lcFocusInput" placeholder="手动加一件今天要做的…（回车添加）" maxlength="60" onkeydown="if(event.key==='Enter')addTodayCustom()">

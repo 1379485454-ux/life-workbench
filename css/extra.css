@@ -538,6 +538,14 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 .lc-focus-del { background: none; border: none; color: var(--muted); cursor: pointer; padding: 2px; display: flex; }
 .lc-focus-del:hover { color: var(--danger); }
 .lc-empty { font-size: 13px; color: var(--muted); padding: 8px 2px; }
+.lc-empty-state { text-align: center; padding: 16px 8px 12px; background: var(--bg-soft, rgba(255,255,255,.03)); border: 1px dashed var(--border, rgba(255,255,255,.1)); border-radius: 12px; }
+.lc-empty-title { font-size: 14px; color: var(--text-light); margin-bottom: 12px; }
+.lc-empty-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.lc-empty-actions .btn { display: inline-flex; align-items: center; gap: 4px; }
+.lc-empty-actions svg { width: 14px; height: 14px; }
+@media (max-width: 640px) {
+  .lc-empty-actions .btn { font-size: 12px; padding: 6px 10px; }
+}
 .lc-remind-hint { display: flex; align-items: center; gap: 8px; margin: 4px 0 10px; padding: 8px 10px; background: rgba(14,165,233,.08); border: 1px solid rgba(14,165,233,.16); border-radius: 10px; cursor: pointer; transition: background .15s; }
 .lc-remind-hint:hover { background: rgba(14,165,233,.14); }
 .lc-rh-icon { font-size: 14px; }
