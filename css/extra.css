@@ -538,8 +538,8 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 .lc-focus-del { background: none; border: none; color: var(--muted); cursor: pointer; padding: 2px; display: flex; }
 .lc-focus-del:hover { color: var(--danger); }
 .lc-empty { font-size: 13px; color: var(--muted); padding: 8px 2px; }
-.lc-empty-state { text-align: center; padding: 16px 8px 12px; background: var(--bg-soft, rgba(255,255,255,.03)); border: 1px dashed var(--border, rgba(255,255,255,.1)); border-radius: 12px; }
-.lc-empty-title { font-size: 14px; color: var(--text-light); margin-bottom: 12px; }
+.lc-empty-state { text-align: center; padding: 10px 8px; background: var(--bg-soft, rgba(255,255,255,.03)); border: 1px dashed var(--border, rgba(255,255,255,.1)); border-radius: 12px; }
+.lc-empty-title { font-size: 13.5px; color: var(--text-light); margin-bottom: 8px; }
 .lc-empty-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .lc-empty-actions .btn { display: inline-flex; align-items: center; gap: 4px; }
 .lc-empty-actions svg { width: 14px; height: 14px; }
@@ -599,8 +599,60 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 .gm-act-add input { flex: 1; min-width: 0; }
 .gm-watch { padding: 16px; }
 .lc-edit-num { width: 56px; }
+.lc-edit-freq { flex: 0 0 118px; min-width: 0; }
 .br-act-text { flex: 1; min-width: 0; }
 .modal-tip { font-size: 12px; color: var(--muted); background: rgba(14,165,233,.1); padding: 8px 10px; border-radius: 8px; margin-top: 6px; line-height: 1.5; }
 @media (max-width: 640px) {
   .gm-branches { grid-template-columns: 1fr; }
+  .lc-edit-freq { flex: 1 1 100%; }
+}
+
+/* ===== v49 目标 × 计划融合 ===== */
+/* 首页今日任务：四分支小结条（顺便消掉空状态下的大片空白） */
+.lc-bsum-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 2px 0 10px; }
+.lc-bsum { padding: 7px 8px 8px; border-radius: 10px; background: rgba(148,163,184,.09); border: 1px solid var(--border, rgba(15,23,42,.1)); cursor: pointer; transition: transform .12s, background .15s; }
+.lc-bsum:hover { transform: translateY(-1px); background: rgba(148,163,184,.16); }
+.lc-bsum.empty { opacity: .62; }
+.lc-bsum-name { font-size: 11.5px; color: var(--text-light); font-weight: 600; }
+.lc-bsum-num { font-size: 16px; font-weight: 700; line-height: 1.2; color: var(--text); }
+.lc-bsum-num small { font-size: 11px; font-weight: 500; color: var(--muted); }
+.lc-bsum-bar { height: 3px; border-radius: 3px; background: rgba(148,163,184,.28); overflow: hidden; margin-top: 4px; }
+.lc-bsum-bar i { display: block; height: 100%; border-radius: 3px; background: var(--primary); transition: width .25s; }
+.lc-bsum.pb-life .lc-bsum-bar i { background: #34c759; }
+.lc-bsum.pb-study .lc-bsum-bar i { background: #2f88ff; }
+.lc-bsum.pb-work .lc-bsum-bar i { background: #ff9f0a; }
+.lc-bsum.pb-extra .lc-bsum-bar i { background: #af52de; }
+.lc-auto-tag { display: inline-flex; align-items: center; color: var(--muted); opacity: .7; }
+.lc-auto-tag svg { width: 13px; height: 13px; }
+.lc-focus-add select { flex: 0 0 84px; min-width: 0; }
+/* 计划页分支筛选 pill */
+.plan-branch-pills { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 12px; }
+.pb-pill { font-size: 12.5px; padding: 5px 11px; border-radius: 999px; background: rgba(148,163,184,.14); color: var(--text-light); cursor: pointer; border: 1px solid transparent; white-space: nowrap; transition: all .15s; }
+.pb-pill:hover { background: rgba(148,163,184,.24); }
+.pb-pill.active { color: #fff; background: var(--primary); border-color: var(--primary); font-weight: 600; }
+.pb-pill.pb-life.active { background: #34c759; border-color: #34c759; }
+.pb-pill.pb-study.active { background: #2f88ff; border-color: #2f88ff; }
+.pb-pill.pb-work.active { background: #ff9f0a; border-color: #ff9f0a; }
+.pb-pill.pb-extra.active { background: #af52de; border-color: #af52de; }
+.pb-goal-link { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; }
+.pb-goal-link svg { width: 13px; height: 13px; }
+.recur-branch-tag { font-size: 11px; padding: 1px 6px; border-radius: 6px; margin-left: 6px; background: rgba(148,163,184,.2); color: var(--text-light); }
+.recur-branch-tag.pb-life { background: rgba(52,199,89,.18); color: #1f7a3a; }
+.recur-branch-tag.pb-study { background: rgba(47,136,255,.18); color: #1c5fc2; }
+.recur-branch-tag.pb-work { background: rgba(255,159,10,.2); color: #b9740a; }
+.recur-branch-tag.pb-extra { background: rgba(175,82,222,.18); color: #7b32a8; }
+.task-cat-dot.extra { background: #af52de; }
+/* 紧凑空状态：不再撑出一大块空白 */
+.empty-state-v2.empty-compact { padding: 14px 10px; }
+.empty-state-v2.empty-compact .empty-state-v2-text { margin-bottom: 8px; font-size: 13.5px; }
+.dash-overview.dash-overview-single { grid-template-columns: 1fr; }
+@media (max-width: 640px) {
+  .lc-bsum-row { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .lc-bsum { padding: 6px; }
+  .lc-bsum-name { font-size: 10.5px; }
+  .lc-bsum-num { font-size: 14px; }
+  .pb-goal-link { margin-left: 0; }
+  .lc-focus-add { flex-wrap: wrap; }
+  .lc-focus-add input { flex: 1 1 100%; }
+  .lc-focus-add select { flex: 1 1 45%; }
 }
