@@ -1,0 +1,23 @@
+.page { padding: 24rpx; }
+.hero { background: #151b2e; border-radius: 20rpx; padding: 32rpx; text-align: center; }
+.date { font-size: 30rpx; color: #9fb0cc; }
+.pct { font-size: 72rpx; font-weight: 700; color: #2f88ff; margin: 8rpx 0; }
+.bar { height: 12rpx; background: #232b42; border-radius: 6rpx; overflow: hidden; }
+.bar-i { height: 100%; background: #2f88ff; }
+.sub { font-size: 24rpx; color: #9fb0cc; margin-top: 10rpx; }
+
+.list { margin-top: 24rpx; }
+.item { display: flex; align-items: center; background: #151b2e; border-radius: 16rpx; padding: 24rpx; margin-bottom: 16rpx; }
+.item.done .text { text-decoration: line-through; color: #6b7790; }
+.check { width: 40rpx; height: 40rpx; border-radius: 50%; border: 3rpx solid #3a4666; margin-right: 20rpx; flex: none; box-sizing: border-box; }
+.check.checked { background: #2f88ff; border-color: #2f88ff; }
+.main { flex: 1; min-width: 0; }
+.text { font-size: 30rpx; word-break: break-all; }
+.meta { margin-top: 8rpx; }
+.tag { font-size: 22rpx; color: #9fb0cc; background: #232b42; border-radius: 8rpx; padding: 4rpx 12rpx; margin-right: 10rpx; }
+
+.empty { text-align: center; color: #6b7790; padding: 60rpx 0; }
+
+.add { display: flex; margin-top: 24rpx; }
+.add-in { flex: 1; background: #151b2e; border-radius: 12rpx; padding: 20rpx; color: #e8ecf4; }
+.add-btn { background: #2f88ff; color: #fff; margin-left: 16rpx; border-radius: 12rpx; flex: none; }

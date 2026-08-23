@@ -1,0 +1,20 @@
+{
+  "description": "工作台小程序 MVP（今日任务 + 同步）",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "newFeature": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.0.0",
+  "appid": "touristappid",
+  "projectname": "workbench-miniprogram",
+  "condition": {}
+}

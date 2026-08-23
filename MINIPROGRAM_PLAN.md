@@ -1,7 +1,7 @@
-# 微信小程序方案（规划版 · 暂不开发）
+# 微信小程序方案（MVP 已搭建 · 开发中）
 
 > 目标：把现有网页工作台（PWA）的能力延伸到微信小程序，并**与网页共用同一份数据**，实现「网页 ↔ 小程序」双向互通。
-> 状态：**先规划，等微信小程序账号就绪再启动**。
+> 状态：**MVP 已搭好**（`miniprogram/` 原生小程序），今日任务清单 + 勾选打卡 + 加任务 + 完成度，复用 `/api/sync`。待小程序账号 + 域名备案后真机互通。
 
 ---
 
@@ -106,3 +106,37 @@ POST https://life-workbench.onrender.com/api/sync
 2. Render 域名是否已完成 ICP 备案（决定能否直接配白名单）？
 3. 小程序 MVP 优先要哪些功能？（建议：今日任务 + 打卡 + 加任务）
 4. 是否接受先用 PWA 把「每日打开」习惯养成，小程序作为第二阶段？
+
+---
+
+## 九、MVP 已落地代码（2026-08-23）
+
+目录 `miniprogram/`（原生微信小程序框架）：
+
+```
+miniprogram/
+├── app.js / app.json / app.wxss       # 全局配置（暗色主题，匹配网页）
+├── project.config.json                # 开发者工具配置（appid: touristappid，urlCheck:false）
+├── sitemap.json
+├── utils/sync.js                      # 同步层：wx.request 调 /api/sync，读写 wb_lifecenter
+└── pages/today/
+    ├── today.js / .json / .wxml / .wxss   # 今日任务页：清单 + 勾选打卡 + 加任务 + 完成度
+```
+
+**关键实现**：
+- 数据互通：小程序 `utils/sync.js` 直接 `wx.request` 调网页同一接口 `GET/POST /api/sync?user_id=edys-workbench`，键名 `wb_lifecenter` 完全一致 → 与网页天然双向互通。
+- 今日任务：`today.js` 过滤 `wb_lifecenter.today` 中 `date === 今天`，显示完成度、分支、时段、耗时；点任务行勾选即写回。
+- 加任务：写入 `wb_lifecenter.today`，网页端即时可见。
+
+**运行方式（域名未备案的临时方案）**：
+1. 下载微信开发者工具 → 导入项目 → 选择 `miniprogram/` 目录。
+2. AppID 填你的小程序号（或个人号测试号）；`project.config.json` 默认 `touristappid`，可直接用测试号预览。
+3. 右侧「详情 → 本地设置」勾选 **「不校验合法域名、web-view（业务域名）、TLS 版本以及 HTTPS 证书」**——因为 Render 域名未备案，不勾会被微信拦截。
+4. 编译即可预览：今日任务从你网页的真实数据拉取，勾选/添加实时同步回网页。
+
+**真机/发布前置（备案后）**：
+- 把 `https://life-workbench.onrender.com` 加入小程序后台「开发 → 开发管理 → 开发设置 → 服务器域名 → request 合法域名」白名单。
+- 域名需完成 ICP 备案（Render 默认域名通常未备案；需绑定已备案自定义域名或换国内可备案服务）。
+- 之后取消「不校验合法域名」，即可真机运行并提审发布。
+
+**后续可扩展**：目标分支辐射图、周期动作、AI 助手入口（复用 P1 抽象同步层思路）。

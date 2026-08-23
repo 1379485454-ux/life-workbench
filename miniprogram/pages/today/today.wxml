@@ -1,0 +1,28 @@
+<view class="page">
+  <view class="hero">
+    <view class="date">{{dateLabel}}</view>
+    <view class="pct">{{pct}}%</view>
+    <view class="bar"><view class="bar-i" style="width:{{pct}}%"></view></view>
+    <view class="sub">已完成 {{done}}/{{total}}</view>
+  </view>
+
+  <view class="list">
+    <view wx:for="{{tasks}}" wx:key="id" class="item {{item.done?'done':''}}" bindtap="toggle" data-id="{{item.id}}">
+      <view class="check {{item.done?'checked':''}}"></view>
+      <view class="main">
+        <view class="text">{{item.text}}</view>
+        <view class="meta">
+          <text class="tag">{{item.branch}}</text>
+          <text class="tag">{{item.time}}</text>
+          <text wx:if="{{item.dur}}" class="tag">{{item.dur}}</text>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{tasks.length===0}}" class="empty">今天还没有任务，下面加一件吧</view>
+  </view>
+
+  <view class="add">
+    <input class="add-in" placeholder="加一件今天要做的…" value="{{addText}}" bindinput="onInput" confirm-type="done" bindconfirm="add" />
+    <button class="add-btn" bindtap="add">加</button>
+  </view>
+</view>
