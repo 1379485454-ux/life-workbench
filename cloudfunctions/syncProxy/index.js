@@ -66,8 +66,9 @@ exports.main = async (event) => {
       return { ok: true };
     }
     // 默认 get
+    // Render /api/sync 返回 {ok:true, data:{items:[...]}}，这里解包 data
     const d = await request('GET', '/api/sync?user_id=' + encodeURIComponent(userId));
-    const items = (d && d.items) || [];
+    const items = (d && d.data && d.data.items) || (d && d.items) || [];
     const rec = items.find(i => i.key === 'wb_lifecenter');
     return { lc: rec ? rec.value : null };
   } catch (e) {
