@@ -3682,36 +3682,44 @@ const AI_CHAT_KEY = 'wb_ai_chat';
 let aiOpen = false;
 let aiLoading = false;
 let aiMessages = [];
+let aiLastSnapshot = null;
 
 function getAIConfig() { return Store.get(AI_CONFIG_KEY, { provider: 'openai', baseURL: '', model: '', apiKey: '' }); }
 function saveAIConfig(cfg) { Store.set(AI_CONFIG_KEY, { ...getAIConfig(), ...cfg }); }
 
 function aiSystemPrompt() {
-  return `你是「个人工作台」的 AI 助手。当前日期：${todayKey()}。
+  return `你是「个人工作台」的 AI 助手，能直接在网页里帮用户创建内容。当前日期：${todayKey()}。
 
-应用包含以下模块：
-- 计划：每日待办任务，可带子任务、可重复。
-- 番茄钟：专注计时，focus 会话会记录专注分钟。
-- 目标追踪：可量化目标，单位可选 hour（小时）、count（次数）、page（页）、day（天）、custom（自定义）。目标有 startDate、endDate、target、value、logs。
-- 成就：内置 + 自定义，自定义条件类型有 level、checkin、streak、pomodoro、task_total、coins_earned、reading_pages、attr_level。
-- 商店：用金币兑换奖励。
-- 其他：记账、阅读、运动、喝水。
+应用核心模块（你【可以直接操作写入】）：
+1. 我的目标（目标辐射图）：有一个「总目标」(core)，以及四个分支：生活、学习、工作、偶发。每个分支可加「具体动作」(带积分、可标记每日→自动进今日任务篮)。
+2. 今日任务篮：今天要做的事列表，位于首页和「我的目标」里。
+3. 想看清单：追剧/电影/游戏待看列表。
+4. 计划：每日待办任务。目标追踪：可量化目标。成就：可自定义。
 
-当用户请你制定计划/目标/任务/成就时，请用自然语言回复，并在回复末尾附加一段可被解析的 JSON（格式如下）。如果用户只是闲聊或问问题，JSON 各数组为空即可。
+【最重要】当用户说“安排一天 / 写今日计划 / 帮我过一天 / 拆一个目标 / 推荐想看”等时，不要只给文字，必须产出 actions 数组，让网页【直接写入】，用户无需手动操作。
 
-JSON 格式：
+JSON（放在回复最后一段，不要用 markdown 代码块标记）：
 {
-  "goals": [{"name": "目标名称", "unit": "hour", "target": 100, "startDate": "YYYY-MM-DD", "endDate": "YYYY-MM-DD", "color": "#6366f1", "customUnit": ""}],
-  "tasks": [{"text": "任务内容", "category": "学习/生活/健康/工作/其他", "attr": "intelligence/strength/charisma/creativity/discipline/health", "subtasks": []}],
-  "achievements": [{"name": "成就名", "condType": "task_total", "target": 30, "attr": "intelligence", "icon": "🎯"}],
-  "reply": "给用户的自然语言回复（必须存在）"
+  "reply": "给用户的自然语言总结（必填，简洁中文）",
+  "actions": [
+    {"op":"goal_set", "core":"一句话总目标"},
+    {"op":"today_add", "text":"07:30 起床+拉伸10分钟", "branch":"生活"},
+    {"op":"today_add", "text":"14:00 写项目周报", "branch":"工作"},
+    {"op":"branch_action_add", "branch":"学习", "text":"每天背20个单词", "points":5, "daily":true},
+    {"op":"watch_add", "text":"《繁花》第1集"},
+    {"op":"task_add", "text":"去超市买菜", "category":"生活"},
+    {"op":"goal_add", "name":"读完3本书", "unit":"page", "target":900, "startDate":"${todayKey()}", "endDate":""},
+    {"op":"achievement_add", "name":"连续7天打卡", "condType":"streak", "target":7, "attr":"discipline", "icon":"🔥"}
+  ]
 }
 
-注意：
-- unit 只能是 hour、count、page、day、custom 之一；custom 时必须带 customUnit。
-- target 必须是正数。
-- startDate 默认值 today，endDate 可空。
-- 不要输出 markdown 代码块标记，直接把 JSON 放在最后一段即可。`;
+规则：
+- branch 只能是 生活 / 学习 / 工作 / 偶发 之一，可空。
+- today_add 的 text 建议带时间段（如 07:30），便于执行。
+- branch_action_add 适合“每天/长期”的 recurring 动作；daily 为 true 会自动进今日任务篮。
+- goal_add 的 unit 只能是 hour/count/page/day/custom；target 为正数。
+- 闲聊或无操作时 actions 为空数组，仍可给 reply。
+- 只输出【一个】JSON 对象，放在最后，不要用代码块符号。`;
 }
 
 function renderAIFab() {
@@ -3738,7 +3746,12 @@ function renderAIFab() {
   panel.innerHTML = `
     <div class="ai-panel-head"><div class="ai-panel-title">${aiIcon} AI 助手</div><button class="btn-icon" onclick="toggleAI()">${ICONS.close}</button></div>
     <div class="ai-panel-body" id="aiBody"></div>
-    <div class="ai-panel-input"><textarea id="aiInput" placeholder="说点什么，比如：帮我制定一个 30 天学英语计划…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}"></textarea><button class="btn btn-primary" id="aiSendBtn" onclick="aiSend()">发送</button></div>
+    <div class="ai-panel-quick">
+      <button class="ai-chip" onclick="aiQuick('帮我安排今天的一天，按生活/学习/工作/偶发合理分配')">🗓 安排我的一天</button>
+      <button class="ai-chip" onclick="aiQuick('帮我拆一个可落地的目标，分生活/学习/工作/偶发几个分支加动作')">🎯 拆一个目标</button>
+      <button class="ai-chip" onclick="aiQuick('推荐几部适合下班后看的剧或电影，加进想看清单')">📺 推荐想看</button>
+    </div>
+    <div class="ai-panel-input"><textarea id="aiInput" placeholder="说点什么，比如：帮我安排今天的一天…（AI 会直接写进网页）" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}"></textarea><button class="btn btn-primary" id="aiSendBtn" onclick="aiSend()">发送</button></div>
   `;
   document.body.appendChild(panel);
   aiMessages = Store.get(AI_CHAT_KEY, []);
@@ -3779,39 +3792,103 @@ async function aiSend() {
       display = reply || content.replace(/```(?:json)?[\s\S]*?```/g, '').replace(/\{[\s\S]*\}\s*$/, '').trim();
     }
     aiAppend('assistant', display);
-    aiAutoImport(content);
+    aiExecute(content);
   } catch (e) {
     aiAppend('error', '请求失败：' + e.message);
   } finally {
     aiLoading = false; if (btn) { btn.disabled = false; btn.textContent = '发送'; }
   }
 }
-function aiAutoImport(content) {
+function aiExecute(content) {
   const json = aiExtractJSON(content); if (!json) return;
-  const hasGoals = json.goals && json.goals.length;
-  const hasTasks = json.tasks && json.tasks.length;
-  const hasAch = json.achievements && json.achievements.length;
-  if (!hasGoals && !hasTasks && !hasAch) return;
-  let count = 0;
-  if (hasGoals) { json.goals.forEach(g => aiCreateGoal(g)); count += json.goals.length; }
-  if (hasTasks) { json.tasks.forEach(t => aiCreateTask(t)); count += json.tasks.length; }
-  if (hasAch) { json.achievements.forEach(a => aiCreateAchievement(a)); count += json.achievements.length; }
-  toast(`已自动载入 ${count} 项内容`, 'success');
+  const actions = Array.isArray(json.actions) ? json.actions : [];
+  const legacy = [];
+  (json.goals || []).forEach(function (g) { legacy.push(Object.assign({ op: 'goal_add' }, g)); });
+  (json.tasks || []).forEach(function (t) { legacy.push(Object.assign({ op: 'task_add' }, t)); });
+  (json.achievements || []).forEach(function (a) { legacy.push(Object.assign({ op: 'achievement_add' }, a)); });
+  const all = actions.concat(legacy);
+  if (!all.length) return;
+  aiLastSnapshot = aiSnapshot();
+  const created = [];
+  all.forEach(function (act) { const r = aiExecAction(act); if (r) created.push(r); });
+  if (!created.length) { aiLastSnapshot = null; return; }
+  toast('已自动写入网页 ' + created.length + ' 项', 'success');
   Nav.refresh();
   const body = document.getElementById('aiBody'); if (!body) return;
   const box = document.createElement('div'); box.className = 'ai-import-box ai-import-auto';
-  box.innerHTML = `<div class="ai-import-title">${ICONS.check} 已自动载入 ${count} 项</div>
-    <div class="ai-import-list">${aiImportListHtml(json)}</div>
-    <div class="ai-import-hint">已直接写入网页，无需手动操作</div>`;
+  box.innerHTML = '<div class="ai-import-title">' + ICONS.check + ' 已直接写入网页 ' + created.length + ' 项</div>'
+    + '<div class="ai-import-list">' + created.map(function (c) { return '• ' + esc(c); }).join('<br>') + '</div>'
+    + '<div class="ai-import-actions"><button class="btn btn-outline btn-sm" onclick="aiUndoImport()">↩ 撤销</button></div>';
   body.appendChild(box); body.scrollTop = body.scrollHeight;
 }
-function aiImportListHtml(json) {
-  const lines = [];
-  (json.goals || []).forEach(g => lines.push(`• 目标「${esc(g.name)}」${g.target}${g.customUnit || (g.unit === 'hour' ? '小时' : g.unit === 'count' ? '次' : g.unit === 'page' ? '页' : g.unit === 'day' ? '天' : g.unit || '')}`));
-  (json.tasks || []).forEach(t => lines.push(`• 任务「${esc(t.text)}」`));
-  (json.achievements || []).forEach(a => lines.push(`• 成就「${esc(a.name)}」`));
-  return lines.join('<br>');
+function aiExecAction(act) {
+  if (!act || !act.op) return null;
+  const op = String(act.op).toLowerCase();
+  try {
+    if (op === 'goal_set') {
+      const lc = getLifeCenter(); const core = (act.core || '').toString().trim(); if (!core) return null;
+      lc.core = core; saveLifeCenter(lc); return '🎯 总目标：' + core;
+    }
+    if (op === 'today_add') {
+      const lc = getLifeCenter(); lc.today = lc.today || [];
+      const tk = todayKey();
+      const branchType = BRANCH_TYPES.indexOf(act.branch) >= 0 ? act.branch : '';
+      let bid = '';
+      if (branchType) { const b = (lc.branches || []).find(function (x) { return x.type === branchType; }); if (b) bid = b.id; }
+      const text = (act.text || '').toString().trim(); if (!text) return null;
+      if (lc.today.some(function (t) { return t.date === tk && t.text === text; })) return null;
+      lc.today.push({ id: uid(), branchId: bid, actionId: '', text: text, done: false, date: tk, auto: false });
+      saveLifeCenter(lc);
+      return '📅 今日：' + text + (branchType ? '（' + branchType + '）' : '');
+    }
+    if (op === 'branch_action_add') {
+      const lc = getLifeCenter();
+      const bt = BRANCH_TYPES.indexOf(act.branch) >= 0 ? act.branch : '生活';
+      const b = (lc.branches || []).find(function (x) { return x.type === bt; }); if (!b) return null;
+      const text = (act.text || '').toString().trim(); if (!text) return null;
+      const daily = act.daily === true || act.daily === 'true';
+      const points = Math.max(1, Math.min(99, parseInt(act.points, 10) || 5));
+      const a = { id: uid(), text: text, points: points, daily: daily, doneDates: [] };
+      b.actions = b.actions || []; b.actions.push(a);
+      if (daily) { lc.today = lc.today || []; const tk = todayKey(); if (!lc.today.some(function (t) { return t.actionId === a.id; })) lc.today.push({ id: uid(), branchId: b.id, actionId: a.id, text: text, done: false, date: tk, auto: true }); }
+      saveLifeCenter(lc);
+      return '🌿 ' + bt + '动作：' + text + (daily ? '（每日）' : '');
+    }
+    if (op === 'watch_add') {
+      const lc = getLifeCenter(); lc.watch = lc.watch || [];
+      const text = (act.text || '').toString().trim(); if (!text) return null;
+      if (lc.watch.some(function (w) { return w.text === text; })) return null;
+      lc.watch.push({ id: uid(), text: text, done: false }); saveLifeCenter(lc);
+      return '📺 想看：' + text;
+    }
+    if (op === 'task_add') { aiCreateTask(act); return '📝 任务：' + (act.text || '未命名'); }
+    if (op === 'goal_add') { aiCreateGoal(act); return '🏁 目标：' + (act.name || '未命名'); }
+    if (op === 'achievement_add') { aiCreateAchievement(act); return '🏆 成就：' + (act.name || '未命名'); }
+  } catch (e) { return null; }
+  return null;
 }
+function aiSnapshot() {
+  const keys = ['wb_lifecenter', 'wb_challenges', 'wb_custom_achievements', 'wb_plan_' + todayKey()];
+  const snap = {};
+  keys.forEach(function (k) { try { snap[k] = localStorage.getItem(k); } catch (e) { snap[k] = null; } });
+  return snap;
+}
+function aiRestore(snap) {
+  if (!snap) return;
+  Object.keys(snap).forEach(function (k) {
+    const v = snap[k];
+    try { if (v === null || v === undefined) { localStorage.removeItem(k); } else { localStorage.setItem(k, v); } } catch (e) {}
+  });
+}
+function aiUndoImport() {
+  if (!aiLastSnapshot) { toast('没有可撤销的内容', 'warning'); return; }
+  aiRestore(aiLastSnapshot); aiLastSnapshot = null;
+  toast('已撤销 AI 写入', 'success');
+  Nav.refresh();
+  const nodes = document.querySelectorAll('.ai-import-auto');
+  for (let i = 0; i < nodes.length; i++) nodes[i].remove();
+}
+function aiQuick(text) { const i = document.getElementById('aiInput'); if (i) i.value = text; aiSend(); }
 function aiExtractJSON(text) {
   const m = text.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (m) try { return JSON.parse(m[1].trim()); } catch {}
@@ -3854,5 +3931,7 @@ function aiCreateAchievement(a) {
 window.toggleAI = toggleAI;
 window.aiSend = aiSend;
 window.aiImport = aiImport;
+window.aiQuick = aiQuick;
+window.aiUndoImport = aiUndoImport;
 
 init();

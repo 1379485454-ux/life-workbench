@@ -412,6 +412,15 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 }
 .ai-import-auto .ai-import-title { color: #047857; }
 .ai-import-hint { font-size: 11px; color: var(--text-light); margin-top: 6px; opacity: .85; }
+.ai-import-actions { margin-top: 10px; }
+.ai-panel-quick { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 12px 2px; }
+.ai-chip {
+  font-size: 12px; padding: 5px 11px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--border, #e2e8f0); background: var(--surface, #fff); color: var(--primary-dark, #0c447c);
+  transition: background .15s, color .15s, border-color .15s; white-space: nowrap;
+}
+.ai-chip:hover { background: var(--primary, #185fa5); color: #fff; border-color: var(--primary, #185fa5); }
+.ai-chip:active { transform: scale(.96); }
 
 /* ===== Hero 驾驶舱 (v33) ===== */
 .hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
