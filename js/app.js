@@ -2811,7 +2811,7 @@ function renderLifeCenter() {
       <div class="lc-empty-title">今天还没有任务</div>
       <div class="lc-empty-actions">
         <button class="btn btn-primary btn-sm" onclick="aiQuick('帮我安排今天的一天，按生活、学习、工作、偶发四个分支分配，给出具体时间段')">${ICONS.sparkles} AI 安排</button>
-        <button class="btn btn-outline btn-sm" onclick="document.getElementById('lcFocusInput').focus()">${ICO.plus} 手动添加</button>
+        <button class="btn btn-outline btn-sm" onclick="focusTodayInput()">${ICO.plus} 手动添加</button>
         <button class="btn btn-outline btn-sm" onclick="Nav.switchTo('goal')">${ICONS.target} 去我的目标</button>
       </div>
     </div>`;
@@ -2828,6 +2828,11 @@ function renderLifeCenter() {
       </div>
       <div class="lc-focus-list">${basketHtml}</div>
     </div>`;
+}
+function focusTodayInput() {
+  const inp = document.getElementById('lcFocusInput'); if (!inp) return;
+  inp.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  setTimeout(function () { inp.focus(); inp.classList.add('lc-input-pulse'); setTimeout(function () { inp.classList.remove('lc-input-pulse'); }, 700); }, 250);
 }
 function addTodayCustom() {
   const inp = document.getElementById('lcFocusInput'); if (!inp) return;
@@ -3792,7 +3797,7 @@ function aiAppend(role, text, save = true) {
   const body = document.getElementById('aiBody'); if (!body) return;
   const div = document.createElement('div'); div.className = `ai-msg ${role}`; div.textContent = text;
   body.appendChild(div); body.scrollTop = body.scrollHeight;
-  if (save) { aiMessages.push({ role, content: text, time: Date.now() }); if (aiMessages.length > 50) aiMessages = aiMessages.slice(-50); Store.set(AI_CHAT_KEY, aiMessages); }
+  if (save && role !== 'error') { aiMessages.push({ role, content: text, time: Date.now() }); if (aiMessages.length > 50) aiMessages = aiMessages.slice(-50); Store.set(AI_CHAT_KEY, aiMessages); }
 }
 async function aiSend() {
   const input = document.getElementById('aiInput'); const btn = document.getElementById('aiSendBtn'); if (!input || aiLoading) return;
@@ -3800,7 +3805,8 @@ async function aiSend() {
   const cfg = getAIConfig(); if (!cfg.apiKey) { aiAppend('error', '请先在「设置」中配置 AI API Key。'); return; }
   input.value = ''; aiAppend('user', text); aiLoading = true; if (btn) { btn.disabled = true; btn.textContent = '...'; }
   try {
-    const messages = [{ role: 'system', content: aiSystemPrompt() }, ...aiMessages.slice(-12).map(m => ({ role: m.role, content: m.content }))];
+    const validRoles = { system: true, user: true, assistant: true };
+    const messages = [{ role: 'system', content: aiSystemPrompt() }, ...aiMessages.slice(-12).filter(m => validRoles[m.role]).map(m => ({ role: m.role, content: m.content }))];
     const res = await fetch('/api/ai', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ baseURL: cfg.baseURL, model: cfg.model, apiKey: cfg.apiKey, messages, temperature: 0.7 })
@@ -3912,7 +3918,7 @@ function aiUndoImport() {
   const nodes = document.querySelectorAll('.ai-import-auto');
   for (let i = 0; i < nodes.length; i++) nodes[i].remove();
 }
-function aiQuick(text) { const i = document.getElementById('aiInput'); if (i) i.value = text; aiSend(); }
+function aiQuick(text) { toggleAI(true); setTimeout(function () { const i = document.getElementById('aiInput'); if (i) { i.value = text; aiSend(); } }, 60); }
 function aiExtractJSON(text) {
   const m = text.match(/```(?:json)?\s*([\s\S]*?)```/);
   if (m) try { return JSON.parse(m[1].trim()); } catch {}
@@ -3958,5 +3964,6 @@ window.aiImport = aiImport;
 window.aiQuick = aiQuick;
 window.aiUndoImport = aiUndoImport;
 window.ensureNotifyPermission = ensureNotifyPermission;
+window.focusTodayInput = focusTodayInput;
 
 init();

@@ -546,6 +546,8 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="date"]:focus, 
 @media (max-width: 640px) {
   .lc-empty-actions .btn { font-size: 12px; padding: 6px 10px; }
 }
+.lc-input-pulse { animation: lc-pulse .7s ease-out; outline: 2px solid var(--primary); }
+@keyframes lc-pulse { 0% { box-shadow: 0 0 0 0 rgba(14,165,233,.45); } 100% { box-shadow: 0 0 0 10px rgba(14,165,233,0); } }
 .lc-remind-hint { display: flex; align-items: center; gap: 8px; margin: 4px 0 10px; padding: 8px 10px; background: rgba(14,165,233,.08); border: 1px solid rgba(14,165,233,.16); border-radius: 10px; cursor: pointer; transition: background .15s; }
 .lc-remind-hint:hover { background: rgba(14,165,233,.14); }
 .lc-rh-icon { font-size: 14px; }
