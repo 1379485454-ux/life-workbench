@@ -1,0 +1,7 @@
+{
+  "name": "syncProxy",
+  "version": "1.0.0",
+  "description": "工作台数据同步云函数中转（免备案）",
+  "main": "index.js",
+  "runtime": "Nodejs18.15"
+}
