@@ -933,6 +933,54 @@ const LONG_CATEGORIES = [
 const RECUR_LABELS = { daily: '每天', workday: '工作日', weekly: '每周', monthly: '每月' };
 const WEEK_DAYS = ['日','一','二','三','四','五','六'];
 
+// v50：时段 + 预计时长（让每日任务可确认时间与耗时）
+const TIME_OF_DAY_OPTIONS = [
+  { value: 'morning', label: '上午', short: '早', order: 0 },
+  { value: 'afternoon', label: '下午', short: '午', order: 1 },
+  { value: 'evening', label: '晚上', short: '晚', order: 2 },
+  { value: 'anytime', label: '随时', short: '随', order: 3 },
+];
+const TIME_ORDER = { morning: 0, afternoon: 1, evening: 2, anytime: 3 };
+function timeOfDayLabel(key, short) { const o = TIME_OF_DAY_OPTIONS.find(x => x.value === key); return o ? (short ? o.short : o.label) : (short ? '随' : '随时'); }
+function formatDuration(mins) {
+  if (!mins || mins <= 0) return '';
+  if (mins < 60) return `${mins}分钟`;
+  if (mins % 60 === 0) return `${mins / 60}小时`;
+  return `${Math.floor(mins / 60)}小时${mins % 60}分`;
+}
+function parseDuration(text) {
+  // 匹配 1.5h / 2h30m / 90m / 30min
+  const m = /(\d+(?:\.\d+)?)\s*(h|小时|hr|hrs)/i.exec(text);
+  const m2 = /(\d+)\s*(?:h|小时|hr|hrs)\s*(\d+)\s*(?:m|分钟|min|mins)?/i.exec(text);
+  const m3 = /(\d+)\s*(?:m|分钟|min|mins)(?![a-zA-Z\u4e00-\u9fa5])/i.exec(text);
+  if (m2) return parseInt(m2[1], 10) * 60 + parseInt(m2[2], 10);
+  if (m) return Math.round(parseFloat(m[1]) * 60);
+  if (m3) return parseInt(m3[1], 10);
+  return 0;
+}
+function parseTimeOfDay(text) {
+  if (/早上|上午|晨间|早晨/.test(text)) return 'morning';
+  if (/下午|午后/.test(text)) return 'afternoon';
+  if (/晚上|晚间|夜间|睡前/.test(text)) return 'evening';
+  if (/随时|anytime/.test(text)) return 'anytime';
+  return '';
+}
+function parseTaskText(raw) {
+  let text = (raw || '').trim();
+  const duration = parseDuration(text);
+  const timeOfDay = parseTimeOfDay(text);
+  // 移除已识别token（仅移除独立出现的时长/时段词，保留任务主体）
+  text = text
+    .replace(/\s*\d+(?:\.\d+)?\s*(?:h|小时|hr|hrs)\s*\d+\s*(?:m|分钟|min|mins)?/i, '')
+    .replace(/\s*\d+(?:\.\d+)?\s*(?:h|小时|hr|hrs)/i, '')
+    .replace(/\s*\d+\s*(?:m|分钟|min|mins)(?![a-zA-Z\u4e00-\u9fa5])/i, '')
+    .replace(/(?:早上|上午|晨间|早晨|下午|午后|晚上|晚间|夜间|睡前|随时|anytime)\s*/g, '')
+    .trim();
+  // 如果主体被删光了，回退原文
+  if (!text) text = raw.replace(/\s*\d+(?:\.\d+)?\s*(?:h|小时|hr|hrs)?\s*\d*\s*(?:m|分钟|min|mins)?/i, '').trim();
+  return { text, duration, timeOfDay };
+}
+
 let planSub = 'daily';     // daily | long | cycle
 let planTab = 'today';     // daily 子标签: today | todo | done
 let planDate = todayKey(); // 当前查看的每日计划日期
@@ -1092,33 +1140,56 @@ function planDailyHtml() {
     <div class="card">
       <div class="quick-add-bar plan-quick-add">
         <span class="quick-add-icon">${ICONS.list}</span>
-        <input type="text" id="taskInput" placeholder="添加任务，按 Enter 快速创建…" maxlength="80">
+        <input type="text" id="taskInput" placeholder="添加任务（可写 30m / 1h / 上午 / 晚上）…" maxlength="80">
         <select id="taskCat" title="归属目标分支">${catOptions().map(o=>`<option value="${o.value}" ${planBranch!=='all'&&BRANCH_TO_CAT[planBranch]===o.value?'selected':''}>${o.label}</option>`).join('')}</select>
         <button class="quick-add-btn" onclick="addTask()" title="添加任务">${ICO.plus}</button>
       </div>
       <div id="taskList">
-        ${display.length ? display.map(t => {
-          const catKey = catOfTask(t);
-          const cat = catMeta(catKey);
-          const priClass = t.priority === 'high' ? 'pri-high' : t.priority === 'low' ? 'pri-low' : 'pri-mid';
-          const recurTag = (t.auto || t.recurringRule) ? '<span class="task-recur-tag" title="来自目标分支的周期动作">'+ICO.refresh+'</span>' : '';
-          return `<div class="task-item-v2 ${t.done?'done':''} ${priClass}" data-id="${t.id}" draggable="true" title="拖拽可调整顺序">
-            <div class="task-checkbox ${t.done?'checked':''}" onclick="toggleTask('${t.id}')"></div>
-            <div class="task-cat-dot ${cat.dotClass}" title="${cat.name}分支"></div>
-            <span class="task-text ${t.done?'line-through':''}" onclick="editTaskInline('${t.id}')">${esc(t.text)}</span>
-            ${recurTag}
-            ${(t.subtasks && t.subtasks.length) ? `<button class="task-subtoggle" onclick="toggleSubtaskView('${t.id}')" title="子任务">📋 ${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length}</button>` : ''}
-            <div class="task-actions">
-              <button class="btn-icon" onclick="editTaskModal('${t.id}')" title="编辑">${ICO.edit}</button>
-              <button class="btn-icon danger" onclick="confirmDelTask('${t.id}')" title="删除">${ICO.trash}</button>
-            </div>
-            ${subtaskOpen[t.id] ? subtaskPanelHtml(t) : ''}
-          </div>`;
-        }).join('') : `<div class="empty-state-v2 empty-compact"><div class="empty-state-v2-text">${planTab==='done'?'还没有完成的任务':(planBranch==='all'?'这天还没有任务':`「${planBranch}」分支这天没有任务`)}</div><div class="empty-state-v2-hint">${planTab!=='done'?`<button class="btn btn-primary btn-sm" onclick="document.getElementById('taskInput').focus()">+ 添加任务</button> <button class="btn btn-outline btn-sm" onclick="aiQuick('帮我安排今天的一天，按生活、学习、工作、偶发四个分支分配，给出具体时间段')">${ICONS.sparkles} AI 安排</button>`:''}</div></div>`}
+        ${display.length ? planTaskListHtml(display) : `<div class="empty-state-v2 empty-compact"><div class="empty-state-v2-text">${planTab==='done'?'还没有完成的任务':(planBranch==='all'?'这天还没有任务':`「${planBranch}」分支这天没有任务`)}</div><div class="empty-state-v2-hint">${planTab!=='done'?`<button class="btn btn-primary btn-sm" onclick="document.getElementById('taskInput').focus()">+ 添加任务</button> <button class="btn btn-outline btn-sm" onclick="aiQuick('帮我安排今天的一天，按生活、学习、工作、偶发四个分支分配，给出具体时间段')">${ICONS.sparkles} AI 安排</button>`:''}</div></div>`}
       </div>
     </div>
     <div class="card"><div class="card-title">📈 近 7 天完成率</div>${barChart(chartData, { height: 80, max: 100 })}</div>
   `;
+}
+// 计划页按时段分组渲染任务列表
+function planTaskListHtml(display) {
+  const groups = [];
+  TIME_OF_DAY_OPTIONS.forEach(opt => {
+    const rows = display.filter(t => (t.timeOfDay || 'anytime') === opt.value);
+    if (rows.length) groups.push({ key: opt.value, label: opt.label, rows });
+  });
+  return groups.map(g => `
+    <div class="plan-time-group">
+      <div class="plan-time-h"><span class="lc-time-tag lc-time-${g.key}">${g.label}</span><span class="lc-time-count">${g.rows.filter(t => t.done).length}/${g.rows.length}</span></div>
+      <div class="plan-time-list">${g.rows.map(t => planTaskItemHtml(t)).join('')}</div>
+    </div>
+  `).join('');
+}
+function planTaskItemHtml(t) {
+  const catKey = catOfTask(t);
+  const cat = catMeta(catKey);
+  const priClass = t.priority === 'high' ? 'pri-high' : t.priority === 'low' ? 'pri-low' : 'pri-mid';
+  const recurTag = (t.auto || t.recurringRule) ? '<span class="task-recur-tag" title="来自目标分支的周期动作">'+ICO.refresh+'</span>' : '';
+  const dur = formatDuration(Number(t.duration) || 0);
+  const tod = timeOfDayLabel(t.timeOfDay, true);
+  return `<div class="task-item-v2 ${t.done?'done':''} ${priClass}" data-id="${t.id}" draggable="true" title="拖拽可调整顺序">
+      <div class="task-checkbox ${t.done?'checked':''}" onclick="toggleTask('${t.id}')"></div>
+      <div class="task-cat-dot ${cat.dotClass}" title="${cat.name}分支"></div>
+      <div class="task-body">
+        <div class="task-main"><span class="task-text ${t.done?'line-through':''}" onclick="editTaskInline('${t.id}')">${esc(t.text)}</span>${recurTag}</div>
+        <div class="task-meta">
+          ${dur ? `<span class="lc-meta-dur">⏱ ${dur}</span>` : ''}
+          ${tod && tod !== '随' ? `<span class="lc-meta-tod lc-meta-tod-${t.timeOfDay || 'anytime'}">${timeOfDayLabel(t.timeOfDay)}</span>` : ''}
+          ${t.priority === 'high' ? '<span class="lc-meta-pri pri-high">高优</span>' : t.priority === 'low' ? '<span class="lc-meta-pri pri-low">低优</span>' : ''}
+        </div>
+      </div>
+      ${(t.subtasks && t.subtasks.length) ? `<button class="task-subtoggle" onclick="toggleSubtaskView('${t.id}')" title="子任务">📋 ${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length}</button>` : ''}
+      <div class="task-actions">
+        <button class="btn-icon" onclick="editTaskModal('${t.id}')" title="编辑">${ICO.edit}</button>
+        <button class="btn-icon danger" onclick="confirmDelTask('${t.id}')" title="删除">${ICO.trash}</button>
+      </div>
+      ${subtaskOpen[t.id] ? subtaskPanelHtml(t) : ''}
+    </div>`;
 }
 function shiftPlanDate(delta) {
   const dt = new Date(planDate + 'T00:00:00');
@@ -1129,14 +1200,16 @@ function shiftPlanDate(delta) {
 function switchPlanTab(tab) { planTab = tab; Nav.refresh(); }
 function switchPlanBranch(b) { planBranch = b; Nav.refresh(); }
 function addTask() {
-  const input = $('#taskInput'), cat = $('#taskCat').value, text = input.value.trim();
-  if (!text) return toast('请输入任务内容', 'warning');
+  const input = $('#taskInput'), cat = $('#taskCat').value, raw = input.value.trim();
+  if (!raw) return toast('请输入任务内容', 'warning');
+  const parsed = parseTaskText(raw);
+  if (!parsed.text) return toast('请输入任务内容', 'warning');
   const tasks = getPlan(planDate);
-  tasks.push({ id: uid(), text, cat, branchId: branchIdByType(catMeta(cat).branch), actionId: '', priority: 'mid', done: false, auto: false });
+  tasks.push({ id: uid(), text: parsed.text, cat, branchId: branchIdByType(catMeta(cat).branch), actionId: '', priority: 'mid', done: false, auto: false, timeOfDay: parsed.timeOfDay || 'anytime', duration: parsed.duration || 0 });
   setPlan(planDate, tasks);
   toast('任务已添加', 'success');
   Nav.refresh();
-  setTimeout(() => $('#taskInput')?.focus(), 50);
+  setTimeout(() => { const inp = $('#taskInput'); if (inp) inp.value = ''; inp?.focus(); }, 50);
 }
 function toggleTask(id) {
   const tasks = getPlan(planDate);
@@ -1215,9 +1288,11 @@ function editTaskModal(id) {
   UI.editModal({ title: '编辑任务', icon: ICONS.list, fields: [
     { key: 'text', label: '任务内容', type: 'text', placeholder: '任务内容' },
     { key: 'cat', label: '归属目标分支', type: 'select', options: catOptions() },
+    { key: 'timeOfDay', label: '时段', type: 'select', options: TIME_OF_DAY_OPTIONS.map(o => ({ value: o.value, label: o.label })) },
+    { key: 'duration', label: '预计耗时（分钟）', type: 'number', placeholder: '例如 30' },
     { key: 'priority', label: '优先级', type: 'select', options: [{value:'high',label:'🔴 高'},{value:'mid',label:'🟡 中'},{value:'low',label:'🟢 低'}] },
-  ], values: Object.assign({}, t, { cat: catOfTask(t) }),
-  onSave: (v) => { Object.assign(t, v); t.branchId = branchIdByType(catMeta(v.cat).branch); setPlan(planDate, tasks); toast('任务已更新', 'success'); Nav.refresh(); },
+  ], values: Object.assign({}, t, { cat: catOfTask(t), duration: Number(t.duration) || 0 }),
+  onSave: (v) => { Object.assign(t, v); t.branchId = branchIdByType(catMeta(v.cat).branch); t.duration = Number(v.duration) || 0; setPlan(planDate, tasks); toast('任务已更新', 'success'); Nav.refresh(); },
   onDelete: () => { UI.confirm(`确定删除任务「${t.text.slice(0,30)}」吗？`, () => { if (t.auto && t.actionId) skipAutoAction(planDate, t.actionId); setPlan(planDate, getPlan(planDate).filter(x => x.id !== id)); Nav.refresh(); }); } });
 }
 
@@ -1329,7 +1404,7 @@ function planCycleHtml() {
       const done7 = (x.act.doneDates || []).filter(d => lastNDays(7).includes(d)).length;
       return `<div class="recur-card" data-id="${x.act.id}">
         <div class="recur-top"><div class="recur-title">${esc(x.act.text)}</div><div class="task-cat-dot ${cat.dotClass}" title="${x.branch.type}分支"></div></div>
-        <div class="recur-meta">🔁 ${freqText(x.act)} · 下次：${next ? next.slice(5).replace('-','/') : '—'} · 近7天完成 ${done7} 次 · ${x.act.points || 5} 分</div>
+        <div class="recur-meta">🔁 ${freqText(x.act)}${x.act.timeOfDay && x.act.timeOfDay !== 'anytime' ? ' · ' + timeOfDayLabel(x.act.timeOfDay) : ''}${x.act.duration ? ' · ⏱ ' + formatDuration(x.act.duration) : ''} · 下次：${next ? next.slice(5).replace('-','/') : '—'} · 近7天完成 ${done7} 次 · ${x.act.points || 5} 分</div>
         <div class="recur-actions">
           <button class="btn-icon" onclick="editRecurring('${x.branch.id}','${x.act.id}')" title="编辑">${ICO.edit}</button>
           <button class="btn-icon danger" onclick="confirmDelRecurring('${x.branch.id}','${x.act.id}')" title="删除">${ICO.trash}</button>
@@ -1345,9 +1420,11 @@ function addRecurring() {
     { key: 'title', label: '动作内容', type: 'text', placeholder: '例如：背单词 30 个' },
     { key: 'freq', label: '重复频率', type: 'select', options: FREQ_OPTIONS.filter(o => o.value !== 'manual') },
     { key: 'cat', label: '归属目标分支', type: 'select', options: catOptions() },
+    { key: 'timeOfDay', label: '默认时段', type: 'select', options: TIME_OF_DAY_OPTIONS.map(o => ({ value: o.value, label: o.label })) },
+    { key: 'duration', label: '预计耗时（分钟）', type: 'number', placeholder: '例如 30' },
     { key: 'points', label: '完成积分', type: 'number', placeholder: '5' },
     { key: 'priority', label: '优先级', type: 'select', options: [{value:'high',label:'🔴 高'},{value:'mid',label:'🟡 中'},{value:'low',label:'🟢 低'}] },
-  ], values: { freq: 'daily', cat: 'study', points: 5, priority: 'mid' }, onSave: (v) => {
+  ], values: { freq: 'daily', cat: 'study', timeOfDay: 'anytime', duration: 0, points: 5, priority: 'mid' }, onSave: (v) => {
     const lc = ensureBranches();
     const b = (lc.branches || []).find(x => x.type === catMeta(v.cat).branch); if (!b) return;
     b.actions = b.actions || [];
@@ -1355,7 +1432,8 @@ function addRecurring() {
       id: uid(), text: (v.title || '').trim(), points: Math.max(1, parseInt(v.points, 10) || 5),
       freq: v.freq, daily: v.freq === 'daily',
       days: v.freq === 'weekly' ? selDays : [], dayOfMonth: v.freq === 'monthly' ? selDom : 1,
-      priority: v.priority, doneDates: []
+      priority: v.priority, doneDates: [],
+      timeOfDay: v.timeOfDay || 'anytime', duration: Math.max(0, parseInt(v.duration, 10) || 0)
     });
     saveLifeCenter(lc);
     ensureDayBasket(todayKey());
@@ -1373,9 +1451,11 @@ function editRecurring(bid, aid) {
     { key: 'title', label: '动作内容', type: 'text' },
     { key: 'freq', label: '重复频率', type: 'select', options: FREQ_OPTIONS },
     { key: 'cat', label: '归属目标分支', type: 'select', options: catOptions() },
+    { key: 'timeOfDay', label: '默认时段', type: 'select', options: TIME_OF_DAY_OPTIONS.map(o => ({ value: o.value, label: o.label })) },
+    { key: 'duration', label: '预计耗时（分钟）', type: 'number' },
     { key: 'points', label: '完成积分', type: 'number' },
     { key: 'priority', label: '优先级', type: 'select', options: [{value:'high',label:'🔴 高'},{value:'mid',label:'🟡 中'},{value:'low',label:'🟢 低'}] },
-  ], values: { title: a.text, freq: a.freq || (a.daily ? 'daily' : 'manual'), cat: BRANCH_TO_CAT[b.type] || 'life', points: a.points || 5, priority: a.priority || 'mid' },
+  ], values: { title: a.text, freq: a.freq || (a.daily ? 'daily' : 'manual'), cat: BRANCH_TO_CAT[b.type] || 'life', timeOfDay: a.timeOfDay || 'anytime', duration: Number(a.duration) || 0, points: a.points || 5, priority: a.priority || 'mid' },
   onSave: (v) => {
     const lc2 = getLifeCenter();
     const src = (lc2.branches || []).find(x => x.id === bid); if (!src) return;
@@ -1384,7 +1464,8 @@ function editRecurring(bid, aid) {
       text: (v.title || '').trim() || act.text,
       freq: v.freq, daily: v.freq === 'daily',
       points: Math.max(1, parseInt(v.points, 10) || 5), priority: v.priority,
-      days: v.freq === 'weekly' ? selDays : [], dayOfMonth: v.freq === 'monthly' ? selDom : 1
+      days: v.freq === 'weekly' ? selDays : [], dayOfMonth: v.freq === 'monthly' ? selDom : 1,
+      timeOfDay: v.timeOfDay || 'anytime', duration: Math.max(0, parseInt(v.duration, 10) || 0)
     });
     // 换分支：从原分支移出，挂到新分支
     const targetType = catMeta(v.cat).branch;
@@ -1396,7 +1477,7 @@ function editRecurring(bid, aid) {
         lc2.today = (lc2.today || []).map(t => t.actionId === aid ? Object.assign({}, t, { branchId: dst.id, cat: BRANCH_TO_CAT[dst.type] || 'life' }) : t);
       }
     }
-    lc2.today = (lc2.today || []).map(t => t.actionId === aid ? Object.assign({}, t, { text: act.text }) : t);
+    lc2.today = (lc2.today || []).map(t => t.actionId === aid ? Object.assign({}, t, { text: act.text, timeOfDay: act.timeOfDay, duration: act.duration }) : t);
     saveLifeCenter(lc2);
     toast('周期动作已更新', 'success'); Nav.refresh();
   }, onDelete: () => confirmDelRecurring(bid, aid) });
@@ -2998,6 +3079,7 @@ function ensureDayBasket(date) {
         lc.today.push({
           id: uid(), branchId: b.id, actionId: a.id, text: a.text,
           cat: BRANCH_TO_CAT[b.type] || 'life', priority: a.priority || 'mid',
+          timeOfDay: a.timeOfDay || 'anytime', duration: Number(a.duration) || 0,
           done: (a.doneDates || []).includes(tk), date: tk, auto: true
         });
         changed = true;
@@ -3034,41 +3116,125 @@ function renderLifeCenter() {
       <div class="lc-bsum-bar"><i style="width:${pct}%"></i></div>
     </div>`;
   }).join('');
-  const basketHtml = today.length ? today.map(t => {
-    const cat = catMeta(catOfTask(t));
-    return `
-    <div class="lc-focus-item ${t.done ? 'done' : ''}">
-      <div class="task-checkbox ${t.done ? 'checked' : ''}" onclick="toggleToday('${t.id}')"></div>
-      <div class="task-cat-dot ${cat.dotClass}" title="${cat.name}分支"></div>
-      <span class="lc-focus-text">${esc(t.text)}</span>
-      ${t.auto ? `<span class="lc-auto-tag" title="来自目标分支的周期动作">${ICO.refresh}</span>` : ''}
-      <button class="lc-focus-del" onclick="delToday('${t.id}')" title="删除">${ICONS.close}</button>
-    </div>`;
-  }).join('') : `
+  const remind = getLifeReminderHint();
+
+  // 日期标签：让用户明确看到「今天」是哪天
+  const dateObj = new Date(tk + 'T00:00:00');
+  const dateLabel = `${dateObj.getMonth() + 1}月${dateObj.getDate()}日 周${WEEK_DAYS[dateObj.getDay()]}`;
+
+  // 按时段分组任务
+  const groups = [];
+  TIME_OF_DAY_OPTIONS.forEach(opt => {
+    const rows = today.filter(t => (t.timeOfDay || 'anytime') === opt.value);
+    if (rows.length) groups.push({ key: opt.value, label: opt.label, rows });
+  });
+
+  const todayBasketHtml = groups.map(g => `
+    <div class="lc-time-group">
+      <div class="lc-time-h"><span class="lc-time-tag lc-time-${g.key}">${g.label}</span><span class="lc-time-count">${g.rows.filter(t => t.done).length}/${g.rows.length}</span></div>
+      <div class="lc-time-list">${g.rows.map(t => todayTaskItemHtml(t)).join('')}</div>
+    </div>
+  `).join('');
+
+  // 建议：把「手动（不重复）」的目标分支动作也列出来，一键加入今天
+  const suggestions = getTodaySuggestions(lc, tk);
+  const suggestHtml = suggestions.length ? `
+    <div class="lc-suggest-group">
+      <div class="lc-suggest-h">${ICONS.bulb} 从目标分支选一件加入今天</div>
+      <div class="lc-suggest-list">${suggestions.map(a => todaySuggestionHtml(a)).join('')}</div>
+    </div>` : '';
+
+  const emptyHtml = !today.length ? `
     <div class="lc-empty-state">
       <div class="lc-empty-title">今天还没有任务，选一个方式开始 👇</div>
       <div class="lc-empty-actions">
         <button class="btn btn-primary btn-sm" onclick="aiQuick('帮我安排今天的一天，按生活、学习、工作、偶发四个分支分配，给出具体时间段')">${ICONS.sparkles} AI 安排</button>
         <button class="btn btn-outline btn-sm" onclick="focusTodayInput()">${ICO.plus} 手动添加</button>
-        <button class="btn btn-outline btn-sm" onclick="Nav.switchTo('goal')">${ICONS.target} 从目标挑</button>
+        <button class="btn btn-outline btn-sm" onclick="Nav.switchTo('goal')">${ICONS.target} 管理目标</button>
       </div>
-    </div>`;
-  const remind = getLifeReminderHint();
+    </div>` : '';
+
   return `
     <div class="card sec-life-center glass" id="secLifeCenter">
-      <div class="card-title">今日任务 <span class="card-subtitle">${doneCount}/${today.length} 已完成 · 按目标分支归类</span>
+      <div class="card-title"><span class="lc-card-date">${dateLabel}</span> 今日任务 <span class="card-subtitle">${doneCount}/${today.length} 已完成</span>
         <button class="lc-edit-btn" onclick="Nav.switchTo('plan')" title="打开日程视图，可看其它日期">${ICONS.calendar} 日程</button>
         <button class="lc-edit-btn" onclick="Nav.switchTo('goal')" title="打开我的目标辐射图">${ICONS.target} 我的目标</button>
       </div>
       ${remind.html}
       <div class="lc-bsum-row">${branchBar}</div>
       <div class="lc-focus-add">
-        <input type="text" id="lcFocusInput" placeholder="手动加一件今天要做的…（回车添加）" maxlength="60" onkeydown="if(event.key==='Enter')addTodayCustom()">
+        <input type="text" id="lcFocusInput" placeholder="加任务（可写 30m / 1h / 上午 / 晚上）…" maxlength="80" onkeydown="if(event.key==='Enter')addTodayCustom()">
         <select id="lcFocusBranch" title="归属目标分支">${catOptions().map(o => `<option value="${o.value}">${o.label}</option>`).join('')}</select>
         <button class="btn btn-primary btn-sm" onclick="addTodayCustom()">${ICO.plus} 加</button>
       </div>
-      <div class="lc-focus-list">${basketHtml}</div>
+      <div class="lc-focus-list">${todayBasketHtml}${suggestHtml}${emptyHtml}</div>
+      ${today.length ? `<div class="lc-day-meta">预计总耗时 ${formatDuration(today.reduce((s, t) => s + (Number(t.duration) || 0), 0))}</div>` : ''}
     </div>`;
+}
+// 单个今日任务项（首页 & 计划页共用）
+function todayTaskItemHtml(t, opts = {}) {
+  const cat = catMeta(catOfTask(t));
+  const dur = formatDuration(Number(t.duration) || 0);
+  const tod = timeOfDayLabel(t.timeOfDay, true);
+  return `
+    <div class="lc-focus-item ${t.done ? 'done' : ''} ${opts.compact ? 'compact' : ''}" ${opts.draggable ? 'draggable="true"' : ''} data-id="${t.id}">
+      <div class="task-checkbox ${t.done ? 'checked' : ''}" onclick="${opts.fromPlan ? `toggleTask('${t.id}')` : `toggleToday('${t.id}')`}"></div>
+      <div class="task-cat-dot ${cat.dotClass}" title="${cat.name}分支"></div>
+      <div class="lc-focus-body">
+        <div class="lc-focus-main">
+          <span class="lc-focus-text">${esc(t.text)}</span>
+          ${t.auto ? `<span class="lc-auto-tag" title="来自目标分支的周期动作">${ICO.refresh}</span>` : ''}
+        </div>
+        <div class="lc-focus-meta">
+          ${dur ? `<span class="lc-meta-dur" title="预计耗时">${ICONS.clock || '⏱'} ${dur}</span>` : ''}
+          ${tod && tod !== '随' ? `<span class="lc-meta-tod lc-meta-tod-${t.timeOfDay || 'anytime'}">${timeOfDayLabel(t.timeOfDay)}</span>` : ''}
+          ${t.priority === 'high' ? '<span class="lc-meta-pri pri-high">高优</span>' : t.priority === 'low' ? '<span class="lc-meta-pri pri-low">低优</span>' : ''}
+        </div>
+      </div>
+      ${opts.showEdit ? `<button class="lc-focus-del" onclick="${opts.fromPlan ? `editTaskModal('${t.id}')` : `editTaskInline('${t.id}')`}" title="编辑">${ICO.edit}</button>` : ''}
+      <button class="lc-focus-del" onclick="${opts.fromPlan ? `confirmDelTask('${t.id}')` : `delToday('${t.id}')`}" title="删除">${ICONS.close}</button>
+    </div>`;
+}
+function todaySuggestionHtml(a) {
+  const cat = catMeta(BRANCH_TO_CAT[a.branch.type] || 'life');
+  const dur = formatDuration(Number(a.act.duration) || 0);
+  return `
+    <div class="lc-suggest-item">
+      <div class="task-cat-dot ${cat.dotClass}" title="${a.branch.type}分支"></div>
+      <span class="lc-suggest-text">${esc(a.act.text)}</span>
+      ${dur ? `<span class="lc-meta-dur">⏱ ${dur}</span>` : ''}
+      <button class="btn btn-outline btn-xs" onclick="addSuggestedActionToToday('${a.branch.id}','${a.act.id}')">${ICO.plus} 加入今天</button>
+    </div>`;
+}
+// 获取今天可建议的手动分支动作（未加入今日、未被跳过、未完成的）
+function getTodaySuggestions(lc, tk) {
+  const today = (lc.today || []).filter(t => t.date === tk);
+  const out = [];
+  (lc.branches || []).forEach(b => {
+    (b.actions || []).forEach(a => {
+      const freq = a.freq || (a.daily ? 'daily' : 'manual');
+      if (freq !== 'manual' && freq !== 'once') return; // 周期动作已自动生成
+      if ((a.doneDates || []).includes(tk)) return;      // 已完成过
+      if (today.some(t => t.actionId === a.id)) return; // 已加入今天
+      if ((lc.skips || []).some(s => s.date === tk && s.actionId === a.id)) return; // 已被跳过
+      out.push({ branch: b, act: a });
+    });
+  });
+  return out.slice(0, 6);
+}
+function addSuggestedActionToToday(bid, aid) {
+  const lc = getLifeCenter(); const b = (lc.branches || []).find(x => x.id === bid); if (!b) return;
+  const a = (b.actions || []).find(x => x.id === aid); if (!a) return;
+  const tk = todayKey();
+  lc.today = lc.today || [];
+  lc.today.push({
+    id: uid(), branchId: b.id, actionId: a.id, text: a.text,
+    cat: BRANCH_TO_CAT[b.type] || 'life', priority: a.priority || 'mid',
+    timeOfDay: a.timeOfDay || 'anytime', duration: Number(a.duration) || 0,
+    done: (a.doneDates || []).includes(tk), date: tk, auto: false // 用户主动加入，视为手动
+  });
+  saveLifeCenter(lc); Nav.refresh();
+  toast('已加入今天的任务', 'success');
 }
 function focusTodayInput() {
   const inp = document.getElementById('lcFocusInput'); if (!inp) return;
@@ -3077,12 +3243,15 @@ function focusTodayInput() {
 }
 function addTodayCustom() {
   const inp = document.getElementById('lcFocusInput'); if (!inp) return;
-  const text = inp.value.trim(); if (!text) return;
+  const raw = inp.value.trim(); if (!raw) return;
+  const parsed = parseTaskText(raw);
+  if (!parsed.text) { toast('请输入任务内容', 'warning'); return; }
   const sel = document.getElementById('lcFocusBranch');
   const catKey = sel && TASK_CATEGORIES[sel.value] ? sel.value : 'life';
   const lc = getLifeCenter(); lc.today = lc.today || [];
-  lc.today.push({ id: uid(), branchId: branchIdByType(catMeta(catKey).branch), actionId: '', text, cat: catKey, priority: 'mid', done: false, date: todayKey(), auto: false });
+  lc.today.push({ id: uid(), branchId: branchIdByType(catMeta(catKey).branch), actionId: '', text: parsed.text, cat: catKey, priority: 'mid', done: false, date: todayKey(), auto: false, timeOfDay: parsed.timeOfDay || 'anytime', duration: parsed.duration || 0 });
   saveLifeCenter(lc); Nav.refresh();
+  inp.value = '';
 }
 function toggleToday(id) {
   const date = todayKey();
@@ -3245,7 +3414,7 @@ function addBranchAction(bid) {
   const inp = document.getElementById('gmAct_' + bid); if (!inp) return;
   const text = inp.value.trim(); if (!text) return;
   const lc = getLifeCenter(); const b = (lc.branches || []).find(x => x.id === bid); if (!b) return;
-  b.actions = b.actions || []; b.actions.push({ id: uid(), text, points: 5, freq: 'manual', daily: false, days: [], dayOfMonth: 1, priority: 'mid', doneDates: [] });
+  b.actions = b.actions || []; b.actions.push({ id: uid(), text, points: 5, freq: 'manual', daily: false, days: [], dayOfMonth: 1, priority: 'mid', doneDates: [], timeOfDay: 'anytime', duration: 0 });
   saveLifeCenter(lc); Nav.refresh();
 }
 function toggleBranchAction(bid, aid) {
@@ -3291,8 +3460,10 @@ function brAddAction(bid, val) { brRenderAction({ text: val || '', points: 5, fr
 function brRenderAction(a) {
   const box = document.getElementById('brActions'); if (!box) return;
   const cur = a.freq || (a.daily ? 'daily' : 'manual');
+  const tod = a.timeOfDay || 'anytime';
+  const dur = Number(a.duration) || 0;
   const row = document.createElement('div'); row.className = 'lc-edit-row';
-  row.innerHTML = `<input type="text" class="lc-edit-input br-act-text" value="${esc(a.text || '')}" placeholder="具体动作…"><input type="number" class="lc-edit-num" value="${a.points || 5}" min="1" max="99" title="积分"><select class="lc-edit-freq br-act-freq" title="重复频率">${FREQ_OPTIONS.map(o => `<option value="${o.value}" ${cur === o.value ? 'selected' : ''}>${o.label.replace(/（.*）/, '')}</option>`).join('')}</select><button class="lc-edit-del" onclick="this.parentNode.remove()">${ICONS.close}</button>`;
+  row.innerHTML = `<input type="text" class="lc-edit-input br-act-text" value="${esc(a.text || '')}" placeholder="具体动作…"><input type="number" class="lc-edit-num" value="${a.points || 5}" min="1" max="99" title="积分"><input type="number" class="lc-edit-num" value="${dur}" min="0" max="999" title="预计耗时（分钟）"><select class="lc-edit-tod br-act-tod" title="时段">${TIME_OF_DAY_OPTIONS.map(o => `<option value="${o.value}" ${tod === o.value ? 'selected' : ''}>${o.label}</option>`).join('')}</select><select class="lc-edit-freq br-act-freq" title="重复频率">${FREQ_OPTIONS.map(o => `<option value="${o.value}" ${cur === o.value ? 'selected' : ''}>${o.label.replace(/（.*）/, '')}</option>`).join('')}</select><button class="lc-edit-del" onclick="this.parentNode.remove()">${ICONS.close}</button>`;
   box.appendChild(row);
 }
 function saveBranchModal(bid) {
@@ -3303,13 +3474,16 @@ function saveBranchModal(bid) {
     const text = row.querySelector('.br-act-text').value.trim(); if (!text) return null;
     const existing = (b.actions || []).find(x => x.text === text);
     const freq = row.querySelector('.br-act-freq') ? row.querySelector('.br-act-freq').value : 'manual';
+    const timeOfDay = row.querySelector('.br-act-tod') ? row.querySelector('.br-act-tod').value : 'anytime';
+    const nums = Array.from(row.querySelectorAll('.lc-edit-num')).map(n => parseInt(n.value || '0', 10));
     return {
       id: existing ? existing.id : uid(), text,
-      points: parseInt(row.querySelector('.lc-edit-num').value || '5', 10) || 5,
+      points: nums[0] || 5,
       freq, daily: freq === 'daily',
       days: existing ? (existing.days || []) : [], dayOfMonth: existing ? (existing.dayOfMonth || 1) : 1,
       priority: existing ? (existing.priority || 'mid') : 'mid',
-      doneDates: existing ? existing.doneDates : []
+      doneDates: existing ? existing.doneDates : [],
+      timeOfDay, duration: nums[1] || 0
     };
   }).filter(Boolean);
   saveLifeCenter(lc); UI.closeModal(); ensureDayBasket(todayKey()); Nav.refresh();
@@ -4004,8 +4178,8 @@ JSON（放在回复最后一段，不要用 markdown 代码块标记）：
 
 规则：
 - branch 只能是 生活 / 学习 / 工作 / 偶发 之一；不写默认「生活」。
-- today_add 的 text 建议带时间段（如 07:30），便于执行。
-- branch_action_add 适合长期重复动作；freq 只能是 manual / daily / workday / weekly / monthly。weekly 需给 days（0=周日…6=周六），monthly 需给 dayOfMonth（1-28）。命中今天会自动进今日任务。
+- today_add 的 text 建议带时间段与耗时（如 "08:00 晨跑 30m" / "下午 写周报 1h"）。也可显式传 timeOfDay（morning/afternoon/evening/anytime）和 duration（分钟）。
+- branch_action_add 适合长期重复动作；freq 只能是 manual / daily / workday / weekly / monthly。weekly 需给 days（0=周日…6=周六），monthly 需给 dayOfMonth（1-28）。可带 timeOfDay 与 duration。命中今天会自动进今日任务。
 - goal_add 的 unit 只能是 hour/count/page/day/custom；target 为正数。
 - 闲聊或无操作时 actions 为空数组，仍可给 reply。
 - 只输出【一个】JSON 对象，放在最后，不要用代码块符号。`;
@@ -4138,9 +4312,13 @@ function aiExecAction(act) {
       const branchType = BRANCH_TYPES.indexOf(act.branch) >= 0 ? act.branch : '生活';
       let bid = '';
       const b0 = (lc.branches || []).find(function (x) { return x.type === branchType; }); if (b0) bid = b0.id;
-      const text = (act.text || '').toString().trim(); if (!text) return null;
+      let text = (act.text || '').toString().trim(); if (!text) return null;
+      const parsed = parseTaskText(text);
+      text = parsed.text || text;
       if (lc.today.some(function (t) { return t.date === tk && t.text === text; })) return null;
-      lc.today.push({ id: uid(), branchId: bid, actionId: '', text: text, cat: BRANCH_TO_CAT[branchType] || 'life', priority: 'mid', done: false, date: tk, auto: false });
+      const timeOfDay = act.timeOfDay || parsed.timeOfDay || 'anytime';
+      const duration = Math.max(0, parseInt(act.duration, 10) || parsed.duration || 0);
+      lc.today.push({ id: uid(), branchId: bid, actionId: '', text: text, cat: BRANCH_TO_CAT[branchType] || 'life', priority: act.priority || 'mid', done: false, date: tk, auto: false, timeOfDay, duration });
       saveLifeCenter(lc);
       return '📅 今日：' + text + (branchType ? '（' + branchType + '）' : '');
     }
@@ -4154,10 +4332,12 @@ function aiExecAction(act) {
       const daily = act.daily === true || act.daily === 'true';
       if (!freq) freq = daily ? 'daily' : 'manual';
       const points = Math.max(1, Math.min(99, parseInt(act.points, 10) || 5));
-      const a = { id: uid(), text: text, points: points, freq: freq, daily: freq === 'daily', days: Array.isArray(act.days) ? act.days : [], dayOfMonth: parseInt(act.dayOfMonth, 10) || 1, priority: 'mid', doneDates: [] };
+      const timeOfDay = act.timeOfDay || 'anytime';
+      const duration = Math.max(0, parseInt(act.duration, 10) || 0);
+      const a = { id: uid(), text: text, points: points, freq: freq, daily: freq === 'daily', days: Array.isArray(act.days) ? act.days : [], dayOfMonth: parseInt(act.dayOfMonth, 10) || 1, priority: act.priority || 'mid', doneDates: [], timeOfDay, duration };
       b.actions = b.actions || []; b.actions.push(a);
       const tk2 = todayKey();
-      if (actionAppliesOn(tk2, a)) { lc.today = lc.today || []; if (!lc.today.some(function (t) { return t.actionId === a.id; })) lc.today.push({ id: uid(), branchId: b.id, actionId: a.id, text: text, cat: BRANCH_TO_CAT[b.type] || 'life', priority: 'mid', done: false, date: tk2, auto: true }); }
+      if (actionAppliesOn(tk2, a)) { lc.today = lc.today || []; if (!lc.today.some(function (t) { return t.actionId === a.id; })) lc.today.push({ id: uid(), branchId: b.id, actionId: a.id, text: text, cat: BRANCH_TO_CAT[b.type] || 'life', priority: a.priority, done: false, date: tk2, auto: true, timeOfDay, duration }); }
       saveLifeCenter(lc);
       return '🌿 ' + bt + '动作：' + text + '（' + freqText(a) + '）';
     }
@@ -4230,9 +4410,13 @@ function aiCreateTask(t) {
   const name = (t.category || '生活').trim();
   const map = { '生活': 'life', '学习': 'study', '工作': 'work', '偶发': 'extra', '健康': 'life', '运动': 'life', '其他': 'extra' };
   const catKey = map[name] || 'life';
-  const text = (t.text || '未命名任务').trim();
+  let text = (t.text || '未命名任务').trim();
+  const parsed = parseTaskText(text);
+  text = parsed.text || text;
   if (tasks.some(x => x.text === text)) return;
-  tasks.push({ id: uid(), text, cat: catKey, branchId: branchIdByType(catMeta(catKey).branch), actionId: '', priority: 'mid', done: false, auto: false, subtasks: [], created: Date.now() });
+  const timeOfDay = t.timeOfDay || parsed.timeOfDay || 'anytime';
+  const duration = Math.max(0, parseInt(t.duration, 10) || parsed.duration || 0);
+  tasks.push({ id: uid(), text, cat: catKey, branchId: branchIdByType(catMeta(catKey).branch), actionId: '', priority: t.priority || 'mid', done: false, auto: false, subtasks: [], created: Date.now(), timeOfDay, duration });
   setPlan(date, tasks);
 }
 function aiCreateAchievement(a) {
